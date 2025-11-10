@@ -54,19 +54,34 @@ export interface Entity {
   name: string;
   entityType: string;
   observations: string[];
-  createdAt?: string;  // ISO 8601 timestamp (auto-generated if not provided)
+  createdAt?: string;
+  lastModified?: string;
 }
 
 export interface Relation {
   from: string;
   to: string;
   relationType: string;
-  createdAt?: string;  // ISO 8601 timestamp (auto-generated if not provided)
+  createdAt?: string;
+  lastModified?: string;
 }
 
 export interface KnowledgeGraph {
   entities: Entity[];
   relations: Relation[];
+}
+
+export interface GraphStats {
+  totalEntities: number;
+  totalRelations: number;
+  entityTypesCounts: Record<string, number>;
+  relationTypesCounts: Record<string, number>;
+  oldestEntity?: { name: string; date: string };
+  newestEntity?: { name: string; date: string };
+  oldestRelation?: { from: string; to: string; relationType: string; date: string };
+  newestRelation?: { from: string; to: string; relationType: string; date: string };
+  entityDateRange?: { earliest: string; latest: string };
+  relationDateRange?: { earliest: string; latest: string };
 }
 
 // The KnowledgeGraphManager class contains all operations to interact with the knowledge graph
@@ -82,11 +97,15 @@ export class KnowledgeGraphManager {
         if (item.type === "entity") {
         // Add createdAt if missing for backward compatibility
         if (!item.createdAt) item.createdAt = new Date().toISOString();
+        // Add lastModified if missing for backward compatibility
+        if (!item.lastModified) item.lastModified = item.createdAt;
         graph.entities.push(item as Entity);
       }
         if (item.type === "relation") {
         // Add createdAt if missing for backward compatibility
         if (!item.createdAt) item.createdAt = new Date().toISOString();
+        // Add lastModified if missing for backward compatibility
+        if (!item.lastModified) item.lastModified = item.createdAt;
         graph.relations.push(item as Relation);
       }
         return graph;
@@ -106,14 +125,16 @@ export class KnowledgeGraphManager {
         name: e.name,
         entityType: e.entityType,
         observations: e.observations,
-        createdAt: e.createdAt
+        createdAt: e.createdAt,
+        lastModified: e.lastModified
       })),
       ...graph.relations.map(r => JSON.stringify({
         type: "relation",
         from: r.from,
         to: r.to,
         relationType: r.relationType,
-        createdAt: r.createdAt
+        createdAt: r.createdAt,
+        lastModified: r.lastModified
       })),
     ];
     await fs.writeFile(this.memoryFilePath, lines.join("\n"));
@@ -124,7 +145,7 @@ export class KnowledgeGraphManager {
     const timestamp = new Date().toISOString();
     const newEntities = entities
       .filter(e => !graph.entities.some(existingEntity => existingEntity.name === e.name))
-      .map(e => ({ ...e, createdAt: e.createdAt || timestamp }));
+      .map(e => ({ ...e, createdAt: e.createdAt || timestamp, lastModified: e.lastModified || timestamp }));
     graph.entities.push(...newEntities);
     await this.saveGraph(graph);
     return newEntities;
@@ -139,7 +160,7 @@ export class KnowledgeGraphManager {
         existingRelation.to === r.to && 
         existingRelation.relationType === r.relationType
       ))
-      .map(r => ({ ...r, createdAt: r.createdAt || timestamp }));
+      .map(r => ({ ...r, createdAt: r.createdAt || timestamp, lastModified: r.lastModified || timestamp }));
     graph.relations.push(...newRelations);
     await this.saveGraph(graph);
     return newRelations;
@@ -147,6 +168,7 @@ export class KnowledgeGraphManager {
 
   async addObservations(observations: { entityName: string; contents: string[] }[]): Promise<{ entityName: string; addedObservations: string[] }[]> {
     const graph = await this.loadGraph();
+    const timestamp = new Date().toISOString();
     const results = observations.map(o => {
       const entity = graph.entities.find(e => e.name === o.entityName);
       if (!entity) {
@@ -154,6 +176,10 @@ export class KnowledgeGraphManager {
       }
       const newObservations = o.contents.filter(content => !entity.observations.includes(content));
       entity.observations.push(...newObservations);
+      // Update lastModified timestamp if observations were added
+      if (newObservations.length > 0) {
+        entity.lastModified = timestamp;
+      }
       return { entityName: o.entityName, addedObservations: newObservations };
     });
     await this.saveGraph(graph);
@@ -169,10 +195,16 @@ export class KnowledgeGraphManager {
 
   async deleteObservations(deletions: { entityName: string; observations: string[] }[]): Promise<void> {
     const graph = await this.loadGraph();
+    const timestamp = new Date().toISOString();
     deletions.forEach(d => {
       const entity = graph.entities.find(e => e.name === d.entityName);
       if (entity) {
+        const originalLength = entity.observations.length;
         entity.observations = entity.observations.filter(o => !d.observations.includes(o));
+        // Update lastModified timestamp if observations were deleted
+        if (entity.observations.length < originalLength) {
+          entity.lastModified = timestamp;
+        }
       }
     });
     await this.saveGraph(graph);
@@ -180,11 +212,28 @@ export class KnowledgeGraphManager {
 
   async deleteRelations(relations: Relation[]): Promise<void> {
     const graph = await this.loadGraph();
-    graph.relations = graph.relations.filter(r => !relations.some(delRelation => 
-      r.from === delRelation.from && 
-      r.to === delRelation.to && 
+    const timestamp = new Date().toISOString();
+
+    // Track which entities are affected by relation deletions
+    const affectedEntityNames = new Set<string>();
+    relations.forEach(rel => {
+      affectedEntityNames.add(rel.from);
+      affectedEntityNames.add(rel.to);
+    });
+
+    graph.relations = graph.relations.filter(r => !relations.some(delRelation =>
+      r.from === delRelation.from &&
+      r.to === delRelation.to &&
       r.relationType === delRelation.relationType
     ));
+
+    // Update lastModified for affected entities
+    graph.entities.forEach(entity => {
+      if (affectedEntityNames.has(entity.name)) {
+        entity.lastModified = timestamp;
+      }
+    });
+
     await this.saveGraph(graph);
   }
 
@@ -239,6 +288,132 @@ export class KnowledgeGraphManager {
     };
   
     return filteredGraph;
+  }
+
+  async searchByDateRange(startDate?: string, endDate?: string, entityType?: string): Promise<KnowledgeGraph> {
+    const graph = await this.loadGraph();
+
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+
+    // Filter entities by date range and optionally by entity type
+    const filteredEntities = graph.entities.filter(e => {
+      // Check entity type filter
+      if (entityType && e.entityType !== entityType) {
+        return false;
+      }
+
+      // Check date range using createdAt or lastModified
+      const entityDate = new Date(e.lastModified || e.createdAt || '');
+
+      if (start && entityDate < start) {
+        return false;
+      }
+      if (end && entityDate > end) {
+        return false;
+      }
+
+      return true;
+    });
+
+    // Create a Set of filtered entity names for quick lookup
+    const filteredEntityNames = new Set(filteredEntities.map(e => e.name));
+
+    // Filter relations by date range and only include those between filtered entities
+    const filteredRelations = graph.relations.filter(r => {
+      // Must be between filtered entities
+      if (!filteredEntityNames.has(r.from) || !filteredEntityNames.has(r.to)) {
+        return false;
+      }
+
+      // Check date range using createdAt or lastModified
+      const relationDate = new Date(r.lastModified || r.createdAt || '');
+
+      if (start && relationDate < start) {
+        return false;
+      }
+      if (end && relationDate > end) {
+        return false;
+      }
+
+      return true;
+    });
+
+    return {
+      entities: filteredEntities,
+      relations: filteredRelations,
+    };
+  }
+
+  async getGraphStats(): Promise<GraphStats> {
+    const graph = await this.loadGraph();
+
+    // Calculate entity type counts
+    const entityTypesCounts: Record<string, number> = {};
+    graph.entities.forEach(e => {
+      entityTypesCounts[e.entityType] = (entityTypesCounts[e.entityType] || 0) + 1;
+    });
+
+    // Calculate relation type counts
+    const relationTypesCounts: Record<string, number> = {};
+    graph.relations.forEach(r => {
+      relationTypesCounts[r.relationType] = (relationTypesCounts[r.relationType] || 0) + 1;
+    });
+
+    // Find oldest and newest entities
+    let oldestEntity: { name: string; date: string } | undefined;
+    let newestEntity: { name: string; date: string } | undefined;
+    let earliestEntityDate: Date | null = null;
+    let latestEntityDate: Date | null = null;
+
+    graph.entities.forEach(e => {
+      const date = new Date(e.createdAt || '');
+      if (!earliestEntityDate || date < earliestEntityDate) {
+        earliestEntityDate = date;
+        oldestEntity = { name: e.name, date: e.createdAt || '' };
+      }
+      if (!latestEntityDate || date > latestEntityDate) {
+        latestEntityDate = date;
+        newestEntity = { name: e.name, date: e.createdAt || '' };
+      }
+    });
+
+    // Find oldest and newest relations
+    let oldestRelation: { from: string; to: string; relationType: string; date: string } | undefined;
+    let newestRelation: { from: string; to: string; relationType: string; date: string } | undefined;
+    let earliestRelationDate: Date | null = null;
+    let latestRelationDate: Date | null = null;
+
+    graph.relations.forEach(r => {
+      const date = new Date(r.createdAt || '');
+      if (!earliestRelationDate || date < earliestRelationDate) {
+        earliestRelationDate = date;
+        oldestRelation = { from: r.from, to: r.to, relationType: r.relationType, date: r.createdAt || '' };
+      }
+      if (!latestRelationDate || date > latestRelationDate) {
+        latestRelationDate = date;
+        newestRelation = { from: r.from, to: r.to, relationType: r.relationType, date: r.createdAt || '' };
+      }
+    });
+
+    return {
+      totalEntities: graph.entities.length,
+      totalRelations: graph.relations.length,
+      entityTypesCounts,
+      relationTypesCounts,
+      oldestEntity,
+      newestEntity,
+      oldestRelation,
+      newestRelation,
+      entityDateRange: earliestEntityDate && latestEntityDate ? {
+        earliest: (earliestEntityDate as Date).toISOString(),
+        latest: (latestEntityDate as Date).toISOString()
+      } : undefined,
+      relationDateRange: earliestRelationDate && latestRelationDate ? {
+        earliest: (earliestRelationDate as Date).toISOString(),
+        latest: (latestRelationDate as Date).toISOString()
+      } : undefined,
+    };
   }
 }
 
@@ -442,6 +617,38 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           additionalProperties: false,
         },
       },
+,
+      {
+        name: "search_by_date_range",
+        description: "Search for entities and relations within a specific date range, optionally filtered by entity type. Uses createdAt or lastModified timestamps.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            startDate: {
+              type: "string",
+              description: "ISO 8601 start date (optional). If not provided, no lower bound is applied."
+            },
+            endDate: {
+              type: "string",
+              description: "ISO 8601 end date (optional). If not provided, no upper bound is applied."
+            },
+            entityType: {
+              type: "string",
+              description: "Filter by specific entity type (optional)"
+            },
+          },
+          additionalProperties: false,
+        },
+      },
+      {
+        name: "get_graph_stats",
+        description: "Get comprehensive statistics about the knowledge graph including counts, types, and date ranges",
+        inputSchema: {
+          type: "object",
+          properties: {},
+          additionalProperties: false,
+        },
+      }
     ],
   };
 });
@@ -451,6 +658,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 
   if (name === "read_graph") {
     return { content: [{ type: "text", text: JSON.stringify(await knowledgeGraphManager.readGraph(), null, 2) }] };
+  }
+
+  if (name === "get_graph_stats") {
+    return { content: [{ type: "text", text: JSON.stringify(await knowledgeGraphManager.getGraphStats(), null, 2) }] };
   }
 
   if (!args) {
@@ -477,6 +688,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return { content: [{ type: "text", text: JSON.stringify(await knowledgeGraphManager.searchNodes(args.query as string), null, 2) }] };
     case "open_nodes":
       return { content: [{ type: "text", text: JSON.stringify(await knowledgeGraphManager.openNodes(args.names as string[]), null, 2) }] };
+    case "search_by_date_range":
+      return { content: [{ type: "text", text: JSON.stringify(await knowledgeGraphManager.searchByDateRange(args.startDate as string | undefined, args.endDate as string | undefined, args.entityType as string | undefined), null, 2) }] };
     default:
       throw new Error(`Unknown tool: ${name}`);
   }
