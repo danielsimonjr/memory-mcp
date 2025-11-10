@@ -150,6 +150,11 @@ export class KnowledgeGraphManager {
     await fs.writeFile(this.memoryFilePath, lines.join("\n"));
   }
 
+  /**
+   * Phase 4: Create multiple entities in a single batch operation.
+   * Batch optimization: All entities are processed and saved in a single saveGraph() call,
+   * minimizing disk I/O. This is significantly more efficient than creating entities one at a time.
+   */
   async createEntities(entities: Entity[]): Promise<Entity[]> {
     const graph = await this.loadGraph();
     const timestamp = new Date().toISOString();
@@ -175,21 +180,28 @@ export class KnowledgeGraphManager {
         return entity;
       });
     graph.entities.push(...newEntities);
+    // Phase 4: Single save operation for all entities ensures batch efficiency
     await this.saveGraph(graph);
     return newEntities;
   }
 
+  /**
+   * Phase 4: Create multiple relations in a single batch operation.
+   * Batch optimization: All relations are processed and saved in a single saveGraph() call,
+   * minimizing disk I/O. This is significantly more efficient than creating relations one at a time.
+   */
   async createRelations(relations: Relation[]): Promise<Relation[]> {
     const graph = await this.loadGraph();
     const timestamp = new Date().toISOString();
     const newRelations = relations
-      .filter(r => !graph.relations.some(existingRelation => 
-        existingRelation.from === r.from && 
-        existingRelation.to === r.to && 
+      .filter(r => !graph.relations.some(existingRelation =>
+        existingRelation.from === r.from &&
+        existingRelation.to === r.to &&
         existingRelation.relationType === r.relationType
       ))
       .map(r => ({ ...r, createdAt: r.createdAt || timestamp, lastModified: r.lastModified || timestamp }));
     graph.relations.push(...newRelations);
+    // Phase 4: Single save operation for all relations ensures batch efficiency
     await this.saveGraph(graph);
     return newRelations;
   }
@@ -579,6 +591,201 @@ export class KnowledgeGraphManager {
 
     return { entityName, importance };
   }
+
+  // Phase 4: Export graph in various formats
+  /**
+   * Export the knowledge graph in the specified format with optional filtering.
+   * Supports JSON, CSV, and GraphML formats for different use cases.
+   *
+   * @param format - Export format: 'json', 'csv', or 'graphml'
+   * @param filter - Optional filter object with same structure as searchByDateRange
+   * @returns Exported graph data as a formatted string
+   */
+  async exportGraph(
+    format: 'json' | 'csv' | 'graphml',
+    filter?: {
+      startDate?: string;
+      endDate?: string;
+      entityType?: string;
+      tags?: string[];
+    }
+  ): Promise<string> {
+    // Get filtered or full graph based on filter parameter
+    let graph: KnowledgeGraph;
+    if (filter) {
+      graph = await this.searchByDateRange(
+        filter.startDate,
+        filter.endDate,
+        filter.entityType,
+        filter.tags
+      );
+    } else {
+      graph = await this.loadGraph();
+    }
+
+    switch (format) {
+      case 'json':
+        return this.exportAsJson(graph);
+      case 'csv':
+        return this.exportAsCsv(graph);
+      case 'graphml':
+        return this.exportAsGraphML(graph);
+      default:
+        throw new Error(`Unsupported export format: ${format}`);
+    }
+  }
+
+  /**
+   * Export graph as pretty-printed JSON with all entity and relation data
+   */
+  private exportAsJson(graph: KnowledgeGraph): string {
+    return JSON.stringify(graph, null, 2);
+  }
+
+  /**
+   * Export graph as CSV with two sections: entities and relations
+   * Uses proper escaping for fields containing commas, quotes, and newlines
+   */
+  private exportAsCsv(graph: KnowledgeGraph): string {
+    const lines: string[] = [];
+
+    // Helper function to escape CSV fields
+    const escapeCsvField = (field: string | undefined | null): string => {
+      if (field === undefined || field === null) return '';
+      const str = String(field);
+      // Escape quotes by doubling them and wrap in quotes if contains comma, quote, or newline
+      if (str.includes(',') || str.includes('"') || str.includes('\n')) {
+        return `"${str.replace(/"/g, '""')}"`;
+      }
+      return str;
+    };
+
+    // Entities section
+    lines.push('# ENTITIES');
+    lines.push('name,entityType,observations,createdAt,lastModified,tags,importance');
+
+    for (const entity of graph.entities) {
+      const observationsStr = entity.observations.join('; ');
+      const tagsStr = entity.tags ? entity.tags.join('; ') : '';
+      const importanceStr = entity.importance !== undefined ? String(entity.importance) : '';
+
+      lines.push([
+        escapeCsvField(entity.name),
+        escapeCsvField(entity.entityType),
+        escapeCsvField(observationsStr),
+        escapeCsvField(entity.createdAt),
+        escapeCsvField(entity.lastModified),
+        escapeCsvField(tagsStr),
+        escapeCsvField(importanceStr)
+      ].join(','));
+    }
+
+    // Relations section
+    lines.push('');
+    lines.push('# RELATIONS');
+    lines.push('from,to,relationType,createdAt,lastModified');
+
+    for (const relation of graph.relations) {
+      lines.push([
+        escapeCsvField(relation.from),
+        escapeCsvField(relation.to),
+        escapeCsvField(relation.relationType),
+        escapeCsvField(relation.createdAt),
+        escapeCsvField(relation.lastModified)
+      ].join(','));
+    }
+
+    return lines.join('\n');
+  }
+
+  /**
+   * Export graph as GraphML XML format for graph visualization tools
+   * Compatible with Gephi, Cytoscape, yEd, and other graph analysis tools
+   */
+  private exportAsGraphML(graph: KnowledgeGraph): string {
+    const lines: string[] = [];
+
+    // Helper function to escape XML special characters
+    const escapeXml = (str: string | undefined | null): string => {
+      if (str === undefined || str === null) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
+    };
+
+    // GraphML header
+    lines.push('<?xml version="1.0" encoding="UTF-8"?>');
+    lines.push('<graphml xmlns="http://graphml.graphdrawing.org/xmlns"');
+    lines.push('         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"');
+    lines.push('         xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns');
+    lines.push('         http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">');
+
+    // Define node attributes (keys)
+    lines.push('  <!-- Node attributes -->');
+    lines.push('  <key id="d0" for="node" attr.name="entityType" attr.type="string"/>');
+    lines.push('  <key id="d1" for="node" attr.name="observations" attr.type="string"/>');
+    lines.push('  <key id="d2" for="node" attr.name="createdAt" attr.type="string"/>');
+    lines.push('  <key id="d3" for="node" attr.name="lastModified" attr.type="string"/>');
+    lines.push('  <key id="d4" for="node" attr.name="tags" attr.type="string"/>');
+    lines.push('  <key id="d5" for="node" attr.name="importance" attr.type="double"/>');
+
+    // Define edge attributes (keys)
+    lines.push('  <!-- Edge attributes -->');
+    lines.push('  <key id="e0" for="edge" attr.name="relationType" attr.type="string"/>');
+    lines.push('  <key id="e1" for="edge" attr.name="createdAt" attr.type="string"/>');
+    lines.push('  <key id="e2" for="edge" attr.name="lastModified" attr.type="string"/>');
+
+    // Start graph (directed graph)
+    lines.push('  <graph id="G" edgedefault="directed">');
+
+    // Add nodes (entities)
+    for (const entity of graph.entities) {
+      // Use entity name as node ID (escape for XML attribute)
+      const nodeId = escapeXml(entity.name);
+      lines.push(`    <node id="${nodeId}">`);
+      lines.push(`      <data key="d0">${escapeXml(entity.entityType)}</data>`);
+      lines.push(`      <data key="d1">${escapeXml(entity.observations.join('; '))}</data>`);
+      if (entity.createdAt) {
+        lines.push(`      <data key="d2">${escapeXml(entity.createdAt)}</data>`);
+      }
+      if (entity.lastModified) {
+        lines.push(`      <data key="d3">${escapeXml(entity.lastModified)}</data>`);
+      }
+      if (entity.tags && entity.tags.length > 0) {
+        lines.push(`      <data key="d4">${escapeXml(entity.tags.join('; '))}</data>`);
+      }
+      if (entity.importance !== undefined) {
+        lines.push(`      <data key="d5">${entity.importance}</data>`);
+      }
+      lines.push('    </node>');
+    }
+
+    // Add edges (relations)
+    let edgeId = 0;
+    for (const relation of graph.relations) {
+      const sourceId = escapeXml(relation.from);
+      const targetId = escapeXml(relation.to);
+      lines.push(`    <edge id="e${edgeId}" source="${sourceId}" target="${targetId}">`);
+      lines.push(`      <data key="e0">${escapeXml(relation.relationType)}</data>`);
+      if (relation.createdAt) {
+        lines.push(`      <data key="e1">${escapeXml(relation.createdAt)}</data>`);
+      }
+      if (relation.lastModified) {
+        lines.push(`      <data key="e2">${escapeXml(relation.lastModified)}</data>`);
+      }
+      lines.push('    </edge>');
+      edgeId++;
+    }
+
+    // Close graph and graphml
+    lines.push('  </graph>');
+    lines.push('</graphml>');
+
+    return lines.join('\n');
+  }
 }
 
 let knowledgeGraphManager: KnowledgeGraphManager;
@@ -587,7 +794,7 @@ let knowledgeGraphManager: KnowledgeGraphManager;
 // The server instance and tools exposed to Claude
 const server = new Server({
   name: "memory-server",
-  version: "0.6.3",
+  version: "0.7.0",
 },    {
     capabilities: {
       tools: {},
@@ -891,6 +1098,45 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
           required: ["entityName", "importance"],
           additionalProperties: false,
         },
+      },
+      {
+        name: "export_graph",
+        description: "Export the knowledge graph in various formats (JSON, CSV, or GraphML) with optional filtering. GraphML format is compatible with graph visualization tools like Gephi and Cytoscape.",
+        inputSchema: {
+          type: "object",
+          properties: {
+            format: {
+              type: "string",
+              enum: ["json", "csv", "graphml"],
+              description: "Export format: 'json' for pretty-printed JSON, 'csv' for comma-separated values with entities and relations sections, 'graphml' for GraphML XML format"
+            },
+            filter: {
+              type: "object",
+              properties: {
+                startDate: {
+                  type: "string",
+                  description: "ISO 8601 start date for filtering (optional)"
+                },
+                endDate: {
+                  type: "string",
+                  description: "ISO 8601 end date for filtering (optional)"
+                },
+                entityType: {
+                  type: "string",
+                  description: "Filter by specific entity type (optional)"
+                },
+                tags: {
+                  type: "array",
+                  items: { type: "string" },
+                  description: "Filter by tags (optional, case-insensitive)"
+                }
+              },
+              description: "Optional filter to export a subset of the graph"
+            }
+          },
+          required: ["format"],
+          additionalProperties: false,
+        },
       }
     ],
   };
@@ -939,6 +1185,8 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       return { content: [{ type: "text", text: JSON.stringify(await knowledgeGraphManager.removeTags(args.entityName as string, args.tags as string[]), null, 2) }] };
     case "set_importance":
       return { content: [{ type: "text", text: JSON.stringify(await knowledgeGraphManager.setImportance(args.entityName as string, args.importance as number), null, 2) }] };
+    case "export_graph":
+      return { content: [{ type: "text", text: await knowledgeGraphManager.exportGraph(args.format as 'json' | 'csv' | 'graphml', args.filter as { startDate?: string; endDate?: string; entityType?: string; tags?: string[] } | undefined) }] };
     default:
       throw new Error(`Unknown tool: ${name}`);
   }
