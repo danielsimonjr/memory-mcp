@@ -1,11 +1,27 @@
 {
-  "name": "@modelcontextprotocol/server-memory",
-  "version": "0.6.3",
-  "description": "MCP server for enabling memory for Claude through a knowledge graph",
+  "name": "@danielsimonjr/enhanced-memory-mcp",
+  "version": "0.7.0",
+  "description": "Enhanced MCP memory server with timestamps, tags, importance, search, and export (JSON/CSV/GraphML)",
   "license": "MIT",
-  "author": "Anthropic, PBC (https://anthropic.com)",
-  "homepage": "https://modelcontextprotocol.io",
-  "bugs": "https://github.com/modelcontextprotocol/servers/issues",
+  "author": "Daniel Simon Jr. (https://github.com/danielsimonjr)",
+  "homepage": "https://github.com/danielsimonjr/memory-mcp",
+  "bugs": "https://github.com/danielsimonjr/memory-mcp/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danielsimonjr/memory-mcp.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "memory",
+    "knowledge-graph",
+    "enhanced",
+    "timestamps",
+    "tags",
+    "export",
+    "graphml",
+    "analytics"
+  ],
   "type": "module",
   "bin": {
     "mcp-server-memory": "dist/index.js"
