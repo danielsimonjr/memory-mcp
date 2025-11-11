@@ -1,27 +1,39 @@
 {
-  "name": "@modelcontextprotocol/servers",
+  "name": "@danielsimonjr/enhanced-memory-mcp",
   "private": true,
-  "version": "0.6.2",
-  "description": "Model Context Protocol servers",
+  "version": "0.7.0",
+  "description": "Enhanced Model Context Protocol memory server with timestamps, tags, importance, search, and export capabilities",
   "license": "MIT",
-  "author": "Anthropic, PBC (https://anthropic.com)",
-  "homepage": "https://modelcontextprotocol.io",
-  "bugs": "https://github.com/modelcontextprotocol/servers/issues",
+  "author": "Daniel Simon Jr. (https://github.com/danielsimonjr)",
+  "homepage": "https://github.com/danielsimonjr/mcp-servers",
+  "bugs": "https://github.com/danielsimonjr/mcp-servers/issues",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danielsimonjr/mcp-servers.git"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "memory",
+    "knowledge-graph",
+    "enhanced",
+    "timestamps",
+    "tags",
+    "export",
+    "analytics"
+  ],
   "type": "module",
   "workspaces": [
-    "src/*"
+    "src/memory"
   ],
   "files": [],
   "scripts": {
-    "build": "npm run build --workspaces",
-    "watch": "npm run watch --workspaces",
-    "publish-all": "npm publish --workspaces --access public",
-    "link-all": "npm link --workspaces"
+    "build": "npm run build --workspace=src/memory",
+    "watch": "npm run watch --workspace=src/memory",
+    "test": "npm run test --workspace=src/memory",
+    "clean": "rm -rf src/memory/dist"
   },
   "dependencies": {
-    "@modelcontextprotocol/server-everything": "*",
-    "@modelcontextprotocol/server-memory": "*",
-    "@modelcontextprotocol/server-filesystem": "*",
-    "@modelcontextprotocol/server-sequential-thinking": "*"
+    "@modelcontextprotocol/server-memory": "file:src/memory"
   }
 }

@@ -1,3 +1,11 @@
+# Code of Conduct - Enhanced Memory MCP
+
+This Code of Conduct applies to the **Enhanced Memory MCP** project.
+
+**Repository**: https://github.com/danielsimonjr/mcp-servers
+
+---
+
 # Contributor Covenant Code of Conduct
 
 ## Our Pledge

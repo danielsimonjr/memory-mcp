@@ -1,38 +1,159 @@
-# Contributing to MCP Servers
+# Contributing to Enhanced Memory MCP
 
-Thanks for your interest in contributing! Here's how you can help make this repo better.
+Thanks for your interest in contributing to the Enhanced Memory MCP server! Here's how you can help make this project better.
 
-We accept changes through [the standard GitHub flow model](https://docs.github.com/en/get-started/using-github/github-flow).
+## About This Project
 
-## Server Listings
+This is an enhanced fork of the official Model Context Protocol memory server, with Phase 1-4 enhancements adding:
+- Automatic timestamp tracking (createdAt, lastModified)
+- Advanced search and analytics (date range, statistics)
+- Categorization (tags, importance levels)
+- Multi-format export (JSON, CSV, GraphML)
 
-We welcome PRs that add links to your servers in the [README.md](./README.md)!
+**Repository**: https://github.com/danielsimonjr/mcp-servers  
+**Documentation**: [README.md](README.md) | [CHANGELOG.md](CHANGELOG.md) | [WORKFLOW.md](WORKFLOW.md)
 
-## Server Implementations
+## Development Workflow
 
-We welcome:
-- **Bug fixes** — Help us squash those pesky bugs.
-- **Usability improvements** — Making servers easier to use for humans and agents.
-- **Enhancements that demonstrate MCP protocol features** — We encourage contributions that help reference servers better illustrate underutilized aspects of the MCP protocol beyond just Tools, such as Resources, Prompts, or Roots. For example, adding Roots support to filesystem-server helps showcase this important but lesser-known feature.
+See [WORKFLOW.md](WORKFLOW.md) for detailed development instructions.
 
-We're more selective about:
-- **Other new features** — Especially if they're not crucial to the server's core purpose or are highly opinionated. The existing servers are reference servers meant to inspire the community. If you need specific features, we encourage you to build enhanced versions! We think a diverse ecosystem of servers is beneficial for everyone, and would love to link to your improved server in our README.
+Quick start:
+```bash
+# Navigate to source
+cd c:/mcp-servers/memory-mcp/src/memory
 
-We don't accept:
-- **New server implementations** — We encourage you to publish them yourself, and link to them from the README.
+# Install dependencies
+npm install
 
-## Testing
+# Build
+npm run build
 
-When adding or configuring tests for servers implemented in TypeScript, use **vitest** as the test framework. Vitest provides better ESM support, faster test execution, and a more modern testing experience.
+# Run tests
+npm test
+```
+
+## What We Welcome
+
+### Bug Fixes
+- Fix issues with timestamp tracking
+- Resolve export formatting problems
+- Address search/filter bugs
+- Improve backward compatibility
+
+### Usability Improvements
+- Better error messages
+- Performance optimizations
+- Enhanced documentation
+- Improved test coverage
+
+### Feature Enhancements
+We're particularly interested in:
+- Additional export formats
+- More sophisticated filtering options
+- Performance improvements for large graphs
+- Enhanced statistics and analytics
+- Better tag management features
+
+### Testing
+- Use **vitest** as the test framework
+- Add tests for new features
+- Ensure backward compatibility
+- Test with various data sizes
+
+## What We're Selective About
+
+- **Breaking changes** - Must maintain backward compatibility
+- **Highly opinionated features** - Should align with core memory MCP purpose
+- **Massive scope changes** - Discuss in an issue first
+
+## How to Contribute
+
+1. **Fork the repository**
+   ```bash
+   gh repo fork danielsimonjr/mcp-servers
+   ```
+
+2. **Create a feature branch**
+   ```bash
+   cd c:/mcp-servers/memory-mcp
+   git checkout -b feature/your-feature-name
+   ```
+
+3. **Make your changes**
+   - Edit files in `src/memory/`
+   - Follow existing code style
+   - Add/update tests
+   - Update documentation
+
+4. **Build and test**
+   ```bash
+   cd src/memory
+   npm run build
+   npm test
+   ```
+
+5. **Commit your changes**
+   ```bash
+   cd c:/mcp-servers/memory-mcp
+   git add .
+   git commit -m "Description of your changes"
+   ```
+
+6. **Push and create PR**
+   ```bash
+   git push origin feature/your-feature-name
+   # Create PR on GitHub
+   ```
+
+## Code Style Guidelines
+
+- Follow TypeScript best practices
+- Use meaningful variable names
+- Add JSDoc comments for public methods
+- Keep functions focused and small
+- Maintain consistent indentation (2 spaces)
+
+## Testing Guidelines
+
+- Test new features thoroughly
+- Include edge cases
+- Test backward compatibility
+- Verify export formats are valid
+- Test with empty graphs and large graphs
 
 ## Documentation
 
-Improvements to existing documentation is welcome - although generally we'd prefer ergonomic improvements than documenting pain points if possible!
+When adding features:
+- Update README.md with new tools/functionality
+- Add entries to CHANGELOG.md
+- Update WORKFLOW.md if development process changes
+- Include usage examples
 
-We're more selective about adding wholly new documentation, especially in ways that aren't vendor neutral (e.g. how to run a particular server with a particular client).
+## Pull Request Process
+
+1. **Title**: Clear, descriptive summary
+2. **Description**: 
+   - What changed
+   - Why it changed
+   - How to test it
+3. **Tests**: Include test results
+4. **Documentation**: Update relevant docs
+5. **Backward Compatibility**: Confirm no breaking changes
+
+## Questions or Issues?
+
+- **Bug Reports**: Open an issue with detailed reproduction steps
+- **Feature Requests**: Open an issue describing the use case
+- **Questions**: Check existing issues or open a new one
 
 ## Community
 
-[Learn how the MCP community communicates](https://modelcontextprotocol.io/community/communication).
+This project follows the [Model Context Protocol community guidelines](https://modelcontextprotocol.io/community/communication).
 
-Thank you for helping make MCP servers better for everyone!
+## License
+
+By contributing, you agree that your contributions will be licensed under the MIT License.
+
+---
+
+Thank you for helping make Enhanced Memory MCP better for everyone! 🎉
