@@ -1,5 +1,5 @@
 {
-  "name": "@danielsimonjr/enhanced-memory-mcp",
+  "name": "@danielsimonjr/memory-mcp",
   "version": "0.7.0",
   "description": "Enhanced MCP memory server with timestamps, tags, importance, search, and export (JSON/CSV/GraphML)",
   "license": "MIT",

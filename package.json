@@ -1,5 +1,5 @@
 {
-  "name": "@danielsimonjr/enhanced-memory-mcp",
+  "name": "@danielsimonjr/memory-mcp",
   "private": true,
   "version": "0.7.0",
   "description": "Enhanced Model Context Protocol memory server with timestamps, tags, importance, search, and export capabilities",

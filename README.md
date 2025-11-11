@@ -1,7 +1,7 @@
 # Memory MCP Server
 
 [![Version](https://img.shields.io/badge/version-0.7.0-blue.svg)](https://github.com/danielsimonjr/memory-mcp)
-[![NPM](https://img.shields.io/npm/v/@danielsimonjr/enhanced-memory-mcp.svg)](https://www.npmjs.com/package/@danielsimonjr/enhanced-memory-mcp)
+[![NPM](https://img.shields.io/npm/v/@danielsimonjr/memory-mcp.svg)](https://www.npmjs.com/package/@danielsimonjr/memory-mcp)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![MCP](https://img.shields.io/badge/MCP-1.0-purple.svg)](https://modelcontextprotocol.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
@@ -87,13 +87,13 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
 ### 1. Install from NPM (Recommended)
 
 ```bash
-npm install -g @danielsimonjr/enhanced-memory-mcp
+npm install -g @danielsimonjr/memory-mcp
 ```
 
 Or use with npx (no installation required):
 
 ```bash
-npx @danielsimonjr/enhanced-memory-mcp
+npx @danielsimonjr/memory-mcp
 ```
 
 ### 2. Configure Claude Desktop
@@ -117,7 +117,7 @@ Add to `claude_desktop_config.json`:
   "mcpServers": {
     "memory": {
       "command": "npx",
-      "args": ["-y", "@danielsimonjr/enhanced-memory-mcp"]
+      "args": ["-y", "@danielsimonjr/memory-mcp"]
     }
   }
 }
