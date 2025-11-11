@@ -1,393 +1,641 @@
-# Enhanced Knowledge Graph Memory Server
+# Memory MCP Server
 
-An **enhanced fork** of the official Model Context Protocol memory server with **Phase 1-4 enhancements**.
+[![Version](https://img.shields.io/badge/version-0.7.0-blue.svg)](https://github.com/danielsimonjr/memory-mcp)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![MCP](https://img.shields.io/badge/MCP-1.0-purple.svg)](https://modelcontextprotocol.io)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
 
-This is a knowledge graph-based persistent memory system that lets Claude remember information across chats, enhanced with:
-- **Phase 1 & 2**: Automatic timestamps (createdAt, lastModified), date range search, and comprehensive statistics
-- **Phase 3**: Tags and importance categorization for better organization
-- **Phase 4**: Multi-format export (JSON, CSV, GraphML) with filtering capabilities
+An **enhanced fork** of the official [Model Context Protocol](https://modelcontextprotocol.io) memory server with advanced features for timestamps, search, categorization, and export capabilities.
 
-**Version**: 0.7.0 | **Repository**: https://github.com/danielsimonjr/mcp-servers  
-**Documentation**: [CHANGELOG.md](CHANGELOG.md) | [WORKFLOW.md](WORKFLOW.md)
+> **Knowledge graph-based persistent memory** that lets Claude remember information across conversations with powerful organization and analysis tools.
 
-## 🚀 Phase 1-4 Enhancements
+## Table of Contents
 
-### What's New
-- ✅ **Automatic Timestamps**: createdAt and lastModified fields with smart updates
-- ✅ **Date Range Search**: Filter entities/relations by creation or modification date
-- ✅ **Graph Statistics**: Comprehensive analytics with counts, types, and temporal data
-- ✅ **Tags System**: Categorize entities with case-insensitive tags
-- ✅ **Importance Levels**: 0-10 scale for entity prioritization
-- ✅ **Advanced Search**: Filter by text, tags, importance, and date ranges
-- ✅ **Multi-Format Export**: JSON, CSV, and GraphML for visualization tools
-- ✅ **15 Total Tools**: 11 original + 4 new enhancement tools
+- [Features](#features)
+- [What's New](#whats-new)
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Core Concepts](#core-concepts)
+- [API Reference](#api-reference)
+- [Data Model](#data-model)
+- [Usage Examples](#usage-examples)
+- [Configuration](#configuration)
+- [Development](#development)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
-See [CHANGELOG.md](CHANGELOG.md) for detailed information about all enhancements.
+## Features
 
----
+### Core Memory Capabilities
+- ✅ **Knowledge Graph Storage**: Entity-Relation-Observation model
+- ✅ **Persistent Memory**: Remember information across chat sessions
+- ✅ **Full CRUD Operations**: Create, read, update, delete entities and relations
+- ✅ **Flexible Search**: Text-based search across entities and observations
 
-A basic implementation of persistent memory using a local knowledge graph. This lets Claude remember information about the user across chats.
+### Enhanced Features (Phases 1-4)
+- 🆕 **Automatic Timestamps**: `createdAt` and `lastModified` fields with smart updates
+- 🆕 **Date Range Search**: Filter entities/relations by creation or modification date
+- 🆕 **Graph Statistics**: Comprehensive analytics with counts, types, and temporal data
+- 🆕 **Tags System**: Categorize entities with case-insensitive tags
+- 🆕 **Importance Levels**: 0-10 scale for entity prioritization
+- 🆕 **Advanced Filtering**: Combine text, tags, importance, and date ranges
+- 🆕 **Multi-Format Export**: JSON, CSV, and GraphML for visualization tools (Gephi, Cytoscape, yEd)
 
-## Core Concepts
+### Comparison with Official Memory Server
 
-### Entities
-Entities are the primary nodes in the knowledge graph. Each entity has:
-- A unique name (identifier)
-- An entity type (e.g., "person", "organization", "event")
-- A list of observations
+| Feature | Official | Enhanced (This Fork) |
+|---------|----------|----------------------|
+| Entity Management | ✅ | ✅ |
+| Relation Management | ✅ | ✅ |
+| Observation Tracking | ✅ | ✅ |
+| Basic Search | ✅ | ✅ |
+| **Timestamps** | ❌ | ✅ createdAt + lastModified |
+| **Date Range Search** | ❌ | ✅ |
+| **Graph Statistics** | ❌ | ✅ |
+| **Tags** | ❌ | ✅ |
+| **Importance Levels** | ❌ | ✅ 0-10 scale |
+| **Export Formats** | ❌ | ✅ JSON/CSV/GraphML |
+| **Total Tools** | 11 | **15** (+4 enhancements) |
 
-Example:
-```json
-{
-  "name": "John_Smith",
-  "entityType": "person",
-  "observations": ["Speaks fluent Spanish"]
-}
+## What's New
+
+### Version 0.7.0 (Latest)
+
+**Phase 1 & 2: Timestamps & Analytics**
+- Automatic `createdAt` timestamp on entity/relation creation
+- Smart `lastModified` updates (only on actual changes)
+- Date range filtering with ISO 8601 format
+- Comprehensive graph statistics
+
+**Phase 3: Categorization**
+- Tags system with lowercase normalization
+- Importance levels (0-10) for entity prioritization
+- Enhanced filtering combining multiple criteria
+
+**Phase 4: Export & Visualization**
+- JSON export (pretty-printed)
+- CSV export (entities + relations with proper escaping)
+- GraphML export (for Gephi, Cytoscape, yEd)
+- All exports support filtering
+
+See [CHANGELOG.md](CHANGELOG.md) for detailed version history.
+
+## Quick Start
+
+### 1. Clone and Build
+
+```bash
+git clone https://github.com/danielsimonjr/memory-mcp.git
+cd memory-mcp/src/memory
+npm install && npm run build
 ```
 
-### Relations
-Relations define directed connections between entities. They are always stored in active voice and describe how entities interact or relate to each other.
+### 2. Configure Claude Desktop
 
-Example:
-```json
-{
-  "from": "John_Smith",
-  "to": "Anthropic",
-  "relationType": "works_at"
-}
-```
-### Observations
-Observations are discrete pieces of information about an entity. They are:
-
-- Stored as strings
-- Attached to specific entities
-- Can be added or removed independently
-- Should be atomic (one fact per observation)
-
-Example:
-```json
-{
-  "entityName": "John_Smith",
-  "observations": [
-    "Speaks fluent Spanish",
-    "Graduated in 2019",
-    "Prefers morning meetings"
-  ]
-}
-```
-
-## API
-
-### Tools
-- **create_entities**
-  - Create multiple new entities in the knowledge graph
-  - Input: `entities` (array of objects)
-    - Each object contains:
-      - `name` (string): Entity identifier
-      - `entityType` (string): Type classification
-      - `observations` (string[]): Associated observations
-  - Ignores entities with existing names
-
-- **create_relations**
-  - Create multiple new relations between entities
-  - Input: `relations` (array of objects)
-    - Each object contains:
-      - `from` (string): Source entity name
-      - `to` (string): Target entity name
-      - `relationType` (string): Relationship type in active voice
-  - Skips duplicate relations
-
-- **add_observations**
-  - Add new observations to existing entities
-  - Input: `observations` (array of objects)
-    - Each object contains:
-      - `entityName` (string): Target entity
-      - `contents` (string[]): New observations to add
-  - Returns added observations per entity
-  - Fails if entity doesn't exist
-
-- **delete_entities**
-  - Remove entities and their relations
-  - Input: `entityNames` (string[])
-  - Cascading deletion of associated relations
-  - Silent operation if entity doesn't exist
-
-- **delete_observations**
-  - Remove specific observations from entities
-  - Input: `deletions` (array of objects)
-    - Each object contains:
-      - `entityName` (string): Target entity
-      - `observations` (string[]): Observations to remove
-  - Silent operation if observation doesn't exist
-
-- **delete_relations**
-  - Remove specific relations from the graph
-  - Input: `relations` (array of objects)
-    - Each object contains:
-      - `from` (string): Source entity name
-      - `to` (string): Target entity name
-      - `relationType` (string): Relationship type
-  - Silent operation if relation doesn't exist
-
-- **read_graph**
-  - Read the entire knowledge graph
-  - No input required
-  - Returns complete graph structure with all entities and relations
-
-- **search_nodes**
-  - Search for nodes based on query
-  - Input: `query` (string)
-  - Searches across:
-    - Entity names
-    - Entity types
-    - Observation content
-  - Returns matching entities and their relations
-
-- **open_nodes**
-  - Retrieve specific nodes by name
-  - Input: `names` (string[])
-  - Returns:
-    - Requested entities
-    - Relations between requested entities
-  - Silently skips non-existent nodes
-
-# Usage with Claude Desktop
-
-### Setup
-
-Add this to your claude_desktop_config.json:
-
-#### Docker
+Add to `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "memory": {
-      "command": "docker",
-      "args": ["run", "-i", "-v", "claude-memory:/app/dist", "--rm", "mcp/memory"]
+      "command": "node",
+      "args": ["c:/mcp-servers/memory-mcp/src/memory/dist/index.js"]
     }
   }
 }
 ```
 
-#### NPX
-```json
-{
-  "mcpServers": {
-    "memory": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-memory"
-      ]
-    }
-  }
-}
+### 3. Restart Claude Desktop
+
+Restart Claude Desktop to load the enhanced memory server.
+
+### 4. Start Using
+
+Tell Claude:
+```
+Please remember that I prefer TypeScript over JavaScript.
+Tag this as "preferences" with importance 8.
 ```
 
-#### NPX with custom setting
+Claude will automatically use the enhanced tools!
 
-The server can be configured using the following environment variables:
+## Installation
+
+### Local Build (Recommended)
+
+```bash
+# Clone repository
+git clone https://github.com/danielsimonjr/memory-mcp.git
+cd memory-mcp/src/memory
+
+# Install and build
+npm install
+npm run build
+
+# Test
+npm test
+```
+
+### Claude Desktop Configuration
+
+Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (Mac) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
 
 ```json
 {
   "mcpServers": {
     "memory": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-memory"
-      ],
+      "command": "node",
+      "args": ["<PATH_TO>/memory-mcp/src/memory/dist/index.js"],
       "env": {
-        "MEMORY_FILE_PATH": "/path/to/custom/memory.jsonl"
+        "MEMORY_FILE_PATH": "<PATH_TO>/memory.jsonl"
       }
     }
   }
 }
 ```
 
-- `MEMORY_FILE_PATH`: Path to the memory storage JSONL file (default: `memory.jsonl` in the server directory)
+Replace `<PATH_TO>` with your actual paths.
 
-# VS Code Installation Instructions
+### VS Code
 
-For quick installation, use one of the one-click installation buttons below:
-
-[![Install with NPX in VS Code](https://img.shields.io/badge/VS_Code-NPM-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=memory&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40modelcontextprotocol%2Fserver-memory%22%5D%7D) [![Install with NPX in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-NPM-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=memory&config=%7B%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40modelcontextprotocol%2Fserver-memory%22%5D%7D&quality=insiders)
-
-[![Install with Docker in VS Code](https://img.shields.io/badge/VS_Code-Docker-0098FF?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=memory&config=%7B%22command%22%3A%22docker%22%2C%22args%22%3A%5B%22run%22%2C%22-i%22%2C%22-v%22%2C%22claude-memory%3A%2Fapp%2Fdist%22%2C%22--rm%22%2C%22mcp%2Fmemory%22%5D%7D) [![Install with Docker in VS Code Insiders](https://img.shields.io/badge/VS_Code_Insiders-Docker-24bfa5?style=flat-square&logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=memory&config=%7B%22command%22%3A%22docker%22%2C%22args%22%3A%5B%22run%22%2C%22-i%22%2C%22-v%22%2C%22claude-memory%3A%2Fapp%2Fdist%22%2C%22--rm%22%2C%22mcp%2Fmemory%22%5D%7D&quality=insiders)
-
-For manual installation, you can configure the MCP server using one of these methods:
-
-**Method 1: User Configuration (Recommended)**
-Add the configuration to your user-level MCP configuration file. Open the Command Palette (`Ctrl + Shift + P`) and run `MCP: Open User Configuration`. This will open your user `mcp.json` file where you can add the server configuration.
-
-**Method 2: Workspace Configuration**
-Alternatively, you can add the configuration to a file called `.vscode/mcp.json` in your workspace. This will allow you to share the configuration with others.
-
-> For more details about MCP configuration in VS Code, see the [official VS Code MCP documentation](https://code.visualstudio.com/docs/copilot/mcp).
-
-#### NPX
+Add to `.vscode/mcp.json`:
 
 ```json
 {
   "servers": {
     "memory": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-memory"
-      ]
+      "command": "node",
+      "args": ["c:/mcp-servers/memory-mcp/src/memory/dist/index.js"]
     }
   }
 }
 ```
 
-#### Docker
+## Core Concepts
+
+### Entities
+
+**Primary nodes** in the knowledge graph.
+
+**Fields:**
+- `name` (string): Unique identifier
+- `entityType` (string): Classification
+- `observations` (string[]): Facts
+- `createdAt` (string, optional): ISO 8601 timestamp
+- `lastModified` (string, optional): ISO 8601 timestamp
+- `tags` (string[], optional): Lowercase tags
+- `importance` (number, optional): 0-10 scale
+
+**Example:**
+```json
+{
+  "name": "John_Smith",
+  "entityType": "person",
+  "observations": ["Speaks fluent Spanish"],
+  "createdAt": "2025-01-15T10:30:00.000Z",
+  "tags": ["colleague"],
+  "importance": 7
+}
+```
+
+### Relations
+
+**Directed connections** between entities.
+
+**Fields:**
+- `from` (string): Source entity
+- `to` (string): Target entity
+- `relationType` (string): Relationship type
+- `createdAt` (string, optional): ISO 8601 timestamp
+- `lastModified` (string, optional): ISO 8601 timestamp
+
+**Example:**
+```json
+{
+  "from": "John_Smith",
+  "to": "Anthropic",
+  "relationType": "works_at",
+  "createdAt": "2025-01-15T10:30:00.000Z"
+}
+```
+
+### Observations
+
+**Discrete facts** about entities.
+
+**Principles:**
+- One fact per observation
+- Atomic information
+- Independently manageable
+
+## API Reference
+
+### Core Tools (11)
+
+<details>
+<summary><b>create_entities</b></summary>
+
+Create multiple new entities in the knowledge graph.
+
+```typescript
+{
+  entities: Array<{
+    name: string;
+    entityType: string;
+    observations: string[];
+  }>
+}
+```
+</details>
+
+<details>
+<summary><b>create_relations</b></summary>
+
+Create multiple new relations between entities.
+
+```typescript
+{
+  relations: Array<{
+    from: string;
+    to: string;
+    relationType: string;
+  }>
+}
+```
+</details>
+
+<details>
+<summary><b>add_observations</b></summary>
+
+Add new observations to existing entities.
+
+```typescript
+{
+  observations: Array<{
+    entityName: string;
+    contents: string[];
+  }>
+}
+```
+</details>
+
+<details>
+<summary><b>delete_entities</b></summary>
+
+Remove entities and their relations.
+
+```typescript
+{
+  entityNames: string[]
+}
+```
+</details>
+
+<details>
+<summary><b>delete_observations</b></summary>
+
+Remove specific observations from entities.
+
+```typescript
+{
+  deletions: Array<{
+    entityName: string;
+    observations: string[];
+  }>
+}
+```
+</details>
+
+<details>
+<summary><b>delete_relations</b></summary>
+
+Remove specific relations from the graph.
+
+```typescript
+{
+  relations: Array<{
+    from: string;
+    to: string;
+    relationType: string;
+  }>
+}
+```
+</details>
+
+<details>
+<summary><b>read_graph</b></summary>
+
+Read the entire knowledge graph.
+
+No input required.
+</details>
+
+<details>
+<summary><b>search_nodes</b></summary>
+
+Search for nodes based on query.
+
+```typescript
+{
+  query: string;
+}
+```
+</details>
+
+<details>
+<summary><b>open_nodes</b></summary>
+
+Retrieve specific nodes by name.
+
+```typescript
+{
+  names: string[];
+}
+```
+</details>
+
+### Enhancement Tools (4)
+
+<details>
+<summary><b>search_by_date_range</b> - Phase 2</summary>
+
+Filter entities and relations within a date range.
+
+```typescript
+{
+  startDate?: string;      // ISO 8601
+  endDate?: string;        // ISO 8601
+  entityType?: string;
+  tags?: string[];
+}
+```
+
+**Example:**
+```json
+{
+  "startDate": "2025-01-01T00:00:00.000Z",
+  "endDate": "2025-01-31T23:59:59.999Z",
+  "tags": ["project"]
+}
+```
+</details>
+
+<details>
+<summary><b>get_graph_stats</b> - Phase 2</summary>
+
+Get comprehensive statistics about the knowledge graph.
+
+No input required.
+
+**Returns:** Entity counts, relation counts, type breakdowns, oldest/newest items, date ranges.
+</details>
+
+<details>
+<summary><b>add_tags / remove_tags</b> - Phase 3</summary>
+
+Add or remove tags from an entity.
+
+```typescript
+{
+  entityName: string;
+  tags: string[];
+}
+```
+
+Tags are normalized to lowercase.
+</details>
+
+<details>
+<summary><b>set_importance</b> - Phase 3</summary>
+
+Set the importance level for an entity (0-10).
+
+```typescript
+{
+  entityName: string;
+  importance: number;  // 0-10
+}
+```
+</details>
+
+<details>
+<summary><b>export_graph</b> - Phase 4</summary>
+
+Export the knowledge graph in JSON, CSV, or GraphML format.
+
+```typescript
+{
+  format: "json" | "csv" | "graphml";
+  filter?: {
+    startDate?: string;
+    endDate?: string;
+    entityType?: string;
+    tags?: string[];
+  }
+}
+```
+
+**Formats:**
+- **JSON**: Pretty-printed
+- **CSV**: Entities + relations with escaping
+- **GraphML**: For Gephi, Cytoscape, yEd
+</details>
+
+## Data Model
+
+### Entity Schema
+
+```typescript
+interface Entity {
+  name: string;
+  entityType: string;
+  observations: string[];
+  createdAt?: string;       // ISO 8601
+  lastModified?: string;    // ISO 8601
+  tags?: string[];          // Lowercase
+  importance?: number;      // 0-10
+}
+```
+
+### Relation Schema
+
+```typescript
+interface Relation {
+  from: string;
+  to: string;
+  relationType: string;
+  createdAt?: string;       // ISO 8601
+  lastModified?: string;    // ISO 8601
+}
+```
+
+### Storage
+
+- **Format**: JSONL (JSON Lines)
+- **Default**: `memory.jsonl` in server directory
+- **Custom**: Set `MEMORY_FILE_PATH` environment variable
+
+## Usage Examples
+
+### Example 1: Create Entity with Tags
 
 ```json
 {
-  "servers": {
+  "entities": [{
+    "name": "Alice_Johnson",
+    "entityType": "person",
+    "observations": ["Lead developer", "TypeScript specialist"]
+  }]
+}
+
+// Then add tags
+{
+  "entityName": "Alice_Johnson",
+  "tags": ["colleague", "tech-lead"]
+}
+
+// Set importance
+{
+  "entityName": "Alice_Johnson",
+  "importance": 9
+}
+```
+
+### Example 2: Date Range Search
+
+```json
+{
+  "startDate": "2025-01-01T00:00:00.000Z",
+  "endDate": "2025-01-31T23:59:59.999Z",
+  "tags": ["project"]
+}
+```
+
+### Example 3: Export to GraphML
+
+```json
+{
+  "format": "graphml",
+  "filter": {
+    "entityType": "person",
+    "tags": ["colleague"]
+  }
+}
+```
+
+## Configuration
+
+### Environment Variables
+
+- `MEMORY_FILE_PATH`: Path to memory storage file (default: `memory.jsonl`)
+
+### Example Configuration
+
+```json
+{
+  "mcpServers": {
     "memory": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "-v",
-        "claude-memory:/app/dist",
-        "--rm",
-        "mcp/memory"
-      ]
+      "command": "node",
+      "args": ["c:/mcp-servers/memory-mcp/src/memory/dist/index.js"],
+      "env": {
+        "MEMORY_FILE_PATH": "c:/data/memory.jsonl"
+      }
     }
   }
 }
 ```
 
-### System Prompt
+## Development
 
-The prompt for utilizing memory depends on the use case. Changing the prompt will help the model determine the frequency and types of memories created.
+### Prerequisites
 
-Here is an example prompt for chat personalization. You could use this prompt in the "Custom Instructions" field of a [Claude.ai Project](https://www.anthropic.com/news/projects). 
+- Node.js 18+
+- npm 9+
+- TypeScript 5.6+
 
-```
-Follow these steps for each interaction:
+### Build
 
-1. User Identification:
-   - You should assume that you are interacting with default_user
-   - If you have not identified default_user, proactively try to do so.
-
-2. Memory Retrieval:
-   - Always begin your chat by saying only "Remembering..." and retrieve all relevant information from your knowledge graph
-   - Always refer to your knowledge graph as your "memory"
-
-3. Memory
-   - While conversing with the user, be attentive to any new information that falls into these categories:
-     a) Basic Identity (age, gender, location, job title, education level, etc.)
-     b) Behaviors (interests, habits, etc.)
-     c) Preferences (communication style, preferred language, etc.)
-     d) Goals (goals, targets, aspirations, etc.)
-     e) Relationships (personal and professional relationships up to 3 degrees of separation)
-
-4. Memory Update:
-   - If any new information was gathered during the interaction, update your memory as follows:
-     a) Create entities for recurring organizations, people, and significant events
-     b) Connect them to the current entities using relations
-     c) Store facts about them as observations
+```bash
+cd src/memory
+npm install
+npm run build      # Production
+npm run watch      # Development
 ```
 
-## Building
+### Test
 
-Docker:
-
-```sh
-docker build -t mcp/memory -f src/memory/Dockerfile . 
+```bash
+npm test
 ```
 
-For Awareness: a prior mcp/memory volume contains an index.js file that could be overwritten by the new container. If you are using a docker volume for storage, delete the old docker volume's `index.js` file before starting the new container.
+### Structure
+
+```
+memory-mcp/
+├── src/memory/
+│   ├── src/index.ts      # Main implementation
+│   ├── dist/             # Compiled output
+│   └── package.json
+├── CHANGELOG.md
+├── CONTRIBUTING.md
+├── WORKFLOW.md
+└── README.md
+```
+
+See [WORKFLOW.md](WORKFLOW.md) for detailed development guide.
+
+## Contributing
+
+We welcome contributions!
+
+**See:**
+- [CONTRIBUTING.md](CONTRIBUTING.md) - Guidelines
+- [WORKFLOW.md](WORKFLOW.md) - Development workflow
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) - Community standards
+
+**Ways to Help:**
+- 🐛 Report bugs
+- ✨ Request features
+- 🔧 Submit fixes
+- 📚 Improve docs
+- 🧪 Add tests
 
 ## License
 
-This MCP server is licensed under the MIT License. This means you are free to use, modify, and distribute the software, subject to the terms and conditions of the MIT License. For more details, please see the LICENSE file in the project repository.
+**MIT License** - see [LICENSE](LICENSE)
 
-### Phase 2: Search & Analytics Tools
+You are free to use, modify, and distribute this software.
 
-- **search_by_date_range**
-  - Filter entities and relations within a date range
-  - Input: 
-    - `startDate` (string, optional): ISO 8601 start date
-    - `endDate` (string, optional): ISO 8601 end date
-    - `entityType` (string, optional): Filter by entity type
-    - `tags` (string[], optional): Filter by tags
-  - Uses lastModified or createdAt timestamps
-  - Returns filtered knowledge graph
+## Acknowledgments
 
-- **get_graph_stats**
-  - Get comprehensive statistics about the knowledge graph
-  - No input required
-  - Returns:
-    - Total counts for entities and relations
-    - Entity and relation type breakdowns
-    - Oldest and newest entities with timestamps
-    - Oldest and newest relations with timestamps
-    - Date ranges for entities and relations
+### Original Project
 
-### Phase 3: Categorization Tools
+Enhanced fork of [Model Context Protocol memory server](https://github.com/modelcontextprotocol/servers) by [Anthropic](https://www.anthropic.com/).
 
-- **add_tags**
-  - Add tags to an existing entity
-  - Input:
-    - `entityName` (string): Target entity name
-    - `tags` (string[]): Tags to add
-  - Tags are normalized to lowercase
-  - Prevents duplicate tags
-  - Updates lastModified timestamp
+**Original License:** MIT
 
-- **remove_tags**
-  - Remove tags from an existing entity
-  - Input:
-    - `entityName` (string): Target entity name
-    - `tags` (string[]): Tags to remove
-  - Case-insensitive matching
-  - Updates lastModified timestamp
+### Enhancements
 
-- **set_importance**
-  - Set the importance level for an entity
-  - Input:
-    - `entityName` (string): Target entity name
-    - `importance` (number): Importance level (0-10)
-  - Validates 0-10 range
-  - Updates lastModified timestamp
+**Developer:** [Daniel Simon Jr.](https://github.com/danielsimonjr)
 
-### Phase 4: Export Tool
+**Features Added:**
+- Automatic timestamps (createdAt, lastModified)
+- Date range search and filtering
+- Graph statistics and analytics
+- Tags and importance categorization
+- Multi-format export (JSON, CSV, GraphML)
 
-- **export_graph**
-  - Export the knowledge graph in various formats
-  - Input:
-    - `format` (string): Export format - "json", "csv", or "graphml"
-    - `filter` (object, optional): Filter options
-      - `startDate` (string): ISO 8601 start date
-      - `endDate` (string): ISO 8601 end date
-      - `entityType` (string): Filter by entity type
-      - `tags` (string[]): Filter by tags
-  - Export formats:
-    - **JSON**: Pretty-printed with all entity and relation data
-    - **CSV**: Two-section format (entities + relations) with proper escaping
-    - **GraphML**: Standard XML format for visualization tools (Gephi, Cytoscape, yEd)
+### Community
 
-## Enhanced Data Model
+Thanks to:
+- 🛠️ [MCP Specification](https://modelcontextprotocol.io)
+- 📚 MCP community
+- **Vitest**, **TypeScript**, **Node.js**
 
-### Entity Fields (Phase 1 & 3)
-- `name` (string): Entity identifier
-- `entityType` (string): Type classification
-- `observations` (string[]): Associated observations
-- `createdAt` (string, optional): ISO 8601 timestamp - auto-generated on creation
-- `lastModified` (string, optional): ISO 8601 timestamp - auto-updated on modification
-- `tags` (string[], optional): Lowercase tags for categorization
-- `importance` (number, optional): Priority level (0-10)
+---
 
-### Relation Fields (Phase 1)
-- `from` (string): Source entity name
-- `to` (string): Target entity name  
-- `relationType` (string): Relationship type in active voice
-- `createdAt` (string, optional): ISO 8601 timestamp - auto-generated on creation
-- `lastModified` (string, optional): ISO 8601 timestamp - auto-updated on modification
+**Repository:** https://github.com/danielsimonjr/memory-mcp
+**Issues:** https://github.com/danielsimonjr/memory-mcp/issues
 
+**Made with ❤️ for the MCP community**
