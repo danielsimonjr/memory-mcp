@@ -1,15 +1,15 @@
 {
   "name": "@danielsimonjr/memory-mcp",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Enhanced Model Context Protocol memory server with timestamps, tags, importance, search, and export capabilities",
   "license": "MIT",
   "author": "Daniel Simon Jr. (https://github.com/danielsimonjr)",
-  "homepage": "https://github.com/danielsimonjr/mcp-servers",
-  "bugs": "https://github.com/danielsimonjr/mcp-servers/issues",
+  "homepage": "https://github.com/danielsimonjr/memory-mcp",
+  "bugs": "https://github.com/danielsimonjr/memory-mcp/issues",
   "repository": {
     "type": "git",
-    "url": "https://github.com/danielsimonjr/mcp-servers.git"
+    "url": "https://github.com/danielsimonjr/memory-mcp.git"
   },
   "keywords": [
     "mcp",

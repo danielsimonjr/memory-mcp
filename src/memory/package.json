@@ -1,6 +1,6 @@
 {
   "name": "@danielsimonjr/memory-mcp",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Enhanced MCP memory server with timestamps, tags, importance, search, and export (JSON/CSV/GraphML)",
   "license": "MIT",
   "author": "Daniel Simon Jr. (https://github.com/danielsimonjr)",
