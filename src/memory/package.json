@@ -36,7 +36,7 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.19.1"
+    "@modelcontextprotocol/sdk": "^1.21.1"
   },
   "devDependencies": {
     "@types/node": "^22",
