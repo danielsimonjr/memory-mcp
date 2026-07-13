@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`engines.node: ">=18.0.0"` was false on Windows.** Adding the Windows CI leg (above) immediately proved it: `npm ci` **cannot install** on windows + Node 20. `better-sqlite3` — pulled in transitively via `@danielsimonjr/memoryjs` (`^11.7.0`) — ships **no prebuilt binary** for Node 20's ABI on win32, so install falls back to `node-gyp rebuild` and fails outright:
+
+      npm error path ...
+ode_modulesetter-sqlite3
+      prebuild-install warn install No prebuilt binaries found
+        (target=20.20.2 runtime=node arch=x64 platform=win32)
+
+  Windows + Node 22 installs fine (a prebuild exists). Node 18 and Node 20 both reached EOL in 2026-04, and *supporting a runtime the package cannot install on is not support* — so the declared range now matches reality: **`engines.node: ">=22.0.0"`**, and the CI matrix drops EOL Node 20 and tests the current `22.x` / `24.x`.
+
 ### Added
 
 - **Windows CI leg.** CI ran on `ubuntu-latest` only — but Windows is the *production* platform for this MCP server (it runs on Daniel's Windows box), so CI had never tested the OS the server actually ships on. The `ci` job now matrixes over `[ubuntu-latest, windows-latest]` × Node 20/22.

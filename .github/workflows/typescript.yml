@@ -24,7 +24,11 @@ jobs:
         # locally on Windows); CI was Linux-only, so it never tested the OS the
         # server actually ships on.
         os: [ubuntu-latest, windows-latest]
-        node-version: ['20.x', '22.x']
+        # Node 20 reached EOL 2026-04 and, critically, better-sqlite3 (pulled in via
+        # @danielsimonjr/memoryjs) ships NO Windows prebuild for its ABI — so `npm ci`
+        # cannot even install on windows+node20 (it falls back to node-gyp and fails).
+        # Supporting a runtime the package cannot install on is not support.
+        node-version: ['22.x', '24.x']
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
