@@ -16,10 +16,14 @@ on:
 
 jobs:
   ci:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        # Windows is the PRODUCTION platform for this MCP server (Daniel runs it
+        # locally on Windows); CI was Linux-only, so it never tested the OS the
+        # server actually ships on.
+        os: [ubuntu-latest, windows-latest]
         node-version: ['20.x', '22.x']
     steps:
       - uses: actions/checkout@v4

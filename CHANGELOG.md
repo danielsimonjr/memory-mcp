@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Windows CI leg.** CI ran on `ubuntu-latest` only — but Windows is the *production* platform for this MCP server (it runs on Daniel's Windows box), so CI had never tested the OS the server actually ships on. The `ci` job now matrixes over `[ubuntu-latest, windows-latest]` × Node 20/22.
+
 ## [12.6.0]
 
 ### Added
