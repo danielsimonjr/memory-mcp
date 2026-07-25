@@ -58,7 +58,7 @@
     "tools:build": "cd tools/chunking-for-files && npm run build && cd ../compress-for-context && npm run build && cd ../create-dependency-graph && npm run build && cd ../migrate-from-jsonl-to-sqlite && npm run build"
   },
   "dependencies": {
-    "@danielsimonjr/memoryjs": "^2.8.1",
+    "@danielsimonjr/memoryjs": "^3.0.0",
     "@modelcontextprotocol/sdk": "^1.21.1",
     "zod": "^4.4.3"
   },
