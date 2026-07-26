@@ -17,11 +17,11 @@ High-level introduction to Memory MCP covering:
 - Quick architecture diagram
 - Data model (Entity, Relation)
 - Directory structure
-- Tool categories (160 total across 51 categories)
+- Tool categories (241 total across 65 categories)
 - Performance characteristics
 
 ### [API Reference](./architecture/API.md)
-Complete API documentation for all 160 tools provided by the Enhanced Memory MCP server, including:
+Complete API documentation for all 241 tools provided by the Enhanced Memory MCP server, including:
 - Entity, relation, observation operations
 - Search variants (basic, ranked, boolean, fuzzy, hybrid, semantic, smart, active retrieval)
 - Hierarchy management
@@ -32,6 +32,9 @@ Complete API documentation for all 160 tools provided by the Enhanced Memory MCP
 - RBAC (η.6.1)
 - Procedural memory (3B.4)
 - Causal reasoning and world model (3B.6 / 3B.7)
+- Tool affordance, heuristic guidelines, project context, decision rationale, exclusions, observation dedup, spell correction (Phase 16 / memoryjs v2.1.0)
+- Engineering / diagnostics (v12.5.0)
+- Event memory, reconstructive memory + snapshot persistence, relation consolidation, agent reflection (v12.7.0 / memoryjs v3.0.0)
 - Analytics and validation
 
 ### [Architecture Details](./architecture/ARCHITECTURE.md)

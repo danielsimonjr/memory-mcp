@@ -44,6 +44,61 @@ ode_modulesetter-sqlite3
 
 - **Windows CI leg.** CI ran on `ubuntu-latest` only — but Windows is the *production* platform for this MCP server (it runs on Daniel's Windows box), so CI had never tested the OS the server actually ships on. The `ci` job now matrixes over `[ubuntu-latest, windows-latest]` × Node 20/22.
 
+## [12.7.0] - 2026-07-26
+
+### Added
+
+- **16 new tools surfacing memoryjs v3.0.0 (225 → 241).**
+  - **Event Memory (5)**: `record_event`, `get_event`, `query_events`, `get_event_flow`,
+    `who_did_what` — n-ary event reification via `ctx.eventManager`. Actions become
+    first-class `entityType: 'event'` hub entities with role-typed relations
+    (`actor_of` / `targeted` / `occurred_in` / `participant_in`) and optional
+    `flow:<key>` grouping tags; missing endpoints auto-create as concept stubs.
+  - **Reconstructive Memory (5)**: `ingest_dialogue`, `reconstruct_memory`,
+    `reconstructive_memory_stats` via `ctx.reconstructiveMemory()` (MRAgent-style
+    Cue–Tag–Content associative memory with live-store backing), plus
+    `save_reconstructive_memory` / `load_reconstructive_memory` persisting the
+    process-local CTC graph to a `<basename>-reconstructive.json` sidecar so it
+    survives server restarts. Load validates the snapshot structure before
+    replacing the in-memory graph.
+  - **Relation Consolidation (2)**: `analyze_relation_duplicates` (dry-run) and
+    `consolidate_relations` (`apply: true` to merge) — the three-tier relation
+    janitor: relationType spelling variants (`WorksAt`/`works-at`/`works_at`),
+    redundant bidirectional mirrors, and semantic duplicates when an embedding
+    provider is configured.
+  - **Agent Reflection (4)**: `create_reflection`, `list_reflections`,
+    `get_relevant_reflections`, `archive_reflection` via `ctx.reflectionManager` —
+    evidence-backed generalized lessons scoped session/project/global, with
+    confidence filtering, evidence-overlap relevance matching, and soft-delete
+    archiving.
+- **`hybrid_search` v3 options** (all additive, default off): `graphWeight`
+  (graph-connectivity channel via `GraphRankPrior` normalized PageRank),
+  `expandNeighbors` (one-hop expansion of top-K results with damped scores),
+  `explain` (evidence paths from query anchor matches to each result), and
+  `lookFor` (rank expansion neighbors by similarity to a free-text connection
+  description). The handler wires `ctx.graphRankPrior` explicitly when per-call
+  graph options are requested, since the ctx-cached manager only attaches the
+  prior when `MEMORY_HYBRID_GRAPH_WEIGHT` is set.
+- New e2e suite `tests/e2e/tools/memoryjs-v3-tools.test.ts` (22 tests) covering
+  all 16 new tools and the `hybrid_search` v3 options, including a full CTC
+  snapshot round-trip into a fresh `ManagerContext`. Full suite: 791 tests.
+
+### Changed
+
+- **`@danielsimonjr/memoryjs` `^2.8.1` → `^3.0.0`.** The v3 major is a package
+  restructuring into subpath exports (`/core`, `/search`, `/agent`, `/sqlite`, …);
+  no root exports were removed, so the upgrade is source-compatible. SQLite
+  storage still self-registers for plain Node consumers.
+- **Handlers refactored onto the new lazy `ManagerContext` accessors.**
+  `ctx.hybridSearchManager` replaces per-call `new HybridSearchManager(...)`;
+  `ctx.governanceManager` (with its now-public `.auditLog`) replaces the local
+  WeakMap `AuditLog`/`GovernanceManager` singletons. The audit sidecar now follows
+  the library's `<basename>-audit.jsonl` convention — identical path for the
+  default `memory.jsonl`, moves only for custom-named storage files.
+- `index.ts` calls the new `ctx.close()` on stdio shutdown, releasing the SQLite
+  handle cleanly when `MEMORY_STORAGE_TYPE=sqlite` (no-op for JSONL).
+- Plugin manifest version aligned with the npm package (both 12.7.0).
+
 ## [12.6.0]
 
 ### Added

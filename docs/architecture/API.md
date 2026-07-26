@@ -1,9 +1,9 @@
 # Memory MCP - API Reference
 
-**Version**: 12.2.0
-**Last Updated**: 2026-04-26
+**Version**: 12.7.0
+**Last Updated**: 2026-07-26
 
-Complete reference for all 160 MCP tools provided by the Memory MCP server. The 23 newest tools (Phase 15 / memoryjs v1.14+) are documented in their own sections at the end: **Entity Bitemporal Validity**, **OCC Update**, **RBAC**, **Procedural Memory**, **Active Retrieval**, **Causal Reasoning**, and **World Model**. Phase 15 also extends three existing tools (`export_graph`, `create_entities`, `set_memory_visibility`) — those updates are noted inline in their respective sections.
+Complete reference for all 241 MCP tools provided by the Memory MCP server. The reference is in two parts: the original hand-written sections below (through Phase 15), then generated sections covering everything added since — Phase 12/14 surfaces that were previously undocumented here, Phase 16 (memoryjs v2.1.0), v12.3.2/v12.5.0, and v12.7.0 (memoryjs v3.0.0). Phase 15 extends three existing tools (`export_graph`, `create_entities`, `set_memory_visibility`) and v12.7.0 extends `hybrid_search` (graph channel, neighbor expansion, evidence-path explain, lookFor) — those updates are noted inline in their respective sections.
 
 ---
 
@@ -38,6 +38,44 @@ Complete reference for all 160 MCP tools provided by the Memory MCP server. The 
 27. [Causal Reasoning](#causal-reasoning-phase-15--memoryjs-3b6) (4 tools) — Phase 15 / memoryjs 3B.6
 28. [World Model](#world-model-phase-15--memoryjs-3b7) (3 tools) — Phase 15 / memoryjs 3B.7
 29. [Phase 15 enhancements to existing tools](#phase-15-enhancements-to-existing-tools) — `export_graph`, `create_entities`, `set_memory_visibility`
+
+Additional categories (Phase 12 → v12.7.0), documented after the sections above:
+
+- [Ref Index (Phase 12)](#ref-index-phase-12) (4 tools)
+- [Artifacts (Phase 12)](#artifacts-phase-12) (3 tools)
+- [Temporal Search (Phase 12)](#temporal-search-phase-12) (1 tool)
+- [Distillation (Phase 12)](#distillation-phase-12) (1 tool)
+- [Freshness (Phase 12)](#freshness-phase-12) (5 tools)
+- [LLM Query (Phase 12)](#llm-query-phase-12) (1 tool)
+- [Governance (Phase 12)](#governance-phase-12) (4 tools)
+- [Role Profiles (Phase 12)](#role-profiles-phase-12) (2 tools)
+- [Entropy (Phase 12)](#entropy-phase-12) (2 tools)
+- [Consolidation (Phase 12)](#consolidation-phase-12) (3 tools)
+- [Formatter (Phase 12)](#formatter-phase-12) (1 tool)
+- [Collaborative Synthesis (Phase 12)](#collaborative-synthesis-phase-12) (1 tool)
+- [Failure Handling (Phase 12)](#failure-handling-phase-12) (2 tools)
+- [Cognitive Load (Phase 12)](#cognitive-load-phase-12) (2 tools)
+- [Dream Engine (v12.0.0)](#dream-engine-v1200) (3 tools)
+- [Active Project Scope (v12.3.2)](#active-project-scope-v1232) (2 tools)
+- [Session & Working Memory (Phase 14)](#session-working-memory-phase-14) (9 tools)
+- [Auto-Enhancement (Phase 14)](#auto-enhancement-phase-14) (7 tools)
+- [Context Compression (Phase 14)](#context-compression-phase-14) (1 tool)
+- [Decay & Salience (Phase 14)](#decay-salience-phase-14) (5 tools)
+- [Multi-Agent (Phase 14)](#multi-agent-phase-14) (4 tools)
+- [Observability (Phase 14)](#observability-phase-14) (4 tools)
+- [Tool Affordance (Phase 16 / memoryjs v2.1.0)](#tool-affordance-phase-16-memoryjs-v210) (11 tools)
+- [Heuristic Guidelines (Phase 16 / memoryjs v2.1.0)](#heuristic-guidelines-phase-16-memoryjs-v210) (10 tools)
+- [Project Context (Phase 16 / memoryjs v2.1.0)](#project-context-phase-16-memoryjs-v210) (12 tools)
+- [Decision Rationale (Phase 16 / memoryjs v2.1.0)](#decision-rationale-phase-16-memoryjs-v210) (10 tools)
+- [Exclusion / do_not_remember (Phase 16 / memoryjs v2.1.0)](#exclusion-donotremember-phase-16-memoryjs-v210) (5 tools)
+- [Observation Dedup (Phase 16 / memoryjs v2.1.0)](#observation-dedup-phase-16-memoryjs-v210) (2 tools)
+- [Spell Correction (Phase 16 / memoryjs v2.1.0)](#spell-correction-phase-16-memoryjs-v210) (3 tools)
+- [Engineering / Diagnostics (v12.5.0)](#engineering-diagnostics-v1250) (10 tools)
+- [Event Memory (v12.7.0 / memoryjs v3.0.0)](#event-memory-v1270-memoryjs-v300) (5 tools)
+- [Reconstructive Memory (v12.7.0 / memoryjs v3.0.0)](#reconstructive-memory-v1270-memoryjs-v300) (3 tools)
+- [Relation Consolidation (v12.7.0 / memoryjs v3.0.0)](#relation-consolidation-v1270-memoryjs-v300) (2 tools)
+- [Agent Reflection (v12.7.0 / memoryjs v3.0.0)](#agent-reflection-v1270-memoryjs-v300) (4 tools)
+- [Reconstructive Memory Persistence (v12.7.0 / memoryjs v3.0.0)](#reconstructive-memory-persistence-v1270-memoryjs-v300) (2 tools)
 
 ---
 
@@ -2772,6 +2810,1827 @@ When called on a plain `Entity` (not yet an `AgentEntity`), the handler now stam
 
 ---
 
+## Ref Index (Phase 12)
+
+### register_ref
+
+Register a stable alias (ref) pointing to an entity name in the RefIndex for O(1) lookups
+
+**Parameters:**
+```typescript
+{
+  ref: string;
+  entityName: string;
+  description?: string;
+}
+```
+
+### resolve_ref
+
+Resolve a stable alias (ref) to its entity name via the RefIndex
+
+**Parameters:**
+```typescript
+{
+  ref: string;
+}
+```
+
+### deregister_ref
+
+Remove a stable alias (ref) from the RefIndex
+
+**Parameters:**
+```typescript
+{
+  ref: string;
+}
+```
+
+### list_refs
+
+List all registered refs in the RefIndex, optionally filtered by entity name
+
+**Parameters:**
+```typescript
+{
+  entityName?: string;
+}
+```
+
+---
+
+## Artifacts (Phase 12)
+
+### create_artifact
+
+Create an artifact entity (tool output, code snippet, API response, etc.) with a stable auto-generated ref
+
+**Parameters:**
+```typescript
+{
+  content: string;
+  toolName: string;
+  artifactType: "tool_output" | "code_snippet" | "api_response" | "search_result" | "file_content" | "user_input";
+  description?: string;
+  sessionId?: string;
+}
+```
+
+### get_artifact
+
+Retrieve an artifact entity by its stable ref or entity name
+
+**Parameters:**
+```typescript
+{
+  ref: string;
+}
+```
+
+### list_artifacts
+
+List all artifact entities, with optional filtering by tool name, type, or date
+
+**Parameters:**
+```typescript
+{
+  toolName?: string;
+  artifactType?: "tool_output" | "code_snippet" | "api_response" | "search_result" | "file_content" | "user_input";
+  since?: string;
+}
+```
+
+---
+
+## Temporal Search (Phase 12)
+
+### search_by_time
+
+Search entities using a natural language time expression (e.g. "last week", "yesterday", "in January")
+
+**Parameters:**
+```typescript
+{
+  query: string;
+  field?: "createdAt" | "lastModified" | "any";
+  includeUndated?: boolean;
+}
+```
+
+---
+
+## Distillation (Phase 12)
+
+### configure_distillation
+
+Configure the distillation pipeline policy (default, noop, or none) that filters memories before context formatting
+
+**Parameters:**
+```typescript
+{
+  policy: "default" | "noop" | "none";
+}
+```
+
+---
+
+## Freshness (Phase 12)
+
+### check_freshness
+
+Calculate the freshness score (0–1) for a specific entity based on its TTL and confidence
+
+**Parameters:**
+```typescript
+{
+  entityName: string;
+}
+```
+
+### get_stale_entities
+
+Return all entities whose freshness score is below a threshold
+
+**Parameters:**
+```typescript
+{
+  threshold?: number;
+}
+```
+
+### get_expired_entities
+
+Return all entities that have passed their TTL expiry
+
+**Parameters:** none
+
+### refresh_entity
+
+Reset freshness for an entity by updating its creation timestamp to now and resetting confidence to 1.0
+
+**Parameters:**
+```typescript
+{
+  entityName: string;
+}
+```
+
+### freshness_report
+
+Generate a freshness report across all entities showing fresh, stale, and expired counts
+
+**Parameters:**
+```typescript
+{
+  threshold?: number;
+}
+```
+
+---
+
+## LLM Query (Phase 12)
+
+### query_natural_language
+
+Decompose a natural language query into a structured search plan and return matching entities
+
+**Parameters:**
+```typescript
+{
+  query: string;
+}
+```
+
+---
+
+## Governance (Phase 12)
+
+### set_governance_policy
+
+Set the active governance policy controlling which write operations (create, update, delete) are permitted for future requests
+
+**Parameters:**
+```typescript
+{
+  canCreate?: boolean;
+  canUpdate?: boolean;
+  canDelete?: boolean;
+}
+```
+
+### audit_query
+
+Query the audit log for operations matching filter criteria (operation type, agent ID, entity name, date range)
+
+**Parameters:**
+```typescript
+{
+  operation?: "create" | "update" | "delete" | "merge" | "archive";
+  agentId?: string;
+  entityName?: string;
+  since?: string;
+  until?: string;
+  limit?: number;
+}
+```
+
+### audit_history
+
+Get the full audit history for a specific entity in chronological order
+
+**Parameters:**
+```typescript
+{
+  entityName: string;
+}
+```
+
+### rollback_operation
+
+Reverse a specific committed operation using its audit entry ID (restores entity to before-snapshot)
+
+**Parameters:**
+```typescript
+{
+  auditEntryId: string;
+}
+```
+
+---
+
+## Role Profiles (Phase 12)
+
+### set_agent_role
+
+Apply a built-in role profile (researcher, planner, executor, reviewer, coordinator) to adjust salience weights and context budgets
+
+**Parameters:**
+```typescript
+{
+  role: "researcher" | "planner" | "executor" | "reviewer" | "default";
+}
+```
+
+### list_role_profiles
+
+List all built-in role profiles with their salience weight and context budget configurations
+
+**Parameters:** none
+
+---
+
+## Entropy (Phase 12)
+
+### enable_entropy_filter
+
+Enable or disable the Shannon entropy gate that drops low-information memories during consolidation
+
+**Parameters:**
+```typescript
+{
+  enabled: boolean;
+  minEntropy?: number;
+  minLength?: number;
+}
+```
+
+### compute_entropy
+
+Compute the Shannon entropy of a text string (in bits per character)
+
+**Parameters:**
+```typescript
+{
+  text: string;
+  minEntropy?: number;
+}
+```
+
+---
+
+## Consolidation (Phase 12)
+
+### start_consolidation
+
+Start the background consolidation scheduler that periodically deduplicates and merges memories
+
+**Parameters:**
+```typescript
+{
+  intervalMs?: number;
+  autoMergeDuplicates?: boolean;
+}
+```
+
+### stop_consolidation
+
+Stop the background consolidation scheduler
+
+**Parameters:** none
+
+### run_consolidation_now
+
+Run a consolidation cycle on demand, independently of the scheduled interval
+
+**Parameters:** none
+
+---
+
+## Formatter (Phase 12)
+
+### format_with_salience_budget
+
+Format memories for LLM prompt consumption with proportional token allocation based on salience scores
+
+**Parameters:**
+```typescript
+{
+  entityNames: Array<string>;
+  salienceScores: {};
+  totalTokenBudget: number;
+  header?: string;
+  separator?: string;
+}
+```
+
+---
+
+## Collaborative Synthesis (Phase 12)
+
+### synthesize_collaborative_context
+
+Synthesize context by traversing the graph neighbourhood from a seed entity and merging high-salience neighbors across agents
+
+**Parameters:**
+```typescript
+{
+  seedEntityName: string;
+  maxDepth?: number;
+  minNeighborSalience?: number;
+  maxNeighbors?: number;
+  queryText?: string;
+  currentTask?: string;
+}
+```
+
+---
+
+## Failure Handling (Phase 12)
+
+### distill_failure
+
+Distill lessons from a failed session by tracing the causal chain and extracting actionable insights
+
+**Parameters:**
+```typescript
+{
+  sessionId: string;
+  minLessonConfidence?: number;
+  maxCauseChainLength?: number;
+}
+```
+
+### end_session
+
+End a session and trigger failure distillation if the session outcome was a failure
+
+**Parameters:**
+```typescript
+{
+  sessionId: string;
+  outcome: "success" | "failure" | "partial";
+  distillFailures?: boolean;
+}
+```
+
+---
+
+## Cognitive Load (Phase 12)
+
+### analyze_cognitive_load
+
+Analyze the cognitive load of a set of entities: token density, redundancy ratio, diversity score, and composite load score
+
+**Parameters:**
+```typescript
+{
+  entityNames: Array<string>;
+  loadThreshold?: number;
+}
+```
+
+### adaptive_reduce_memories
+
+Adaptively reduce a set of memories until their cognitive load falls below the configured threshold by removing low-salience redundant memories
+
+**Parameters:**
+```typescript
+{
+  entityNames: Array<string>;
+  salienceScores: {};
+  loadThreshold?: number;
+}
+```
+
+---
+
+## Dream Engine (v12.0.0)
+
+### dream_start
+
+Start the DreamEngine background memory maintenance. Runs 8 phases (temporal anchoring, freshness sweep, entropy pruning, consolidation, compression, entity enrichment, pattern promotion, graph hygiene) on a configurable interval.
+
+**Parameters:**
+```typescript
+{
+  intervalMs?: number;
+  runOnSessionEnd?: boolean;
+  maxDurationMs?: number;
+  phases?: {
+    temporalAnchoring?: boolean;
+    freshnessSweep?: boolean;
+    entropyPruning?: boolean;
+    consolidation?: boolean;
+    compression?: boolean;
+    entityEnrichment?: boolean;
+    patternPromotion?: boolean;
+    graphHygiene?: boolean;
+  };
+}
+```
+
+### dream_stop
+
+Stop the DreamEngine background process.
+
+**Parameters:** none
+
+### dream_run_now
+
+Run a single dream cycle immediately. Returns detailed per-phase results.
+
+**Parameters:**
+```typescript
+{
+  phases?: {
+    temporalAnchoring?: boolean;
+    freshnessSweep?: boolean;
+    entropyPruning?: boolean;
+    consolidation?: boolean;
+    compression?: boolean;
+    entityEnrichment?: boolean;
+    patternPromotion?: boolean;
+    graphHygiene?: boolean;
+  };
+}
+```
+
+---
+
+## Active Project Scope (v12.3.2)
+
+### set_project_scope
+
+Set the active project scope for this server session. New entities passed without an explicit projectId may be auto-stamped with this value by scope-aware handlers; pass an empty string to clear the scope. Returns { projectId } where projectId is the new active scope (null when cleared).
+
+**Parameters:**
+```typescript
+{
+  projectId: string;
+}
+```
+
+### get_project_scope
+
+Returns the active project scope for this server session (set via set_project_scope). Returns { projectId } where projectId is null when no scope is active.
+
+**Parameters:** none
+
+---
+
+## Session & Working Memory (Phase 14)
+
+### session_start
+
+Start a new agent session via AgentMemoryManager. Tracks session lifecycle, enables working memory, and supports session chaining. Returns a SessionEntity with id and timestamps.
+
+**Parameters:**
+```typescript
+{
+  taskDescription?: string;
+  parentSessionId?: string;
+  metadata?: {};
+}
+```
+
+### session_end
+
+End an agent session via AgentMemoryManager with summary generation and working memory promotion. Unlike end_session (which handles failure distillation on graph entities), this manages the full agent session lifecycle.
+
+**Parameters:**
+```typescript
+{
+  sessionId: string;
+  status?: "completed" | "abandoned";
+}
+```
+
+### session_checkpoint
+
+Create a checkpoint snapshot of the current session state for later restore
+
+**Parameters:**
+```typescript
+{
+  sessionId: string;
+  name?: string;
+}
+```
+
+### session_restore
+
+Restore a session from a previously created checkpoint
+
+**Parameters:**
+```typescript
+{
+  checkpointId: string;
+}
+```
+
+### add_working_memory
+
+Create a TTL-based short-term working memory entry scoped to a session. Working memories auto-expire and can be promoted to long-term storage.
+
+**Parameters:**
+```typescript
+{
+  sessionId: string;
+  content: string;
+  taskId?: string;
+  importance?: number;
+  ttlHours?: number;
+}
+```
+
+### promote_working_memory
+
+Promote a working memory entry to long-term episodic or semantic storage
+
+**Parameters:**
+```typescript
+{
+  memoryName: string;
+  targetType?: "episodic" | "semantic";
+}
+```
+
+### confirm_memory
+
+Boost a memory's confidence score without resetting its timestamp. Unlike refresh_entity (which resets to 1.0), this incrementally increases confidence.
+
+**Parameters:**
+```typescript
+{
+  memoryName: string;
+  confidenceBoost?: number;
+}
+```
+
+### clear_expired_memories
+
+Remove all working memories that have exceeded their TTL. Complements get_expired_entities (which lists but does not delete).
+
+**Parameters:** none
+
+### wake_up
+
+Initialize a 4-layer memory stack context (~600 tokens). L0 loads profile identity, L1 loads top entities by importance. Returns a compact boot context for LLM consumption.
+
+**Parameters:**
+```typescript
+{
+  compress?: boolean;
+}
+```
+
+---
+
+## Auto-Enhancement (Phase 14)
+
+### auto_link_observations
+
+Detect entity mentions in observation text and suggest cross-reference relations. Unlike normalize_observations (which resolves pronouns/dates), this finds entity name mentions.
+
+**Parameters:**
+```typescript
+{
+  text: string;
+}
+```
+
+### extract_facts
+
+Extract structured facts from observation text using rule-based extraction
+
+**Parameters:**
+```typescript
+{
+  text: string;
+}
+```
+
+### detect_contradictions
+
+Find conflicting observations within an entity using semantic similarity
+
+**Parameters:**
+```typescript
+{
+  entityName: string;
+  threshold?: number;
+}
+```
+
+### consolidate_session
+
+Run the full ConsolidationPipeline on a session: promote working memory, merge duplicates, summarize, and extract patterns. Unlike run_consolidation_now (which runs the dedup scheduler), this is a comprehensive session-scoped pipeline.
+
+**Parameters:**
+```typescript
+{
+  sessionId: string;
+}
+```
+
+### detect_patterns
+
+Detect recurring token-based patterns across observations of a given entity type
+
+**Parameters:**
+```typescript
+{
+  entityType: string;
+  minOccurrences?: number;
+}
+```
+
+### summarize_entity
+
+Auto-summarize redundant observations within a single entity. Unlike compress_graph (which merges similar entities), this condenses observations within one entity.
+
+**Parameters:**
+```typescript
+{
+  entityName: string;
+  threshold?: number;
+}
+```
+
+### priority_dedup
+
+Smart priority-based deduplication that keeps the highest-scored entity per duplicate group (importance > recency > observation count > tags)
+
+**Parameters:**
+```typescript
+{
+  dryRun?: boolean;
+}
+```
+
+---
+
+## Context Compression (Phase 14)
+
+### compress_context
+
+Compress text using n-gram abbreviation with a legend for token-efficient context loading. Unlike format_with_salience_budget (which allocates token budget), this does text-level compression.
+
+**Parameters:**
+```typescript
+{
+  text: string;
+  level?: "light" | "medium" | "aggressive";
+}
+```
+
+---
+
+## Decay & Salience (Phase 14)
+
+### run_decay_cycle
+
+Run a single pass of time-based importance decay across all agent memories. Returns count of decayed and forgotten memories.
+
+**Parameters:** none
+
+### get_decayed_memories
+
+List memories whose importance has fallen below a threshold due to time-based decay. Unlike get_stale_entities (which uses freshness timestamps), this uses decay engine importance calculations.
+
+**Parameters:**
+```typescript
+{
+  threshold?: number;
+}
+```
+
+### forget_weak_memories
+
+Bulk-delete memories that fell below a decay threshold. Unlike forget_memory (content match) or archive_entities (criteria-based move), this uses decay-based importance scoring.
+
+**Parameters:**
+```typescript
+{
+  threshold?: number;
+  maxCount?: number;
+  dryRun?: boolean;
+}
+```
+
+### reinforce_memory
+
+Boost a memory's decay resistance by increasing confirmation count and/or confidence. Unlike refresh_entity (timestamp reset) or set_importance (static score), this modulates the decay model.
+
+**Parameters:**
+```typescript
+{
+  memoryName: string;
+  confirmationBoost?: number;
+  confidenceBoost?: number;
+}
+```
+
+### score_salience
+
+Calculate 5-component relevance score for an entity: baseImportance, recencyBoost, frequencyBoost, contextRelevance, noveltyBoost. Use with format_with_salience_budget to score then format.
+
+**Parameters:**
+```typescript
+{
+  entityName: string;
+  queryText?: string;
+  taskDescription?: string;
+  sessionId?: string;
+}
+```
+
+---
+
+## Multi-Agent (Phase 14)
+
+### register_agent
+
+Register an agent for multi-agent operations with identity metadata. Unlike set_agent_role (which applies a role profile), this registers agent identity with type, trust level, and capabilities.
+
+**Parameters:**
+```typescript
+{
+  agentId: string;
+  type?: string;
+  trustLevel?: number;
+  capabilities?: Array<string>;
+}
+```
+
+### search_cross_agent
+
+Search across agent memories with trust-weighted scoring and visibility filtering
+
+**Parameters:**
+```typescript
+{
+  requestingAgentId: string;
+  query: string;
+  agentIds?: Array<string>;
+}
+```
+
+### get_visible_memories
+
+Get all memories visible to a specific agent based on visibility rules and trust levels
+
+**Parameters:**
+```typescript
+{
+  agentId: string;
+}
+```
+
+### resolve_agent_conflict
+
+Resolve a conflict between two agent memories using a specified strategy
+
+**Parameters:**
+```typescript
+{
+  primaryMemory: string;
+  conflictingMemory: string;
+  strategy?: "most_recent" | "highest_confidence" | "most_confirmations" | "trusted_agent";
+}
+```
+
+---
+
+## Observability (Phase 14)
+
+### visualize_graph
+
+Generate a self-contained interactive HTML page with a D3.js force-directed graph visualization. Nodes are colored by type and sized by importance.
+
+**Parameters:**
+```typescript
+{
+  maxEntities?: number;
+  title?: string;
+}
+```
+
+### split_transcript
+
+Split concatenated multi-session transcripts into per-session chunks via delimiter detection. Preprocessing step before ingest.
+
+**Parameters:**
+```typescript
+{
+  text: string;
+}
+```
+
+### estimate_query_cost
+
+Estimate execution cost (time, tokens) for all available search methods on a given query. Unlike analyze_query (which extracts entities/complexity), this predicts per-method performance.
+
+**Parameters:**
+```typescript
+{
+  query: string;
+}
+```
+
+### get_context_profile
+
+Get a ContextWindowManager profile configuration (salience weights, retrieval strategy). Unlike get_profile (user profile facts), this returns context-aware retrieval settings.
+
+**Parameters:**
+```typescript
+{
+  name: string;
+}
+```
+
+---
+
+## Tool Affordance (Phase 16 / memoryjs v2.1.0)
+
+### record_tool_outcome
+
+v2.1.0 — Record a single tool-call outcome directly via ToolAffordanceManager (bypasses ToolCallObserver). Creates the record on first call; appends to rolling window on subsequent. Throws "conflict" on concurrent writer mismatch.
+
+**Parameters:**
+```typescript
+{
+  toolName: string;
+  outcome: "success" | "failure" | "partial";
+  errorMessage?: string;
+  durationMs?: number;
+}
+```
+
+### get_tool_affordance_stats
+
+v2.1.0 — Flat rolling stats for a tool: success_rate, total_calls, common_failure_modes, avg_duration_ms.
+
+**Parameters:**
+```typescript
+{
+  toolName: string;
+}
+```
+
+### suggest_tool
+
+v2.1.0 — Suggest tools matching a task hint, ranked by successRate × recency factor (1.0 at ≤1d, linearly decays to 0.1 at ≥30d).
+
+**Parameters:**
+```typescript
+{
+  taskHint: string;
+  limit?: number;
+  minScore?: number;
+}
+```
+
+### list_tool_affordances
+
+v2.1.0 — All recorded ToolAffordanceRecords.
+
+**Parameters:** none
+
+### remove_tool_affordance
+
+v2.1.0 — Drop a tool-affordance record by toolName.
+
+**Parameters:**
+```typescript
+{
+  toolName: string;
+}
+```
+
+### observe_tool_start
+
+v2.1.0 — Begin observing a tool call. Returns a callId the caller threads through observe_tool_complete / observe_tool_error / observe_tool_partial / observe_tool_cancel. Emits toolCall:start on the observer EventEmitter.
+
+**Parameters:**
+```typescript
+{
+  toolName: string;
+  args?: {};
+}
+```
+
+### observe_tool_complete
+
+v2.1.0 — Record successful completion. Computes durationMs from observe_tool_start. No-op on unknown callId.
+
+**Parameters:**
+```typescript
+{
+  callId: string;
+  result?: string;
+}
+```
+
+### observe_tool_error
+
+v2.1.0 — Record failure with an error message. No-op on unknown callId.
+
+**Parameters:**
+```typescript
+{
+  callId: string;
+  errorMessage: string;
+}
+```
+
+### observe_tool_partial
+
+v2.1.0 — Record a partial result (tool returned a usable but incomplete result). No-op on unknown callId.
+
+**Parameters:**
+```typescript
+{
+  callId: string;
+  reason: string;
+}
+```
+
+### observe_tool_cancel
+
+v2.1.0 — Drop an in-flight observation without recording (e.g. user cancelled). No-op on unknown callId.
+
+**Parameters:**
+```typescript
+{
+  callId: string;
+}
+```
+
+### tool_observer_in_flight_count
+
+v2.1.0 — Diagnostic: number of in-flight (started but not yet completed) tool-call observations.
+
+**Parameters:** none
+
+---
+
+## Heuristic Guidelines (Phase 16 / memoryjs v2.1.0)
+
+### add_heuristic
+
+v2.1.0 — Register a new condition→action heuristic. Storage-backed; default confidence 0.5. Pass an explicit content-addressed id (e.g. h_<sha256(condition|action)>) for caller-managed idempotency.
+
+**Parameters:**
+```typescript
+{
+  condition: string;
+  action: string;
+  priority?: number;
+  initialConfidence?: number;
+  importance?: number;
+  agentId?: string;
+  id?: string;
+}
+```
+
+### get_heuristic
+
+v2.1.0 — Sync lookup by HeuristicId.
+
+**Parameters:**
+```typescript
+{
+  id: string;
+}
+```
+
+### list_heuristics
+
+v2.1.0 — All registered heuristics.
+
+**Parameters:** none
+
+### heuristic_count
+
+v2.1.0 — Count of stored heuristics.
+
+**Parameters:** none
+
+### match_heuristics
+
+v2.1.0 — Find heuristics whose condition matches input via Jaccard token-overlap × confidence; sorted descending, then by priority.
+
+**Parameters:**
+```typescript
+{
+  input: string;
+  limit?: number;
+  minScore?: number;
+}
+```
+
+### reinforce_heuristic
+
+v2.1.0 — Record a successful application: bumps support; raises confidence asymptotically (new = old + (1-old)*0.1). OCC-protected — surfaces "conflict" when concurrent writer collides.
+
+**Parameters:**
+```typescript
+{
+  id: string;
+}
+```
+
+### record_heuristic_contradiction
+
+v2.1.0 — Record a counter-example: bumps contradictions; lowers confidence (new = old - old*0.2). OCC-protected.
+
+**Parameters:**
+```typescript
+{
+  id: string;
+}
+```
+
+### detect_heuristic_conflicts
+
+v2.1.0 — Pair-wise overlap/contradiction detection across stored heuristics. Surfaces overlap (same condition tokens, different actions) and contradiction (opposing actions on overlapping conditions; negation prefixes such as "do not" / "never" / "avoid").
+
+**Parameters:** none
+
+### remove_heuristic
+
+v2.1.0 — Drop a heuristic by id.
+
+**Parameters:**
+```typescript
+{
+  id: string;
+}
+```
+
+### clear_heuristics
+
+v2.1.0 — Drop every heuristic (across all entities of type "heuristic").
+
+**Parameters:** none
+
+---
+
+## Project Context (Phase 16 / memoryjs v2.1.0)
+
+### upsert_project_context
+
+v2.1.0 — Merge structured project knowledge into the ProjectContextRecord for `projectId`. Array fields (facts/conventions/commands/glossary) append + dedup; scalars overwrite. One record per projectId.
+
+**Parameters:**
+```typescript
+{
+  projectId: string;
+  facts?: Array<string>;
+  conventions?: Array<string>;
+  commands?: Array<{
+    name: string;
+    command: string;
+    purpose: string;
+  }>;
+  glossary?: Array<{
+    term: string;
+    definition: string;
+  }>;
+}
+```
+
+### get_project_context
+
+v2.1.0 — Sync lookup of the ProjectContextRecord for projectId.
+
+**Parameters:**
+```typescript
+{
+  projectId: string;
+}
+```
+
+### append_project_fact
+
+v2.1.0 — Append one fact to a project context (auto-creates the record on first call; dedups).
+
+**Parameters:**
+```typescript
+{
+  projectId: string;
+  fact: string;
+}
+```
+
+### append_project_convention
+
+v2.1.0 — Append one convention to a project context (auto-creates; dedups).
+
+**Parameters:**
+```typescript
+{
+  projectId: string;
+  convention: string;
+}
+```
+
+### append_project_command
+
+v2.1.0 — Append a documented project command (dedup by name).
+
+**Parameters:**
+```typescript
+{
+  projectId: string;
+  name: string;
+  command: string;
+  purpose: string;
+}
+```
+
+### append_project_glossary_term
+
+v2.1.0 — Append a glossary term (dedup by term).
+
+**Parameters:**
+```typescript
+{
+  projectId: string;
+  term: string;
+  definition: string;
+}
+```
+
+### remove_project_fact
+
+v2.1.0 — Remove a single fact. Returns true if found.
+
+**Parameters:**
+```typescript
+{
+  projectId: string;
+  fact: string;
+}
+```
+
+### remove_project_convention
+
+v2.1.0 — Remove a single convention. Returns true if found.
+
+**Parameters:**
+```typescript
+{
+  projectId: string;
+  convention: string;
+}
+```
+
+### remove_project_command
+
+v2.1.0 — Remove a command by name. Returns true if found.
+
+**Parameters:**
+```typescript
+{
+  projectId: string;
+  commandName: string;
+}
+```
+
+### remove_project_glossary_term
+
+v2.1.0 — Remove a glossary entry by term. Returns true if found.
+
+**Parameters:**
+```typescript
+{
+  projectId: string;
+  term: string;
+}
+```
+
+### clear_project_context
+
+v2.1.0 — Wipe the four arrays (facts/conventions/commands/glossary) for projectId; keeps the entity.
+
+**Parameters:**
+```typescript
+{
+  projectId: string;
+}
+```
+
+### format_project_context_for_llm
+
+v2.1.0 — Render the ProjectContextRecord as a prose summary suitable for the wakeUp L0 layer or a system prompt. Honors budgetChars with ellipsis truncation.
+
+**Parameters:**
+```typescript
+{
+  projectId: string;
+  budgetChars?: number;
+}
+```
+
+---
+
+## Decision Rationale (Phase 16 / memoryjs v2.1.0)
+
+### propose_decision
+
+v2.1.0 — Propose a new architecture-decision-record (ADR-equivalent). Creates a "proposed" DecisionRecord. Default importance 8.
+
+**Parameters:**
+```typescript
+{
+  context: string;
+  decision: string;
+  alternatives?: Array<string>;
+  consequences?: Array<string>;
+  relatedFiles?: Array<string>;
+  supersedes?: string;
+  sourceSessionId?: string;
+  sourceProjectId?: string;
+  importance?: number;
+  agentId?: string;
+}
+```
+
+### accept_decision
+
+v2.1.0 — Transition a proposed decision to accepted. Returns one of: accepted | already-accepted | not-found | illegal-transition | conflict | vanished-mid-update.
+
+**Parameters:**
+```typescript
+{
+  id: string;
+}
+```
+
+### reject_decision
+
+v2.1.0 — Transition a proposed decision to rejected with a reason. Returns rejected | already-rejected | not-found | illegal-transition | conflict | vanished-mid-update.
+
+**Parameters:**
+```typescript
+{
+  id: string;
+  reason: string;
+}
+```
+
+### supersede_decision
+
+v2.1.0 — Mark an accepted decision as superseded by another. illegal-transition when target is not accepted. not-found when target or replacement is missing.
+
+**Parameters:**
+```typescript
+{
+  id: string;
+  by: string;
+}
+```
+
+### find_decisions_by_context
+
+v2.1.0 — Substring search across context, decision, and consequences fields.
+
+**Parameters:**
+```typescript
+{
+  query: string;
+}
+```
+
+### get_decision_chain
+
+v2.1.0 — Walk the supersedes link backward from the supplied id to the original proposal. Returns chain oldest-first; cycle-protected.
+
+**Parameters:**
+```typescript
+{
+  id: string;
+}
+```
+
+### list_decisions
+
+v2.1.0 — List decisions, optionally filtered by status / sourceSessionId / sourceProjectId.
+
+**Parameters:**
+```typescript
+{
+  status?: "proposed" | "accepted" | "superseded" | "rejected";
+  sourceSessionId?: string;
+  sourceProjectId?: string;
+  limit?: number;
+}
+```
+
+### get_decision
+
+v2.1.0 — Sync lookup by DecisionId.
+
+**Parameters:**
+```typescript
+{
+  id: string;
+}
+```
+
+### export_decision_as_adr_markdown
+
+v2.1.0 — Render a stored decision as ADR-format markdown (# title, Status, Context, Decision, Consequences bullet list, Alternatives bullet list, optional Supersedes link).
+
+**Parameters:**
+```typescript
+{
+  id: string;
+}
+```
+
+### parse_adr_markdown
+
+v2.1.0 — Parse a hand-written or previously-exported ADR markdown into a DecisionInput shape (static; no persistence). Returns null when required Context or Decision sections are missing.
+
+**Parameters:**
+```typescript
+{
+  text: string;
+}
+```
+
+---
+
+## Exclusion / do_not_remember (Phase 16 / memoryjs v2.1.0)
+
+### add_exclusion_rule
+
+v2.1.0 — Add a content-pattern exclusion rule (do_not_remember). Hard-deletes existing matches (per `scope`) and write-blocks future ones when consulted by upstream callers. v1 substring-only.
+
+**Parameters:**
+```typescript
+{
+  pattern: string;
+  scope?: "future-only" | "past-only" | "both";
+  entityType?: string;
+  reason?: string;
+}
+```
+
+### list_exclusion_rules
+
+v2.1.0 — Return every registered ExclusionRule.
+
+**Parameters:** none
+
+### remove_exclusion_rule
+
+v2.1.0 — Drop an exclusion rule by id. Does NOT restore previously deleted memories — the contract is "user said forget".
+
+**Parameters:**
+```typescript
+{
+  id: string;
+}
+```
+
+### check_exclusion
+
+v2.1.0 — Check whether content would be blocked by any active forward-blocking rule. Returns {blocked, ruleId?, reason?}. Past-only rules are skipped.
+
+**Parameters:**
+```typescript
+{
+  content: string;
+  entityType?: string;
+}
+```
+
+### find_matching_memories_for_rule
+
+v2.1.0 — Dry-run preview: return entities whose observations would match the candidate exclusion pattern. Does NOT persist the rule.
+
+**Parameters:**
+```typescript
+{
+  pattern: string;
+  entityType?: string;
+}
+```
+
+---
+
+## Observation Dedup (Phase 16 / memoryjs v2.1.0)
+
+### find_duplicate_observations
+
+v2.1.0 — Find verbatim duplicate observation strings across distinct entities (SHA-256 exact tier). Complementary to MemoryEngine.checkDuplicate (turn-level) and CompressionManager.findDuplicates (whole-entity). Report-only.
+
+**Parameters:**
+```typescript
+{
+  entityType?: unknown;
+  projectId?: string;
+  sessionId?: string;
+  minOccurrences?: number;
+  maxGroups?: number;
+}
+```
+
+### find_jaccard_duplicate_observations
+
+v2.1.0 — Find near-duplicate observation strings across distinct entities via token-Jaccard similarity with union-find grouping. More expensive than the exact tier (O(o²)); opt-in for higher recall.
+
+**Parameters:**
+```typescript
+{
+  entityType?: unknown;
+  projectId?: string;
+  sessionId?: string;
+  minOccurrences?: number;
+  maxGroups?: number;
+}
+```
+
+---
+
+## Spell Correction (Phase 16 / memoryjs v2.1.0)
+
+### spell_suggest
+
+v2.1.0 — Suggest close matches for a (potentially misspelled) query over the vocabulary of entity names + tag values. Two-stage: bigram-Jaccard pre-filter (NGramIndex) + Levenshtein re-rank.
+
+**Parameters:**
+```typescript
+{
+  query: string;
+  limit?: number;
+  minScore?: number;
+  maxDistance?: number;
+}
+```
+
+### spell_rebuild_vocabulary
+
+v2.1.0 — Force a rebuild of the SpellChecker vocabulary + n-gram index. Call after bulk entity churn; the lazy cache is otherwise correct for low-churn graphs.
+
+**Parameters:** none
+
+### spell_vocabulary_size
+
+v2.1.0 — Return the count of unique terms in the SpellChecker vocabulary (entity names + tag values by default). Mostly diagnostic.
+
+**Parameters:** none
+
+---
+
+## Engineering / Diagnostics (v12.5.0)
+
+### diag
+
+v12.5.0 — Runtime + storage diagnostic snapshot: node version, platform, storage path/type/size, entity + relation counts, ISO timestamp. Good first call when something feels off.
+
+**Parameters:** none
+
+### health
+
+v12.5.0 — Fast integrity checks: storage:loadGraph, entities:distinct-names, relations:no-orphans, hierarchy:no-cycles-no-missing-parents. Returns per-check duration; ok=false when any check fails.
+
+**Parameters:** none
+
+### check_graph
+
+v12.5.0 — Detect orphan relations (from/to references a missing entity), missing parents (entity.parentId references a missing entity), and hierarchy cycles. Reports findings. With apply=true, deletes orphan relations and clears missing parentIds; cycles are always reported but never auto-repaired (no safe default for which edge to break).
+
+**Parameters:**
+```typescript
+{
+  apply?: boolean;
+}
+```
+
+### reindex
+
+v12.5.0 — Rebuild search-side indexes that may have drifted (TF-IDF/BM25 ranked + spell-checker vocabulary). Pass ranked=false or spell=false to scope. Returns per-target ok flag + durationMs.
+
+**Parameters:**
+```typescript
+{
+  ranked?: boolean;
+  spell?: boolean;
+}
+```
+
+### cache_stats
+
+v12.5.0 — Per-tier snapshot of the global search caches (basic / ranked / boolean / fuzzy) showing hits / misses / size / hitRate. Process-local — every fresh server process starts at zero.
+
+**Parameters:** none
+
+### cache_clear
+
+v12.5.0 — Bust all four global search caches. Idempotent; safe after manual graph edits to drop stale results.
+
+**Parameters:** none
+
+### graph_size
+
+v12.5.0 — Graph + storage footprint: entity / relation / observation counts, distinct tag count, avg observations per entity, on-disk byte size + JSONL line count.
+
+**Parameters:** none
+
+### inspect_entity
+
+v12.5.0 — Verbose snapshot of one entity: observations (resolved via ObservationManager so the column-store sidecar is consulted), outgoing + incoming relations, tags, importance, timestamps, parentId, immediate children, full ancestors. Errors when entity not found.
+
+**Parameters:**
+```typescript
+{
+  name: string;
+}
+```
+
+### hierarchy_tree
+
+v12.5.0 — Hierarchy tree as nested JSON. With an explicit root, returns just that subtree; without, returns all root entities. Useful for visualising parent/child structure.
+
+**Parameters:**
+```typescript
+{
+  root?: string;
+}
+```
+
+### entity_neighbors
+
+v12.5.0 — Incoming + outgoing relations for one entity, plus in/out degree counts. Lighter than inspect_entity when you only need the graph-topology view.
+
+**Parameters:**
+```typescript
+{
+  name: string;
+}
+```
+
+---
+
+## Event Memory (v12.7.0 / memoryjs v3.0.0)
+
+### record_event
+
+Record an n-ary event: the action becomes a first-class event hub entity with role-typed relations (actor_of/targeted/occurred_in/participant_in). Missing endpoints auto-create as concept stubs. Optional flowKey groups events into a named flow.
+
+**Parameters:**
+```typescript
+{
+  action: string;
+  actor: string;
+  target?: string;
+  context?: string;
+  participants?: Array<string>;
+  occurredAt?: string;
+  flowKey?: string;
+  detail?: Array<string>;
+  importance?: number;
+}
+```
+
+### get_event
+
+Load one recorded event by its entity name, joining the event hub with its role-typed relation endpoints (actor, target, context, participants).
+
+**Parameters:**
+```typescript
+{
+  name: string;
+}
+```
+
+### query_events
+
+Query recorded events by any combination of actor, target, action, flowKey, and inclusive time range. Results are chronologically ordered (occurredAt, falling back to createdAt). Uses relation/type indexes — never a full-graph scan.
+
+**Parameters:**
+```typescript
+{
+  actor?: string;
+  target?: string;
+  action?: string;
+  flowKey?: string;
+  timeRange?: {
+    start?: string;
+    end?: string;
+  };
+  limit?: number;
+}
+```
+
+### get_event_flow
+
+All events sharing a flow key (flow:<key> tag), chronologically ordered — the full timeline of a named flow (e.g. a release, an incident).
+
+**Parameters:**
+```typescript
+{
+  flowKey: string;
+}
+```
+
+### who_did_what
+
+Convenience join answering "who did what (to target / in context / within time range)?" over recorded events. Returns actor + action + event tuples; events without a resolvable actor are omitted.
+
+**Parameters:**
+```typescript
+{
+  target?: string;
+  context?: string;
+  timeRange?: {
+    start?: string;
+    end?: string;
+  };
+  limit?: number;
+}
+```
+
+---
+
+## Reconstructive Memory (v12.7.0 / memoryjs v3.0.0)
+
+### ingest_dialogue
+
+Distill raw dialogue turns into the Cue–Tag–Content associative memory graph (MRAgent-style "memory is reconstructed, not retrieved"). Episodic/semantic/topic layers are also persisted into the live knowledge graph. Multiple calls accumulate.
+
+**Parameters:**
+```typescript
+{
+  turns: Array<{
+    id: string;
+    speaker?: string;
+    text: string;
+    timestamp?: string;
+  }>;
+}
+```
+
+### reconstruct_memory
+
+Answer a query via active multi-step traversal of the reconstructive (Cue–Tag–Content) memory graph. Returns accumulated evidence, the step-by-step trajectory, and whether the loop stopped early on a satisfied condition vs. budget.
+
+**Parameters:**
+```typescript
+{
+  query: string;
+  maxSteps?: number;
+  perStepBudget?: number;
+  evidenceTarget?: number;
+}
+```
+
+### reconstructive_memory_stats
+
+Size statistics of the reconstructive (Cue–Tag–Content) memory graph: cue / tag / content node counts and edge counts.
+
+**Parameters:** none
+
+---
+
+## Relation Consolidation (v12.7.0 / memoryjs v3.0.0)
+
+### analyze_relation_duplicates
+
+Dry-run the three-tier relation janitor: tier 1 finds trivial relationType spelling variants (WorksAt/works-at/works_at) and redundant bidirectional mirrors; tier 2 (when an embedding provider is configured) finds semantically equivalent same-pair relations. Report-only — never mutates the graph.
+
+**Parameters:** none
+
+### consolidate_relations
+
+Run relation-duplicate analysis and — when apply=true — merge tier 1+2 duplicate groups (delete variants, create the canonical survivor with summed confirmationCount). apply=false (default) is identical to analyze_relation_duplicates.
+
+**Parameters:**
+```typescript
+{
+  apply?: boolean;
+}
+```
+
+---
+
+## Agent Reflection (v12.7.0 / memoryjs v3.0.0)
+
+### create_reflection
+
+Persist an agent reflection — a generalized lesson distilled from experience, backed by evidence entities. Deduplicated by evidence hash; scoped to session, project, or global.
+
+**Parameters:**
+```typescript
+{
+  scope: "session" | "project" | "global";
+  summary: string;
+  evidence: Array<string>;
+  generalizationConfidence: number;
+  keyInsights?: Array<string>;
+  experienceType?: string;
+  sourceSessionId?: string;
+  sourceProjectId?: string;
+  importance?: number;
+  agentId?: string;
+}
+```
+
+### list_reflections
+
+List stored agent reflections, filterable by scope, source session/project, and minimum generalization confidence. Archived reflections are excluded unless includeArchived is set.
+
+**Parameters:**
+```typescript
+{
+  scope?: "session" | "project" | "global";
+  sourceSessionId?: string;
+  sourceProjectId?: string;
+  minConfidence?: number;
+  includeArchived?: boolean;
+  limit?: number;
+}
+```
+
+### get_relevant_reflections
+
+Reflections relevant to a session: matches by sourceSessionId, plus evidence overlap with the supplied session entity names. Use at session start to surface applicable past lessons.
+
+**Parameters:**
+```typescript
+{
+  sessionId: string;
+  sessionEntityNames?: Array<string>;
+  minConfidence?: number;
+  limit?: number;
+}
+```
+
+### archive_reflection
+
+Archive a reflection by id so it no longer appears in default listings or relevance matches (soft delete — the record is retained).
+
+**Parameters:**
+```typescript
+{
+  id: string;
+}
+```
+
+---
+
+## Reconstructive Memory Persistence (v12.7.0 / memoryjs v3.0.0)
+
+### save_reconstructive_memory
+
+Serialize the in-memory Cue–Tag–Content reconstructive graph to a JSON sidecar next to the storage file (<basename>-reconstructive.json). The CTC graph is process-local; save before shutdown to survive restarts.
+
+**Parameters:** none
+
+### load_reconstructive_memory
+
+Restore the Cue–Tag–Content reconstructive graph from the <basename>-reconstructive.json sidecar written by save_reconstructive_memory, replacing the current in-memory graph. Errors if no sidecar exists.
+
+**Parameters:** none
+
+---
+
 ## Common Patterns
 
 ### Pattern 1: Create and Connect
@@ -2896,7 +4755,7 @@ All tools return errors in this format:
 
 ---
 
-**Document Version**: 5.1
-**Last Updated**: 2026-04-10
-**Total Tools**: 106
+**Document Version**: 6.0
+**Last Updated**: 2026-07-26
+**Total Tools**: 241
 **Maintained By**: Daniel Simon Jr.

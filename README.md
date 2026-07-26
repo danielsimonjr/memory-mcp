@@ -1,15 +1,15 @@
 # Memory MCP Server
 
-[![Version](https://img.shields.io/badge/version-12.5.1-blue.svg)](https://github.com/danielsimonjr/memory-mcp)
+[![Version](https://img.shields.io/badge/version-12.7.0-blue.svg)](https://github.com/danielsimonjr/memory-mcp)
 [![NPM](https://img.shields.io/npm/v/@danielsimonjr/memory-mcp.svg)](https://www.npmjs.com/package/@danielsimonjr/memory-mcp)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![MCP](https://img.shields.io/badge/MCP-1.0-purple.svg)](https://modelcontextprotocol.io)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
-[![Coverage](https://img.shields.io/badge/coverage-80.7%25-yellow.svg)](docs/architecture/TEST_COVERAGE.md)
+[![Coverage](https://img.shields.io/badge/coverage-84.8%25-yellowgreen.svg)](docs/architecture/TEST_COVERAGE.md)
 
 An **enhanced fork** of the official [Model Context Protocol](https://modelcontextprotocol.io) memory server with advanced features for **hierarchical nesting**, **intelligent compression**, **semantic search**, **graph algorithms**, **archiving**, **advanced search**, and **multi-format import/export**.
 
-> **Enterprise-grade knowledge graph** with **213 tools** including hierarchical organization, semantic search with embeddings, graph traversal algorithms, duplicate detection, smart archiving, project scoping, temporal knowledge graph, semantic forget, agent diary, **entity bitemporal validity (η.4.4)**, **optimistic concurrency control (η.5.5.c)**, **role-based access control (η.6.1)**, **W3C Linked Data exports** (Turtle / JSON-LD / RDF/XML — η.5.4), **PII redaction on export** (η.6.3), **procedural memory (3B.4)**, **active retrieval (3B.5)**, **causal reasoning (3B.6)**, **world model (3B.7)**, **`do_not_remember` exclusions**, **decision rationale** (ADR memory + markdown dual-write), **structured project context** (facts / conventions / commands / glossary), **heuristic guidelines**, **tool affordance + ToolCallObserver pipeline** (with MCP shim), **observation dedup**, and **spell correction** (memoryjs v2.1.0 — Phase 16) for long-term memory management.
+> **Enterprise-grade knowledge graph** with **241 tools** including hierarchical organization, semantic search with embeddings, graph traversal algorithms, duplicate detection, smart archiving, project scoping, temporal knowledge graph, semantic forget, agent diary, **entity bitemporal validity (η.4.4)**, **optimistic concurrency control (η.5.5.c)**, **role-based access control (η.6.1)**, **W3C Linked Data exports** (Turtle / JSON-LD / RDF/XML — η.5.4), **PII redaction on export** (η.6.3), **procedural memory (3B.4)**, **active retrieval (3B.5)**, **causal reasoning (3B.6)**, **world model (3B.7)**, **`do_not_remember` exclusions**, **decision rationale** (ADR memory + markdown dual-write), **structured project context** (facts / conventions / commands / glossary), **heuristic guidelines**, **tool affordance + ToolCallObserver pipeline** (with MCP shim), **observation dedup**, **spell correction** (memoryjs v2.1.0 — Phase 16), **n-ary event memory**, **reconstructive (Cue–Tag–Content) memory with snapshot persistence**, **relation consolidation**, **agent reflections**, and a **graph-connectivity hybrid-search channel with evidence-path explanations** (memoryjs v3.0.0 — v12.7.0) for long-term memory management.
 
 ## Table of Contents
 
@@ -181,7 +181,7 @@ cd memory-mcp
 npm install
 npm run build
 
-# Run tests (665 tests, >80% statement coverage)
+# Run tests (791 tests, ~85% statement coverage)
 npm test
 
 # Type check
@@ -260,9 +260,9 @@ Discrete facts about entities. Each observation should be atomic and independent
 
 ## API Reference
 
-### Complete Tool List (160 Tools)
+### Complete Tool List (241 Tools)
 
-> Tool count: 160 tools across 51 categories. The 23 newest tools (Phase 15 / memoryjs v1.14+) are documented at the end under **Phase 15** sections. For full per-tool schemas see [docs/architecture/API.md](docs/architecture/API.md).
+> Tool count: 241 tools across 65 categories. The newest tools are documented at the end under the **Phase 15**, **Phase 16 (memoryjs v2.1.0)**, **v12.3.2 / v12.5.0**, and **v12.7.0 (memoryjs v3.0.0)** sections. For full per-tool schemas see [docs/architecture/API.md](docs/architecture/API.md) or `src/server/toolDefinitions.ts`.
 
 #### Entity Operations (4 tools)
 | Tool | Description |
@@ -563,6 +563,142 @@ Discrete facts about entities. Each observation should be atomic and independent
 - **`create_entities`** — Now accepts v1.6 freshness fields (`ttl`, `confidence`), v1.8 project scope (`projectId`), and η.4.4 bitemporal fields (`validFrom`, `validUntil`, `observationMeta`) per entity.
 - **`set_memory_visibility`** — Auto-promotes plain entities to `AgentEntity` (stamps `agentId` / `memoryType` / `confidence`) instead of silently returning `null`. Supports η.5.5.b extensions (`allowedRoles`, `visibleFrom`, `visibleUntil`).
 
+#### Tool Affordance (11 tools) — Phase 16 / memoryjs v2.1.0
+| Tool | Description |
+|------|-------------|
+| `record_tool_outcome` | Record a tool call outcome (success/failure) into affordance stats |
+| `get_tool_affordance_stats` | Per-tool success-rate and usage statistics |
+| `suggest_tool` | Suggest the best tool for a task based on recorded affordances |
+| `list_tool_affordances` | List all recorded tool affordances |
+| `remove_tool_affordance` | Remove one tool's affordance record |
+| `observe_tool_start` | `ToolCallObserver` lifecycle: mark a tool call started |
+| `observe_tool_complete` | Mark an observed tool call completed successfully |
+| `observe_tool_error` | Mark an observed tool call failed |
+| `observe_tool_partial` | Mark an observed tool call partially successful |
+| `observe_tool_cancel` | Cancel an in-flight tool observation |
+| `tool_observer_in_flight_count` | Count of currently in-flight observed tool calls |
+
+#### Heuristic Guidelines (10 tools) — Phase 16 / memoryjs v2.1.0
+| Tool | Description |
+|------|-------------|
+| `add_heuristic` | Store a heuristic guideline ("when X, prefer Y") |
+| `get_heuristic` | Fetch one heuristic by id |
+| `list_heuristics` | List stored heuristics |
+| `heuristic_count` | Count of stored heuristics |
+| `match_heuristics` | Heuristics matching a context string |
+| `reinforce_heuristic` | Strengthen a heuristic after successful application |
+| `record_heuristic_contradiction` | Record evidence contradicting a heuristic |
+| `detect_heuristic_conflicts` | Detect mutually contradictory heuristics |
+| `remove_heuristic` | Remove one heuristic |
+| `clear_heuristics` | Remove all heuristics |
+
+#### Project Context (12 tools) — Phase 16 / memoryjs v2.1.0
+| Tool | Description |
+|------|-------------|
+| `upsert_project_context` | Create/replace a project's structured context record |
+| `get_project_context` | Fetch a project's context record |
+| `append_project_fact` | Append a fact to a project context |
+| `append_project_convention` | Append a coding/workflow convention |
+| `append_project_command` | Append a named command (e.g. build/test invocations) |
+| `append_project_glossary_term` | Append a glossary term + definition |
+| `remove_project_fact` | Remove a fact by index/value |
+| `remove_project_convention` | Remove a convention |
+| `remove_project_command` | Remove a command |
+| `remove_project_glossary_term` | Remove a glossary term |
+| `clear_project_context` | Delete a project's context record |
+| `format_project_context_for_llm` | Render the context as LLM-ready markdown |
+
+#### Decision Rationale (10 tools) — Phase 16 / memoryjs v2.1.0
+| Tool | Description |
+|------|-------------|
+| `propose_decision` | Record a proposed decision with rationale |
+| `accept_decision` | Mark a decision accepted |
+| `reject_decision` | Mark a decision rejected |
+| `supersede_decision` | Supersede a decision with a newer one |
+| `find_decisions_by_context` | Decisions matching a context string |
+| `get_decision_chain` | Follow a decision's supersession chain |
+| `list_decisions` | List decisions (filterable by status) |
+| `get_decision` | Fetch one decision by id |
+| `export_decision_as_adr_markdown` | Render a decision as ADR markdown |
+| `parse_adr_markdown` | Parse ADR markdown back into a decision record |
+
+#### Exclusion / `do_not_remember` (5 tools) — Phase 16 / memoryjs v2.1.0
+| Tool | Description |
+|------|-------------|
+| `add_exclusion_rule` | Add a rule for content that must not be remembered |
+| `list_exclusion_rules` | List exclusion rules |
+| `remove_exclusion_rule` | Remove one exclusion rule |
+| `check_exclusion` | Check whether a text would be excluded |
+| `find_matching_memories_for_rule` | Existing memories matching an exclusion rule |
+
+#### Observation Dedup (2 tools) — Phase 16 / memoryjs v2.1.0
+| Tool | Description |
+|------|-------------|
+| `find_duplicate_observations` | Exact duplicate observations across entities |
+| `find_jaccard_duplicate_observations` | Near-duplicates via Jaccard token similarity |
+
+#### Spell Correction (3 tools) — Phase 16 / memoryjs v2.1.0
+| Tool | Description |
+|------|-------------|
+| `spell_suggest` | "Did you mean?" suggestions for a query term |
+| `spell_rebuild_vocabulary` | Rebuild the spell-check vocabulary from the graph |
+| `spell_vocabulary_size` | Current vocabulary size |
+
+#### Active Project Scope (2 tools) — v12.3.2
+| Tool | Description |
+|------|-------------|
+| `set_project_scope` | Set the server's active project-scope filter (per-session mutable state) |
+| `get_project_scope` | Get the active project scope (`{ projectId }`, null when unscoped) |
+
+#### Engineering / Diagnostics (10 tools) — v12.5.0
+| Tool | Description |
+|------|-------------|
+| `diag` | Server + storage diagnostic snapshot |
+| `health` | Quick health check |
+| `check_graph` | Graph integrity check |
+| `reindex` | Rebuild search indexes |
+| `cache_stats` | Stats for the global search caches |
+| `cache_clear` | Bust all global search caches |
+| `graph_size` | Entity/relation/observation counts + on-disk footprint |
+| `inspect_entity` | Verbose single-entity snapshot (observations, relations, hierarchy) |
+| `hierarchy_tree` | Hierarchy as nested JSON |
+| `entity_neighbors` | Incoming/outgoing relations + degree counts for one entity |
+
+#### Event Memory (5 tools) — v12.7.0 / memoryjs v3.0.0
+| Tool | Description |
+|------|-------------|
+| `record_event` | Reify an action as an event hub entity with role-typed relations (`actor_of` / `targeted` / `occurred_in` / `participant_in`) and optional `flow:<key>` grouping |
+| `get_event` | Load one event with its resolved role endpoints |
+| `query_events` | Query by actor / target / action / flowKey / time range, chronologically ordered |
+| `get_event_flow` | Full timeline of a named flow (e.g. a release or incident) |
+| `who_did_what` | "Who did what (to target / in context / within range)?" join over events |
+
+#### Reconstructive Memory (5 tools) — v12.7.0 / memoryjs v3.0.0
+| Tool | Description |
+|------|-------------|
+| `ingest_dialogue` | Distill dialogue turns into the Cue–Tag–Content associative graph (also persisted into the live knowledge graph) |
+| `reconstruct_memory` | Answer a query via active multi-step traversal; returns evidence + trajectory |
+| `reconstructive_memory_stats` | CTC graph size statistics |
+| `save_reconstructive_memory` | Serialize the CTC graph to a `<basename>-reconstructive.json` sidecar |
+| `load_reconstructive_memory` | Restore the CTC graph from the sidecar (survives restarts) |
+
+#### Relation Consolidation (2 tools) — v12.7.0 / memoryjs v3.0.0
+| Tool | Description |
+|------|-------------|
+| `analyze_relation_duplicates` | Dry-run the three-tier relation janitor: spelling variants, inverse duplicates, semantic duplicates (with embeddings) |
+| `consolidate_relations` | Apply tier 1+2 merges (`apply: true`) or dry-run (default) |
+
+#### Agent Reflection (4 tools) — v12.7.0 / memoryjs v3.0.0
+| Tool | Description |
+|------|-------------|
+| `create_reflection` | Persist an evidence-backed generalized lesson (scope: session / project / global) |
+| `list_reflections` | List reflections, filterable by scope / source / confidence |
+| `get_relevant_reflections` | Reflections relevant to a session (sourceSessionId + evidence overlap) |
+| `archive_reflection` | Soft-delete a reflection out of default listings |
+
+#### v12.7.0 enhancements to existing tools
+- **`hybrid_search`** — Now accepts memoryjs v3's additive options: `graphWeight` (graph-connectivity channel via normalized PageRank), `expandNeighbors` (one-hop expansion of top results with damped scores), `explain` (annotate results with evidence paths from query anchors), and `lookFor` (rank expansion neighbors by a free-text connection description).
+
 ## Configuration
 
 ### Environment Variables
@@ -646,7 +782,7 @@ node dist/migrate-from-jsonl-to-sqlite.js --from memory.db --to memory.jsonl
 ```bash
 npm install           # Install dependencies
 npm run build         # Build TypeScript
-npm test              # Run tests (665 tests across 26 files; >80% coverage)
+npm test              # Run tests (791 tests across 36 files; ~85% coverage)
 npm run typecheck     # Strict type checking
 npm run watch         # Development watch mode
 npm run clean         # Remove dist/ directory
@@ -655,7 +791,7 @@ npm run docs:deps     # Generate dependency graph
 
 ### Architecture
 
-After the **Phase 13 extraction**, this repo is a thin MCP wrapper. All graph logic, managers, and storage live in [`@danielsimonjr/memoryjs`](https://www.npmjs.com/package/@danielsimonjr/memoryjs) (currently `^1.15.0`).
+After the **Phase 13 extraction**, this repo is a thin MCP wrapper. All graph logic, managers, and storage live in [`@danielsimonjr/memoryjs`](https://www.npmjs.com/package/@danielsimonjr/memoryjs) (currently `^3.0.0`).
 
 ```
 memory-mcp (this repo)              @danielsimonjr/memoryjs (npm dep)
@@ -673,7 +809,7 @@ memory-mcp (this repo)              @danielsimonjr/memoryjs (npm dep)
 | Layer | Lives in | Files |
 |-------|----------|-------|
 | MCP protocol (stdio transport, tool registration, dispatch) | `memory-mcp` | 5 |
-| Tool schemas (160 tools across 51 categories) | `memory-mcp` (`toolDefinitions.ts`) | 1 |
+| Tool schemas (241 tools across 65 categories) | `memory-mcp` (`toolDefinitions.ts`) | 1 |
 | Handler registry + Zod validation + response compression | `memory-mcp` (`toolHandlers.ts` + `responseCompressor.ts`) | 2 |
 | Managers (Entity / Relation / Search / IO / Tag / Hierarchy / Analytics / Compression / Archive / GraphTraversal / SemanticSearch / RankedSearch / etc.) | `memoryjs` | 100+ |
 | Storage (JSONL + SQLite with FTS5 + StorageFactory + TransactionManager) | `memoryjs` | — |
@@ -687,10 +823,10 @@ memory-mcp/
 │   ├── index.ts                            # Entry point: ManagerContext + start MCPServer; re-exports memoryjs types
 │   └── server/
 │       ├── MCPServer.ts                    # MCP Server setup, stdio transport, request handlers
-│       ├── toolDefinitions.ts              # 160 tool schemas (name, description, inputSchema)
+│       ├── toolDefinitions.ts              # 241 tool schemas (name, description, inputSchema)
 │       ├── toolHandlers.ts                 # Handler registry: validate args → call manager → format response
 │       └── responseCompressor.ts           # Brotli + base64 wrapper for >256KB payloads
-├── tests/                                  # Test suite (26 files, 665 tests, >80% statement coverage)
+├── tests/                                  # Test suite (36 files, 791 tests, ~85% statement coverage)
 │   ├── unit/                               # Unit tests (response compressor, tool defs, validate-fact handler)
 │   ├── integration/                        # MCP server lifecycle
 │   ├── e2e/tools/                          # Per-category tool tests + handler-smoke broad coverage
@@ -733,7 +869,7 @@ memory-mcp/
 Comprehensive documentation in `docs/`:
 
 **Architecture**
-- [API.md](docs/architecture/API.md) - Complete API documentation for all 160 tools
+- [API.md](docs/architecture/API.md) - Complete API documentation for all 241 tools
 - [ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md) - Technical architecture and system design
 - [COMPONENTS.md](docs/architecture/COMPONENTS.md) - Component breakdown and responsibilities
 - [OVERVIEW.md](docs/architecture/OVERVIEW.md) - High-level project overview
@@ -772,9 +908,12 @@ We welcome contributions!
 
 All notable changes are documented in **[CHANGELOG.md](CHANGELOG.md)**.
 
-**Current version**: v12.3.0 - [View full changelog](CHANGELOG.md)
+**Current version**: v12.7.0 - [View full changelog](CHANGELOG.md)
 
 Recent highlights:
+- **v12.7.0** (241 tools): Upgraded `@danielsimonjr/memoryjs` `^2.8.1` → `^3.0.0` and surfaced its new features as 16 tools — event memory (5), reconstructive Cue–Tag–Content memory + snapshot persistence (5), relation consolidation (2), agent reflection (4) — plus v3 graph-channel / evidence-path options on `hybrid_search`. Refactored handlers onto the new `ManagerContext` accessors (`hybridSearchManager`, `governanceManager`, `eventManager`, `reflectionManager`, `reconstructiveMemory()`, `close()`).
+- **v12.5.0** (225 tools): 10 engineering / diagnostic tools mirroring the memoryjs CLI surface (`diag`, `health`, `check_graph`, `reindex`, cache stats/clear, `graph_size`, `inspect_entity`, `hierarchy_tree`, `entity_neighbors`).
+- **v12.3.2** (215 tools): Backport of the deferred `set_project_scope` / `get_project_scope` pair.
 - **v12.3.0** (213 tools): **Phase 16** — 53 new tools surfacing memoryjs v2.1.0 across seven new manager surfaces: `do_not_remember` exclusion rules (5), decision rationale + ADR markdown dual-write (10), structured project context (12), heuristic guidelines (10), tool affordance + `ToolCallObserver` producer pipeline (11), observation dedup (2), spell correction (3). Bumped `@danielsimonjr/memoryjs` dep `^1.15.0` → `^2.1.0`.
 - **v12.2.3**: Publishability — switched `@danielsimonjr/memoryjs` dep from local `file:` link to published `^1.15.0` (npm rejects `file:` deps for published packages).
 - **v12.2.2**: Doc-only — roadmap completion audit grading Phase 6-15 status against current code.
@@ -811,7 +950,7 @@ Enhanced fork of [Model Context Protocol memory server](https://github.com/model
 - Multi-format import/export with merge strategies
 - SQLite backend with better-sqlite3 (3-10x faster)
 - Transaction support with ACID guarantees
-- Comprehensive test suite (665 tests, 26 test files in this wrapper repo; full-coverage core graph tests live in `@danielsimonjr/memoryjs`)
+- Comprehensive test suite (791 tests, 36 test files in this wrapper repo; full-coverage core graph tests live in `@danielsimonjr/memoryjs`)
 
 ---
 

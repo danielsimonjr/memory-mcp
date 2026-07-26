@@ -5,11 +5,11 @@
 
 > **⚠️ Historical document** — This coverage analysis was generated **before** the Phase 13 extraction (commit `0269e609`+) that moved all core graph logic from memory-mcp into the `@danielsimonjr/memoryjs` library. The numbers below describe the pre-extraction repository.
 >
-> **Current memory-mcp (v12.2.0):**
+> **Current memory-mcp (v12.7.0):**
 > - **Source files**: 5 TypeScript files in `src/` (entry point + 4 server-layer files)
-> - **Test files**: 26 (`SKIP_BENCHMARKS=true npm test`)
-> - **Tests**: 665 passing
-> - **Coverage**: >92% statement coverage on the thin MCP wrapper
+> - **Test files**: 36 (`SKIP_BENCHMARKS=true npm test`)
+> - **Tests**: 791 passing
+> - **Coverage**: ~85% statement coverage on the thin MCP wrapper (verified via `coverage/coverage-summary.json`)
 >
 > Core-library coverage now lives in [`@danielsimonjr/memoryjs`](https://github.com/danielsimonjr/memoryjs). This file is preserved as a snapshot of the pre-extraction codebase for historical reference.
 

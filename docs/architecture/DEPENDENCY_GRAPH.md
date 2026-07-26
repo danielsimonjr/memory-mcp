@@ -1,6 +1,6 @@
 # @danielsimonjr/memory-mcp - Dependency Graph
 
-**Version**: 12.2.0 | **Last Updated**: 2026-04-26
+**Version**: 12.7.0 | **Last Updated**: 2026-07-26
 
 This document provides a comprehensive dependency graph of all files, components, imports, functions, and variables in the codebase.
 
@@ -168,7 +168,7 @@ graph TD
 |----------|-------|
 | Total TypeScript Files | 5 |
 | Total Modules | 2 |
-| Total Lines of Code | 5423 |
+| Total Lines of Code | 7667 |
 | Total Exports | 11 |
 | Total Re-exports | 0 |
 | Total Classes | 1 |
@@ -182,5 +182,5 @@ graph TD
 
 ---
 
-*Last Updated*: 2026-04-26
-*Version*: 12.2.0
+*Last Updated*: 2026-07-26
+*Version*: 12.7.0

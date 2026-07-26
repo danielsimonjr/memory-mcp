@@ -1,7 +1,7 @@
 # Memory MCP Server - Project Overview
 
-**Version**: 12.2.0
-**Last Updated**: 2026-04-26
+**Version**: 12.7.0
+**Last Updated**: 2026-07-26
 
 ## What Is This?
 
@@ -13,7 +13,7 @@ Memory MCP is an **enhanced Model Context Protocol (MCP) server** that provides 
 |---------|-------------|
 | **Knowledge Graph** | Store entities and relations in a flexible graph structure |
 | **Persistent Memory** | Data persists across sessions in JSONL files |
-| **160 Tools** | Comprehensive API for graph operations |
+| **241 Tools** | Comprehensive API for graph operations |
 | **Hierarchical Nesting** | Parent-child relationships for tree organization |
 | **Advanced Search** | Basic, TF-IDF ranked, boolean, fuzzy, intelligent hybrid, semantic, active retrieval (3B.5) |
 | **Duplicate Detection** | Intelligent compression with similarity scoring |
@@ -104,7 +104,7 @@ src/ (77 TypeScript files, ~31,000 lines of code)
 │
 ├── server/ (4 files)     # MCP protocol layer
 │   ├── MCPServer.ts              # Server initialization
-│   ├── toolDefinitions.ts        # 160 tool schemas
+│   ├── toolDefinitions.ts        # 241 tool schemas
 │   ├── toolHandlers.ts           # Tool implementation registry
 │   └── responseCompressor.ts     # Brotli compression for large responses
 │
