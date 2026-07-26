@@ -6,6 +6,8 @@
  * - Reconstructive Memory: ingest_dialogue, reconstruct_memory, reconstructive_memory_stats
  * - Relation Consolidation: analyze_relation_duplicates, consolidate_relations
  * - hybrid_search v3 options (graphWeight, expandNeighbors, explain, lookFor)
+ * - Agent Reflection: create_reflection, list_reflections, get_relevant_reflections, archive_reflection
+ * - Reconstructive Memory persistence: save_reconstructive_memory, load_reconstructive_memory
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
@@ -219,6 +221,119 @@ describe('memoryjs v3.0.0 Tools E2E', () => {
       expect(plain.isError).toBeUndefined();
       const data = parse(plain);
       expect(data.weights.graph).toBeUndefined();
+    });
+  });
+
+  describe('Agent Reflection', () => {
+    beforeEach(async () => {
+      await handleToolCall('create_entities', {
+        entities: [
+          { name: 'deploy-runbook', entityType: 'doc', observations: ['staged rollout works best'] },
+          { name: 'api-service', entityType: 'service', observations: [] },
+        ],
+      }, manager);
+    });
+
+    it('creates a reflection and lists it back', async () => {
+      const created = await handleToolCall('create_reflection', {
+        scope: 'project',
+        summary: 'Staged rollouts avoided every deploy incident this quarter.',
+        evidence: ['deploy-runbook', 'api-service'],
+        generalizationConfidence: 0.8,
+        keyInsights: ['stage before full rollout'],
+        sourceSessionId: 'session-1',
+      }, manager);
+      expect(created.isError).toBeUndefined();
+      const { reflection } = parse(created);
+      expect(reflection.scope).toBe('project');
+      expect(reflection.evidence).toContain('deploy-runbook');
+
+      const listed = await handleToolCall('list_reflections', { scope: 'project' }, manager);
+      const data = parse(listed);
+      expect(data.count).toBe(1);
+      expect(data.reflections[0].summary).toContain('Staged rollouts');
+    });
+
+    it('filters listings by minConfidence', async () => {
+      await handleToolCall('create_reflection', {
+        scope: 'global',
+        summary: 'Low-confidence hunch.',
+        evidence: ['deploy-runbook'],
+        generalizationConfidence: 0.2,
+      }, manager);
+      const listed = await handleToolCall('list_reflections', { minConfidence: 0.5 }, manager);
+      expect(parse(listed).count).toBe(0);
+    });
+
+    it('finds reflections relevant to a session via sourceSessionId and evidence overlap', async () => {
+      await handleToolCall('create_reflection', {
+        scope: 'session',
+        summary: 'From this very session.',
+        evidence: ['deploy-runbook'],
+        generalizationConfidence: 0.9,
+        sourceSessionId: 'session-42',
+      }, manager);
+      const bySession = await handleToolCall('get_relevant_reflections', { sessionId: 'session-42' }, manager);
+      expect(parse(bySession).count).toBe(1);
+
+      const byEvidence = await handleToolCall('get_relevant_reflections', {
+        sessionId: 'other-session',
+        sessionEntityNames: ['deploy-runbook'],
+      }, manager);
+      expect(parse(byEvidence).count).toBe(1);
+    });
+
+    it('archives a reflection out of default listings', async () => {
+      const created = await handleToolCall('create_reflection', {
+        scope: 'global',
+        summary: 'To be archived.',
+        evidence: ['deploy-runbook'],
+        generalizationConfidence: 0.7,
+      }, manager);
+      const { reflection } = parse(created);
+
+      const archived = await handleToolCall('archive_reflection', { id: reflection.id }, manager);
+      expect(archived.isError).toBeUndefined();
+
+      expect(parse(await handleToolCall('list_reflections', {}, manager)).count).toBe(0);
+      expect(parse(await handleToolCall('list_reflections', { includeArchived: true }, manager)).count).toBe(1);
+    });
+
+    it('rejects a reflection without evidence', async () => {
+      const result = await handleToolCall('create_reflection', {
+        scope: 'global',
+        summary: 'No evidence.',
+        evidence: [],
+        generalizationConfidence: 0.5,
+      }, manager);
+      expect(result.isError).toBe(true);
+    });
+  });
+
+  describe('Reconstructive Memory persistence', () => {
+    it('round-trips the CTC graph through the sidecar', async () => {
+      await handleToolCall('ingest_dialogue', {
+        turns: [{ id: 't1', speaker: 'user', text: 'My dog Biscuit learned to open doors.' }],
+      }, manager);
+      const statsBefore = parse(await handleToolCall('reconstructive_memory_stats', {}, manager));
+
+      const saved = await handleToolCall('save_reconstructive_memory', {}, manager);
+      expect(saved.isError).toBeUndefined();
+      const { path: sidecarPath } = parse(saved);
+      expect(sidecarPath).toContain('graph-reconstructive.json');
+      await expect(fs.access(sidecarPath)).resolves.toBeUndefined();
+
+      // A fresh context starts with an empty CTC graph; loading restores it.
+      const manager2 = new KnowledgeGraphManager(join(testDir, 'graph.jsonl'));
+      const loaded = await handleToolCall('load_reconstructive_memory', {}, manager2);
+      expect(loaded.isError).toBeUndefined();
+      expect(parse(loaded).stats).toEqual(statsBefore);
+    });
+
+    it('errors helpfully when no sidecar exists', async () => {
+      const result = await handleToolCall('load_reconstructive_memory', {}, manager);
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain('save_reconstructive_memory');
     });
   });
 });

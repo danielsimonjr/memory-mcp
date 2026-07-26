@@ -2,7 +2,7 @@
  * MCP Tool Definitions
  *
  * Extracted from MCPServer.ts to reduce file size and improve maintainability.
- * Contains all 235 tool schemas for the Knowledge Graph MCP Server.
+ * Contains all 241 tool schemas for the Knowledge Graph MCP Server.
  *
  * @module server/toolDefinitions
  */
@@ -3598,6 +3598,84 @@ export const toolDefinitions: ToolDefinition[] = [
       },
       additionalProperties: false,
     },
+  },
+
+  // ==================== AGENT REFLECTION TOOLS (memoryjs v3.0.0) ====================
+  {
+    name: 'create_reflection',
+    description: 'Persist an agent reflection — a generalized lesson distilled from experience, backed by evidence entities. Deduplicated by evidence hash; scoped to session, project, or global.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        scope: { type: 'string', enum: ['session', 'project', 'global'], description: 'Generalization scope of the reflection' },
+        summary: { type: 'string', description: 'The reflection text (non-empty)' },
+        evidence: { type: 'array', items: { type: 'string' }, description: 'Entity names backing this reflection (non-empty)' },
+        generalizationConfidence: { type: 'number', description: 'Confidence in [0.0, 1.0] that the lesson generalizes' },
+        keyInsights: { type: 'array', items: { type: 'string' }, description: 'Top pattern strings (max 5)' },
+        experienceType: { type: 'string', description: 'Experience type label (e.g. "success", "failure")' },
+        sourceSessionId: { type: 'string', description: 'Session the reflection was distilled from' },
+        sourceProjectId: { type: 'string', description: 'Project the reflection was distilled from' },
+        importance: { type: 'number', description: 'Importance score for the reflection entity' },
+        agentId: { type: 'string', description: 'Agent that authored the reflection' },
+      },
+      required: ['scope', 'summary', 'evidence', 'generalizationConfidence'],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'list_reflections',
+    description: 'List stored agent reflections, filterable by scope, source session/project, and minimum generalization confidence. Archived reflections are excluded unless includeArchived is set.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        scope: { type: 'string', enum: ['session', 'project', 'global'], description: 'Filter by scope' },
+        sourceSessionId: { type: 'string', description: 'Filter by source session' },
+        sourceProjectId: { type: 'string', description: 'Filter by source project' },
+        minConfidence: { type: 'number', description: 'Minimum generalization_confidence (inclusive)' },
+        includeArchived: { type: 'boolean', description: 'Include archived reflections (default false)' },
+        limit: { type: 'number', description: 'Max reflections to return' },
+      },
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'get_relevant_reflections',
+    description: 'Reflections relevant to a session: matches by sourceSessionId, plus evidence overlap with the supplied session entity names. Use at session start to surface applicable past lessons.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        sessionId: { type: 'string', description: 'Session to find relevant reflections for' },
+        sessionEntityNames: { type: 'array', items: { type: 'string' }, description: 'Entity names from the session for evidence-overlap matching' },
+        minConfidence: { type: 'number', description: 'Minimum generalization_confidence (inclusive)' },
+        limit: { type: 'number', description: 'Max reflections to return (default 10)' },
+      },
+      required: ['sessionId'],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'archive_reflection',
+    description: 'Archive a reflection by id so it no longer appears in default listings or relevance matches (soft delete — the record is retained).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', description: 'Reflection id to archive' },
+      },
+      required: ['id'],
+      additionalProperties: false,
+    },
+  },
+
+  // ==================== RECONSTRUCTIVE MEMORY PERSISTENCE TOOLS (memoryjs v3.0.0) ====================
+  {
+    name: 'save_reconstructive_memory',
+    description: 'Serialize the in-memory Cue–Tag–Content reconstructive graph to a JSON sidecar next to the storage file (<basename>-reconstructive.json). The CTC graph is process-local; save before shutdown to survive restarts.',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+  },
+  {
+    name: 'load_reconstructive_memory',
+    description: 'Restore the Cue–Tag–Content reconstructive graph from the <basename>-reconstructive.json sidecar written by save_reconstructive_memory, replacing the current in-memory graph. Errors if no sidecar exists.',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
 ];
 

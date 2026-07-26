@@ -77,6 +77,7 @@ import {
   type EventTimeRange,
   type WhoDidWhatFilter,
   type DialogueTurn,
+  type CTCGraphSnapshot,
 } from '@danielsimonjr/memoryjs';
 import { promises as fs } from 'node:fs';
 import { performance } from 'node:perf_hooks';
@@ -113,6 +114,15 @@ function getStorageFilePath(ctx: ManagerContext): string {
   // reports point at the wrong file. Try both field names defensively.
   const storage = ctx.storage as unknown as { memoryFilePath?: string; filePath?: string };
   return storage.memoryFilePath ?? storage.filePath ?? 'memory.jsonl';
+}
+
+// Sidecar path for the serialized Cue–Tag–Content graph, following the
+// library's `<basename>-<suffix>` convention (memory.jsonl → memory-reconstructive.json).
+function reconstructiveSidecarPath(ctx: ManagerContext): string {
+  const storagePath = getStorageFilePath(ctx);
+  const ext = path.extname(storagePath);
+  const base = ext ? storagePath.slice(0, -ext.length) : storagePath;
+  return `${base}-reconstructive.json`;
 }
 
 function getRefIndex(ctx: ManagerContext): RefIndex {
@@ -3443,6 +3453,116 @@ export const toolHandlers: Record<string, ToolHandler> = {
     });
     const result = await consolidator.consolidate({ apply });
     return formatToolResponse(result);
+  },
+
+  // ==================== AGENT REFLECTION HANDLERS (memoryjs v3.0.0) ====================
+  create_reflection: async (ctx, args) => {
+    const parsed = validateWithSchema(
+      args,
+      z.object({
+        scope: z.enum(['session', 'project', 'global']),
+        summary: z.string().min(1),
+        evidence: z.array(z.string().min(1)).min(1),
+        generalizationConfidence: z.number().min(0).max(1),
+        keyInsights: z.array(z.string().min(1)).max(5).optional(),
+        experienceType: z.string().min(1).optional(),
+        sourceSessionId: z.string().min(1).optional(),
+        sourceProjectId: z.string().min(1).optional(),
+        importance: z.number().optional(),
+        agentId: z.string().min(1).optional(),
+      }).strict(),
+      'Invalid reflection input'
+    );
+    const reflection = await ctx.reflectionManager.create(
+      {
+        scope: parsed.scope,
+        summary: parsed.summary,
+        evidence: parsed.evidence,
+        generalization_confidence: parsed.generalizationConfidence,
+        keyInsights: parsed.keyInsights,
+        experienceType: parsed.experienceType,
+        sourceSessionId: parsed.sourceSessionId,
+        sourceProjectId: parsed.sourceProjectId,
+      },
+      { importance: parsed.importance, agentId: parsed.agentId }
+    );
+    return formatToolResponse({ reflection });
+  },
+
+  list_reflections: async (ctx, args) => {
+    const options = validateWithSchema(
+      args,
+      z.object({
+        scope: z.enum(['session', 'project', 'global']).optional(),
+        sourceSessionId: z.string().min(1).optional(),
+        sourceProjectId: z.string().min(1).optional(),
+        minConfidence: z.number().min(0).max(1).optional(),
+        includeArchived: z.boolean().optional(),
+        limit: z.number().int().positive().max(1000).optional(),
+      }).strict(),
+      'Invalid list options'
+    );
+    const reflections = await ctx.reflectionManager.list(options);
+    return formatToolResponse({ reflections, count: reflections.length });
+  },
+
+  get_relevant_reflections: async (ctx, args) => {
+    const sessionId = validateWithSchema(args.sessionId, z.string().min(1), 'Invalid sessionId');
+    const options = validateWithSchema(
+      {
+        sessionEntityNames: args.sessionEntityNames,
+        minConfidence: args.minConfidence,
+        limit: args.limit,
+      },
+      z.object({
+        sessionEntityNames: z.array(z.string().min(1)).optional(),
+        minConfidence: z.number().min(0).max(1).optional(),
+        limit: z.number().int().positive().max(1000).optional(),
+      }),
+      'Invalid relevance options'
+    );
+    const reflections = await ctx.reflectionManager.getRelevantForSession(sessionId, options);
+    return formatToolResponse({ sessionId, reflections, count: reflections.length });
+  },
+
+  archive_reflection: async (ctx, args) => {
+    const id = validateWithSchema(args.id, z.string().min(1), 'Invalid reflection id');
+    const result = await ctx.reflectionManager.archive(id);
+    return formatToolResponse(result);
+  },
+
+  // ==================== RECONSTRUCTIVE MEMORY PERSISTENCE HANDLERS (memoryjs v3.0.0) ====================
+  save_reconstructive_memory: async (ctx) => {
+    const rm = ctx.reconstructiveMemory();
+    const snapshot = rm.toSnapshot();
+    const sidecarPath = reconstructiveSidecarPath(ctx);
+    await fs.writeFile(sidecarPath, JSON.stringify(snapshot), 'utf-8');
+    return formatToolResponse({ path: sidecarPath, stats: rm.stats() });
+  },
+
+  load_reconstructive_memory: async (ctx) => {
+    const sidecarPath = reconstructiveSidecarPath(ctx);
+    let raw: string;
+    try {
+      raw = await fs.readFile(sidecarPath, 'utf-8');
+    } catch {
+      throw new Error(
+        `No reconstructive memory snapshot at "${sidecarPath}" — run save_reconstructive_memory first`
+      );
+    }
+    const snapshot = validateWithSchema(
+      JSON.parse(raw),
+      z.object({
+        cues: z.array(z.unknown()),
+        tags: z.array(z.unknown()),
+        contents: z.array(z.unknown()),
+        triples: z.array(z.unknown()),
+      }),
+      `Invalid reconstructive memory snapshot at "${sidecarPath}"`
+    ) as CTCGraphSnapshot;
+    const rm = ctx.reconstructiveMemory();
+    rm.loadSnapshot(snapshot);
+    return formatToolResponse({ path: sidecarPath, stats: rm.stats() });
   },
 };
 
