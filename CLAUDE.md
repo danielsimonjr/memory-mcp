@@ -214,4 +214,4 @@ npm publish --access public
 - **Data files are gitignored**: `*.jsonl` and `memory.db` are in `.gitignore` — test runs create/modify these in the project root but they won't appear in `git status`.
 - **Error handling in dispatch**: `handleToolCall` catches exceptions from handlers and returns them as MCP-formatted error responses (not thrown). Check MCP response `isError` field when debugging.
 - **TypeScript target**: ES2022 with Node16 module resolution. The `prepare` script runs `npm run build` on install, so `dist/` is rebuilt automatically.
-- **Tarball includes `dist/memory.jsonl`**: The `files` field is `["dist"]`, so any `.jsonl` copied into `dist/` gets published. Consider adding `dist/*.jsonl` to `.npmignore` if this is unintentional.
+- **Data files in `dist/` are excluded from the tarball**: The `files` field is `["dist"]`, but `.npmignore` excludes `dist/*.jsonl` and `dist/*.db`, so data files copied into `dist/` by local runs are not published. Verify with `npm pack --dry-run` before publishing.
