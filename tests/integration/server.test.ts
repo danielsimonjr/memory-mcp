@@ -56,7 +56,7 @@ describe('MCPServer Integration', () => {
   });
 
   describe('Tool Registration', () => {
-    it('should have 160 tool definitions available', () => {
+    it('should have 235 tool definitions available', () => {
       // Phase 4 Sprint 9: Added 4 graph algorithm tools (find_shortest_path, find_all_paths, get_connected_components, get_centrality)
       // Phase 4 Sprint 12: Added 3 semantic search tools (semantic_search, find_similar_entities, index_embeddings)
       // Phase 10 Sprint 4: Added search_auto tool
@@ -92,7 +92,11 @@ describe('MCPServer Integration', () => {
       // v12.5.0: 10 engineering / diagnostic tools mirroring the memoryjs CLI surface
       //   (diag, health, check_graph, reindex, cache_stats, cache_clear, graph_size,
       //   inspect_entity, hierarchy_tree, entity_neighbors).
-      expect(toolDefinitions).toHaveLength(225);
+      // v12.6.0: 10 tools for memoryjs v3.0.0 — Event Memory (record_event, get_event,
+      //   query_events, get_event_flow, who_did_what), Reconstructive Memory
+      //   (ingest_dialogue, reconstruct_memory, reconstructive_memory_stats),
+      //   Relation Consolidation (analyze_relation_duplicates, consolidate_relations).
+      expect(toolDefinitions).toHaveLength(235);
     });
 
     it('should have matching handlers for all definitions', async () => {

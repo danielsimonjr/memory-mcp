@@ -35,8 +35,6 @@ import {
   ReflectionManager,
   ObservationNormalizer,
   RefIndex,
-  AuditLog,
-  GovernanceManager,
   FreshnessManager,
   ArtifactManager,
   CollaborativeSynthesis,
@@ -70,9 +68,15 @@ import {
   type ConflictStrategy,
   DecisionManager,
   RankedSearch,
+  RelationConsolidator,
   clearAllSearchCaches,
   getAllCacheStats,
   type GraphStorage,
+  type RecordEventInput,
+  type EventQueryFilter,
+  type EventTimeRange,
+  type WhoDidWhatFilter,
+  type DialogueTurn,
 } from '@danielsimonjr/memoryjs';
 import { promises as fs } from 'node:fs';
 import { performance } from 'node:perf_hooks';
@@ -84,8 +88,6 @@ import { maybeCompressResponse } from './responseCompressor.js';
 // These managers are not on ManagerContext directly, so we wire them up once per ctx.
 
 const refIndexMap = new WeakMap<ManagerContext, RefIndex>();
-const auditLogMap = new WeakMap<ManagerContext, AuditLog>();
-const governanceMap = new WeakMap<ManagerContext, GovernanceManager>();
 const freshnessMap = new WeakMap<ManagerContext, FreshnessManager>();
 const artifactManagerMap = new WeakMap<ManagerContext, ArtifactManager>();
 const distillationPipelineMap = new WeakMap<ManagerContext, DistillationPipeline>();
@@ -120,24 +122,6 @@ function getRefIndex(ctx: ManagerContext): RefIndex {
     refIndexMap.set(ctx, new RefIndex(path.join(dir, 'memory-ref-index.jsonl')));
   }
   return refIndexMap.get(ctx)!;
-}
-
-function getAuditLog(ctx: ManagerContext): AuditLog {
-  if (!auditLogMap.has(ctx)) {
-    const storagePath = getStorageFilePath(ctx);
-    const dir = path.dirname(storagePath);
-    auditLogMap.set(ctx, new AuditLog(path.join(dir, 'memory-audit.jsonl')));
-  }
-  return auditLogMap.get(ctx)!;
-}
-
-function getGovernanceManager(ctx: ManagerContext): GovernanceManager {
-  if (!governanceMap.has(ctx)) {
-    // GovernanceManager constructor accepts GraphStorage; ctx.storage is GraphStorage
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    governanceMap.set(ctx, new GovernanceManager(ctx.storage as any, getAuditLog(ctx)));
-  }
-  return governanceMap.get(ctx)!;
 }
 
 function getFreshnessManager(ctx: ManagerContext): FreshnessManager {
@@ -592,8 +576,38 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const limit = args.limit !== undefined
       ? validateWithSchema(args.limit, z.number().int().positive().max(200), 'Invalid limit')
       : 10;
+    const graphWeight = args.graphWeight !== undefined
+      ? validateWithSchema(args.graphWeight, z.number().min(0).max(1), 'Invalid graphWeight')
+      : undefined;
+    const expandNeighborsArgs = args.expandNeighbors !== undefined
+      ? validateWithSchema(
+          args.expandNeighbors,
+          z.object({
+            topK: z.number().int().positive().max(100).optional(),
+            damping: z.number().min(0).max(1).optional(),
+          }).strict(),
+          'Invalid expandNeighbors'
+        )
+      : undefined;
+    // Only 1-hop expansion is supported by memoryjs, so `hops` is fixed here
+    // rather than exposed in the tool schema.
+    const expandNeighbors = expandNeighborsArgs !== undefined
+      ? { hops: 1 as const, ...expandNeighborsArgs }
+      : undefined;
+    const explain = args.explain !== undefined
+      ? validateWithSchema(args.explain, z.boolean(), 'Invalid explain flag')
+      : undefined;
+    const lookFor = args.lookFor !== undefined
+      ? validateWithSchema(args.lookFor, z.string().min(1), 'Invalid lookFor')
+      : undefined;
 
-    const hybridSearch = new HybridSearchManager(ctx.semanticSearch, ctx.rankedSearch);
+    // ctx.hybridSearchManager only attaches the GraphRankPrior when
+    // MEMORY_HYBRID_GRAPH_WEIGHT is set; per-call graph options need the prior
+    // wired explicitly or they would be silently inert.
+    const wantsGraphChannel = (graphWeight !== undefined && graphWeight > 0) || expandNeighbors !== undefined;
+    const hybridSearch = wantsGraphChannel
+      ? new HybridSearchManager(ctx.semanticSearch, ctx.rankedSearch, ctx.graphRankPrior)
+      : ctx.hybridSearchManager;
     const graph = await ctx.storage.loadGraph();
 
     const results = await hybridSearch.searchWithEntities(graph, query, {
@@ -614,6 +628,10 @@ export const toolHandlers: Record<string, ToolHandler> = {
             }
           : undefined,
       limit,
+      graphWeight,
+      expandNeighbors,
+      explain,
+      lookFor,
     });
 
     return formatToolResponse({
@@ -622,6 +640,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
         semantic: weights?.semantic ?? 0.5,
         lexical: weights?.lexical ?? 0.3,
         symbolic: weights?.symbolic ?? 0.2,
+        ...(graphWeight !== undefined ? { graph: graphWeight } : {}),
       },
       resultCount: results.length,
       results: results.map((r) => ({
@@ -631,6 +650,9 @@ export const toolHandlers: Record<string, ToolHandler> = {
         matchedLayers: r.matchedLayers,
         observations: r.entity.observations.slice(0, 3),
         tags: r.entity.tags,
+        ...(r.evidencePaths !== undefined ? { evidencePaths: r.evidencePaths } : {}),
+        ...(r.evidenceTruncated !== undefined ? { evidenceTruncated: r.evidenceTruncated } : {}),
+        ...(r.lookForScore !== undefined ? { lookForScore: r.lookForScore } : {}),
       })),
     });
   },
@@ -679,7 +701,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
       plan = planner.createPlan(query, analysis);
     }
 
-    const hybridSearch = new HybridSearchManager(ctx.semanticSearch, ctx.rankedSearch);
+    const hybridSearch = ctx.hybridSearchManager;
     const reflection = new ReflectionManager(hybridSearch, analyzer);
     const graph = await ctx.storage.loadGraph();
 
@@ -1361,7 +1383,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
   // ==================== GOVERNANCE HANDLERS ====================
   set_governance_policy: async (ctx, args) => {
-    const gm = getGovernanceManager(ctx);
+    const gm = ctx.governanceManager;
     // GovernancePolicy uses function callbacks; we translate boolean args into allow/deny functions
     const allowCreate = args.canCreate !== undefined
       ? validateWithSchema(args.canCreate, z.boolean(), 'Invalid canCreate')
@@ -1405,7 +1427,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const limit = args.limit !== undefined
       ? validateWithSchema(args.limit, z.number().int().min(1).max(1000), 'Invalid limit')
       : 50;
-    const al = getAuditLog(ctx);
+    const al = ctx.governanceManager.auditLog;
     let entries = await al.query(filter);
     entries = entries.slice(0, limit);
     return formatToolResponse({ entries, count: entries.length });
@@ -1413,14 +1435,14 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
   audit_history: async (ctx, args) => {
     const entityName = validateWithSchema(args.entityName, z.string().min(1), 'Invalid entityName');
-    const al = getAuditLog(ctx);
+    const al = ctx.governanceManager.auditLog;
     const entries = await al.getHistory(entityName);
     return formatToolResponse({ entityName, entries, count: entries.length });
   },
 
   rollback_operation: async (ctx, args) => {
     const auditEntryId = validateWithSchema(args.auditEntryId, z.string().min(1), 'Invalid auditEntryId');
-    const gm = getGovernanceManager(ctx);
+    const gm = ctx.governanceManager;
     await gm.rollback(auditEntryId);
     return formatTextResponse(`Operation "${auditEntryId}" rolled back successfully`);
   },
@@ -3281,6 +3303,146 @@ export const toolHandlers: Record<string, ToolHandler> = {
       outDegree: outgoing.length,
       inDegree: incoming.length,
     });
+  },
+
+  // ==================== EVENT MEMORY HANDLERS (memoryjs v3.0.0) ====================
+  record_event: async (ctx, args) => {
+    const input = validateWithSchema(
+      args,
+      z.object({
+        action: z.string().min(1),
+        actor: z.string().min(1),
+        target: z.string().min(1).optional(),
+        context: z.string().min(1).optional(),
+        participants: z.array(z.string().min(1)).optional(),
+        occurredAt: z.string().min(1).optional(),
+        flowKey: z.string().min(1).optional(),
+        detail: z.array(z.string()).optional(),
+        importance: z.number().optional(),
+      }).strict(),
+      'Invalid event input'
+    ) as RecordEventInput;
+    const event = await ctx.eventManager.recordEvent(input);
+    return formatToolResponse({ event });
+  },
+
+  get_event: async (ctx, args) => {
+    const name = validateWithSchema(args.name, z.string().min(1), 'Invalid event name');
+    const event = await ctx.eventManager.getEvent(name);
+    if (!event) {
+      return formatTextResponse(`Event "${name}" not found`);
+    }
+    return formatToolResponse({ event });
+  },
+
+  query_events: async (ctx, args) => {
+    const filter = validateWithSchema(
+      args,
+      z.object({
+        actor: z.string().min(1).optional(),
+        target: z.string().min(1).optional(),
+        action: z.string().min(1).optional(),
+        flowKey: z.string().min(1).optional(),
+        timeRange: z.object({
+          start: z.string().min(1).optional(),
+          end: z.string().min(1).optional(),
+        }).strict().optional(),
+        limit: z.number().int().positive().max(1000).optional(),
+      }).strict(),
+      'Invalid event filter'
+    ) as EventQueryFilter;
+    const events = await ctx.eventManager.queryEvents(filter);
+    return formatToolResponse({ events, count: events.length });
+  },
+
+  get_event_flow: async (ctx, args) => {
+    const flowKey = validateWithSchema(args.flowKey, z.string().min(1), 'Invalid flowKey');
+    const events = await ctx.eventManager.getFlow(flowKey);
+    return formatToolResponse({ flowKey, events, count: events.length });
+  },
+
+  who_did_what: async (ctx, args) => {
+    const filter = validateWithSchema(
+      args,
+      z.object({
+        target: z.string().min(1).optional(),
+        context: z.string().min(1).optional(),
+        timeRange: z.object({
+          start: z.string().min(1).optional(),
+          end: z.string().min(1).optional(),
+        }).strict().optional(),
+        limit: z.number().int().positive().max(1000).optional(),
+      }).strict(),
+      'Invalid filter'
+    ) as WhoDidWhatFilter & { timeRange?: EventTimeRange };
+    const entries = await ctx.eventManager.whoDidWhat(filter);
+    return formatToolResponse({ entries, count: entries.length });
+  },
+
+  // ==================== RECONSTRUCTIVE MEMORY HANDLERS (memoryjs v3.0.0) ====================
+  ingest_dialogue: async (ctx, args) => {
+    const turns = validateWithSchema(
+      args.turns,
+      z.array(
+        z.object({
+          id: z.string().min(1),
+          speaker: z.string().optional(),
+          text: z.string().min(1),
+          timestamp: z.string().optional(),
+        }).strict()
+      ).min(1),
+      'Invalid dialogue turns'
+    ) as DialogueTurn[];
+    const rm = ctx.reconstructiveMemory();
+    const result = await rm.ingest(turns);
+    return formatToolResponse({
+      distillation: result,
+      persisted: rm.lastPersistResult,
+      stats: rm.stats(),
+    });
+  },
+
+  reconstruct_memory: async (ctx, args) => {
+    const query = validateWithSchema(args.query, z.string().min(1), 'Invalid query');
+    const options = validateWithSchema(
+      {
+        maxSteps: args.maxSteps,
+        perStepBudget: args.perStepBudget,
+        evidenceTarget: args.evidenceTarget,
+      },
+      z.object({
+        maxSteps: z.number().int().positive().max(32).optional(),
+        perStepBudget: z.number().int().positive().max(100).optional(),
+        evidenceTarget: z.number().int().positive().max(100).optional(),
+      }),
+      'Invalid reconstruction options'
+    );
+    const result = await ctx.reconstructiveMemory().reconstruct(query, options);
+    return formatToolResponse(result);
+  },
+
+  reconstructive_memory_stats: async (ctx) => {
+    return formatToolResponse(ctx.reconstructiveMemory().stats());
+  },
+
+  // ==================== RELATION CONSOLIDATION HANDLERS (memoryjs v3.0.0) ====================
+  analyze_relation_duplicates: async (ctx) => {
+    const consolidator = new RelationConsolidator(ctx.relationManager, ctx.entityManager, {
+      embedding: ctx.semanticSearch?.getEmbeddingService(),
+    });
+    const report = await consolidator.analyze();
+    return formatToolResponse(report);
+  },
+
+  consolidate_relations: async (ctx, args) => {
+    const apply = args.apply !== undefined
+      ? validateWithSchema(args.apply, z.boolean(), 'Invalid apply flag')
+      : false;
+    const consolidator = new RelationConsolidator(ctx.relationManager, ctx.entityManager, {
+      embedding: ctx.semanticSearch?.getEmbeddingService(),
+    });
+    const result = await consolidator.consolidate({ apply });
+    return formatToolResponse(result);
   },
 };
 

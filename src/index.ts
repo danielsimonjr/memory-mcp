@@ -95,8 +95,14 @@ let managerContext: ManagerContext;
 // tearing down the connection). Without this, other event-loop refs — file
 // watchers, the embeddings pool, the consolidation timer — can keep the
 // process alive as an orphan until manually killed.
-process.stdin.on("end", () => process.exit(0));
-process.stdin.on("close", () => process.exit(0));
+// ctx.close() (memoryjs v3) releases storage handles before exit; it is a
+// no-op for JSONL but closes the SQLite handle when MEMORY_STORAGE_TYPE=sqlite.
+function shutdown(): never {
+  managerContext?.close();
+  process.exit(0);
+}
+process.stdin.on("end", shutdown);
+process.stdin.on("close", shutdown);
 
 async function main() {
   // Initialize memory file path with backward compatibility

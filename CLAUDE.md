@@ -34,7 +34,7 @@ npm run tools:build   # Build all standalone tools
 
 ## Architecture Overview
 
-This is an **MCP protocol wrapper** around the `@danielsimonjr/memoryjs` library, exposing **225 knowledge graph tools** via the Model Context Protocol. After the Phase 13 extraction, this repo contains only 5 TypeScript source files — all core graph logic lives in memoryjs (currently `^2.1.0`). Phase 15 (v12.2.0) added 23 tools surfacing memoryjs v1.14+ features (bitemporal validity, OCC, RBAC, procedural memory, active retrieval, causal reasoning, world model). Phase 16 (v12.3.0) added 53 tools surfacing memoryjs v2.1.0 — `do_not_remember` exclusions (5), decision rationale + ADR markdown dual-write (10), structured project context (12), heuristic guidelines (10), tool affordance + `ToolCallObserver` pipeline (11), observation dedup (2), spell correction (3). Releases after Phase 16 added 12 more tools — a small "active project scope" pair (v12.3.2 backport) and a v12.5.0 engineering/diagnostics category — bringing the total to 225. Latest: v12.5.2 (npm) / plugin v12.6.0.
+This is an **MCP protocol wrapper** around the `@danielsimonjr/memoryjs` library, exposing **235 knowledge graph tools** via the Model Context Protocol. After the Phase 13 extraction, this repo contains only 5 TypeScript source files — all core graph logic lives in memoryjs (currently `^3.0.0`). Phase 15 (v12.2.0) added 23 tools surfacing memoryjs v1.14+ features (bitemporal validity, OCC, RBAC, procedural memory, active retrieval, causal reasoning, world model). Phase 16 (v12.3.0) added 53 tools surfacing memoryjs v2.1.0 — `do_not_remember` exclusions (5), decision rationale + ADR markdown dual-write (10), structured project context (12), heuristic guidelines (10), tool affordance + `ToolCallObserver` pipeline (11), observation dedup (2), spell correction (3). Releases after Phase 16 added 12 more tools — a small "active project scope" pair (v12.3.2 backport) and a v12.5.0 engineering/diagnostics category. v12.7.0 upgraded to memoryjs 3.0.0 and added 10 tools — event memory (5), reconstructive memory (3), relation consolidation (2) — plus v3 graph-channel/explain options on `hybrid_search`, bringing the total to 235. Latest: v12.7.0 (npm + plugin).
 
 **npm:** `@danielsimonjr/memory-mcp` | **Core lib:** `@danielsimonjr/memoryjs` (versions in package.json)
 
@@ -57,7 +57,7 @@ memory-mcp (this repo)              @danielsimonjr/memoryjs (npm dependency)
 |------|------|
 | `index.ts` | Entry point. Creates `ManagerContext`, starts `MCPServer`. Re-exports types from memoryjs for backward compatibility. |
 | `server/MCPServer.ts` | Creates MCP `Server`, registers `ListToolsRequest` and `CallToolRequest` handlers. Uses stdio transport. |
-| `server/toolDefinitions.ts` | Array of 225 tool schemas (name, description, inputSchema). Organized by category with comment headers. |
+| `server/toolDefinitions.ts` | Array of 235 tool schemas (name, description, inputSchema). Organized by category with comment headers. |
 | `server/toolHandlers.ts` | Handler registry (`Record<string, ToolHandler>`). Each handler validates args with Zod schemas from memoryjs, calls the appropriate manager method, and returns formatted responses. Large-response tools are wrapped with `withCompression()`. |
 | `server/responseCompressor.ts` | Auto-compresses responses >256KB with brotli + base64 encoding. Uses `compress`/`decompress` from memoryjs. |
 
@@ -68,10 +68,10 @@ memory-mcp (this repo)              @danielsimonjr/memoryjs (npm dependency)
 - **Validation**: Handlers use `validateWithSchema(value, zodSchema, errorMsg)` imported from memoryjs. Ad-hoc validation uses `z` from zod directly.
 - **Response formatting**: Three helpers from memoryjs — `formatToolResponse(data)` (JSON-stringified), `formatTextResponse(msg)` (plain text), `formatRawResponse(text)` (raw string).
 - **Compression wrapper**: `withCompression(async () => handler())` wraps tools that return large payloads (read_graph, search_nodes, get_subtree, open_nodes). Responses >256KB get brotli-compressed.
-- **Lazy managers**: `ManagerContext` instantiates managers on first access. Available accessors: `ctx.entityManager`, `ctx.relationManager`, `ctx.observationManager`, `ctx.searchManager`, `ctx.tagManager`, `ctx.hierarchyManager`, `ctx.analyticsManager`, `ctx.compressionManager`, `ctx.archiveManager`, `ctx.ioManager`, `ctx.graphTraversal`, `ctx.semanticSearch`, `ctx.rankedSearch`, `ctx.storage` (direct GraphStorage).
+- **Lazy managers**: `ManagerContext` instantiates managers on first access. Available accessors: `ctx.entityManager`, `ctx.relationManager`, `ctx.observationManager`, `ctx.searchManager`, `ctx.tagManager`, `ctx.hierarchyManager`, `ctx.analyticsManager`, `ctx.compressionManager`, `ctx.archiveManager`, `ctx.ioManager`, `ctx.graphTraversal`, `ctx.semanticSearch`, `ctx.rankedSearch`, `ctx.storage` (direct GraphStorage). memoryjs v3 additions: `ctx.hybridSearchManager`, `ctx.governanceManager` (with public `.auditLog`), `ctx.graphRankPrior`, `ctx.eventManager`, `ctx.reconstructiveMemory()` (method — cached facade), and `ctx.close()` for releasing storage handles on shutdown.
 - **Backward compat**: `index.ts` re-exports `ManagerContext` as `KnowledgeGraphManager` alias, plus core types.
 
-### Tool Categories (225 tools across 60 categories)
+### Tool Categories (235 tools across 63 categories)
 
 | Category | Count | Key Purpose |
 |----------|-------|-------------|
@@ -135,6 +135,9 @@ memory-mcp (this repo)              @danielsimonjr/memoryjs (npm dependency)
 | **Observation Dedup** | **2** | Exact and Jaccard-similarity duplicate observation detection (Phase 16 / memoryjs v2.1.0) |
 | **Spell Correction** | **3** | Query spell suggestion, vocabulary rebuild, and vocabulary size reporting (Phase 16 / memoryjs v2.1.0) |
 | **Engineering / Diagnostics** | **10** | `diag`, `health`, `check_graph`, `reindex`, cache stats/clear, `graph_size`, `inspect_entity`, `hierarchy_tree`, `entity_neighbors` (v12.5.0) |
+| **Event Memory** | **5** | N-ary event reification: `record_event`, `get_event`, `query_events`, `get_event_flow`, `who_did_what` — actions become event hub entities with role-typed relations (v12.7.0 / memoryjs v3.0.0) |
+| **Reconstructive Memory** | **3** | MRAgent-style Cue–Tag–Content associative memory: `ingest_dialogue`, `reconstruct_memory`, `reconstructive_memory_stats` (v12.7.0 / memoryjs v3.0.0) |
+| **Relation Consolidation** | **2** | Three-tier relation janitor: `analyze_relation_duplicates` (dry-run), `consolidate_relations` — merges relationType spelling variants, inverse duplicates, and (with embeddings) semantic duplicates (v12.7.0 / memoryjs v3.0.0) |
 
 New categories (v1.8.0/v1.9.0/Phase 14/Phase 15/Phase 16/v12.3.2/v12.5.0, bold above) are implemented in `toolDefinitions.ts` and `toolHandlers.ts` in the same pattern as existing categories. Phase 15 surfaces also include W3C Linked Data export formats (`turtle`, `rdf-xml`, `json-ld` — memoryjs η.5.4) and PII redaction on export (`redactPii: true` — memoryjs η.6.3) wired into the existing `export_graph` tool rather than as new tools.
 
@@ -159,7 +162,7 @@ New categories (v1.8.0/v1.9.0/Phase 14/Phase 15/Phase 16/v12.3.2/v12.5.0, bold a
 
 ## Test Structure
 
-26 test files, 665 tests, ~81% statement coverage (verified via `coverage/coverage-summary.json`: statements 80.7%, lines 81.4%, functions 79.5%, branches 68.3%). Core graph tests — and the bulk of coverage — live in the memoryjs package.
+36 test files, 784 tests, ~85% statement coverage (verified via `coverage/coverage-summary.json`: statements 84.8%, lines 86.1%, functions 84.8%, branches 69.8%). Core graph tests — and the bulk of coverage — live in the memoryjs package.
 
 Tests are organized in three tiers:
 - **Unit** (`tests/unit/`): Isolated module tests (e.g., response compressor)
@@ -206,7 +209,7 @@ npm publish --access public
 
 ## Gotchas
 
-- **memoryjs is a published dep** (v12.2.3+): `@danielsimonjr/memoryjs` resolves from npm at `^1.15.0`. For active dual-repo dev (editing memoryjs alongside memory-mcp), temporarily switch to `file:C:/Users/danie/Dropbox/Github/memoryjs` in package.json so changes are picked up on `npm install` without a publish — but **bump back to a registry version before `npm publish`**. The `release: bump @danielsimonjr/memoryjs file: → ^x.y.z (publishable)` commits in `git log` exist for exactly this swap. While in `file:` mode, `npm install` will fail on any machine without that local path.
+- **memoryjs is a published dep** (v12.2.3+): `@danielsimonjr/memoryjs` resolves from npm at `^3.0.0`. For active dual-repo dev (editing memoryjs alongside memory-mcp), temporarily switch to `file:C:/Users/danie/Dropbox/Github/memoryjs` in package.json so changes are picked up on `npm install` without a publish — but **bump back to a registry version before `npm publish`**. The `release: bump @danielsimonjr/memoryjs file: → ^x.y.z (publishable)` commits in `git log` exist for exactly this swap. While in `file:` mode, `npm install` will fail on any machine without that local path.
 - **Data files are gitignored**: `*.jsonl` and `memory.db` are in `.gitignore` — test runs create/modify these in the project root but they won't appear in `git status`.
 - **Error handling in dispatch**: `handleToolCall` catches exceptions from handlers and returns them as MCP-formatted error responses (not thrown). Check MCP response `isError` field when debugging.
 - **TypeScript target**: ES2022 with Node16 module resolution. The `prepare` script runs `npm run build` on install, so `dist/` is rebuilt automatically.

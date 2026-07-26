@@ -2,7 +2,7 @@
  * MCP Tool Definitions
  *
  * Extracted from MCPServer.ts to reduce file size and improve maintainability.
- * Contains all 106 tool schemas for the Knowledge Graph MCP Server.
+ * Contains all 235 tool schemas for the Knowledge Graph MCP Server.
  *
  * @module server/toolDefinitions
  */
@@ -499,7 +499,7 @@ export const toolDefinitions: ToolDefinition[] = [
   {
     name: 'hybrid_search',
     description:
-      'Search using combined semantic, lexical, and metadata signals. Provides better recall than single-signal search by fusing multiple relevance signals.',
+      'Search using combined semantic, lexical, and metadata signals. Provides better recall than single-signal search by fusing multiple relevance signals. v3 additive options: graphWeight adds a graph-connectivity (PageRank) channel, expandNeighbors appends one-hop neighbors of top results, explain annotates results with evidence paths from query anchors, lookFor ranks expansion neighbors by a free-text connection description.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -554,6 +554,27 @@ export const toolDefinitions: ToolDefinition[] = [
           additionalProperties: false,
         },
         limit: { type: 'number', description: 'Maximum results to return (default: 10)' },
+        graphWeight: {
+          type: 'number',
+          description: 'Weight for the graph-connectivity channel (normalized PageRank). 0/omitted = channel disabled (default)',
+        },
+        expandNeighbors: {
+          type: 'object',
+          description: 'One-hop neighbor expansion: neighbors of the top-K results are appended with a damped score and re-sorted',
+          properties: {
+            topK: { type: 'number', description: 'Number of top-ranked results to expand from (default: 10)' },
+            damping: { type: 'number', description: "Damping factor applied to the parent's combined score (default: 0.3)" },
+          },
+          additionalProperties: false,
+        },
+        explain: {
+          type: 'boolean',
+          description: 'Annotate each result with evidencePaths — graph paths connecting query anchor matches to the result (default: false)',
+        },
+        lookFor: {
+          type: 'string',
+          description: 'Free-text description of the desired connection; expansion neighbors are ranked by similarity to it (lookForScore)',
+        },
       },
       required: ['query'],
       additionalProperties: false,
@@ -3417,6 +3438,164 @@ export const toolDefinitions: ToolDefinition[] = [
         name: { type: 'string', description: 'Entity name' },
       },
       required: ['name'],
+      additionalProperties: false,
+    },
+  },
+
+  // ==================== EVENT MEMORY TOOLS (memoryjs v3.0.0) ====================
+  {
+    name: 'record_event',
+    description: 'Record an n-ary event: the action becomes a first-class event hub entity with role-typed relations (actor_of/targeted/occurred_in/participant_in). Missing endpoints auto-create as concept stubs. Optional flowKey groups events into a named flow.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        action: { type: 'string', description: 'The verb — what happened (e.g. "deployed", "approved")' },
+        actor: { type: 'string', description: 'Entity name of who performed the action' },
+        target: { type: 'string', description: 'Entity name the action was performed on' },
+        context: { type: 'string', description: 'Entity name of where/within-what the event occurred' },
+        participants: { type: 'array', items: { type: 'string' }, description: 'Additional participant entity names' },
+        occurredAt: { type: 'string', description: 'ISO 8601 timestamp of when the event occurred' },
+        flowKey: { type: 'string', description: 'Flow key grouping related events (case-insensitive)' },
+        detail: { type: 'array', items: { type: 'string' }, description: 'Free-text detail observations attached to the event' },
+        importance: { type: 'number', description: 'Importance score for the event entity' },
+      },
+      required: ['action', 'actor'],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'get_event',
+    description: 'Load one recorded event by its entity name, joining the event hub with its role-typed relation endpoints (actor, target, context, participants).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', description: 'Event entity name (as returned by record_event / query_events)' },
+      },
+      required: ['name'],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'query_events',
+    description: 'Query recorded events by any combination of actor, target, action, flowKey, and inclusive time range. Results are chronologically ordered (occurredAt, falling back to createdAt). Uses relation/type indexes — never a full-graph scan.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        actor: { type: 'string', description: 'Filter by actor entity name' },
+        target: { type: 'string', description: 'Filter by target entity name' },
+        action: { type: 'string', description: 'Filter by action verb' },
+        flowKey: { type: 'string', description: 'Filter by flow key' },
+        timeRange: {
+          type: 'object',
+          properties: {
+            start: { type: 'string', description: 'Inclusive lower bound (ISO 8601)' },
+            end: { type: 'string', description: 'Inclusive upper bound (ISO 8601)' },
+          },
+          additionalProperties: false,
+          description: 'Inclusive time range; either bound may be omitted',
+        },
+        limit: { type: 'number', description: 'Max events to return' },
+      },
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'get_event_flow',
+    description: 'All events sharing a flow key (flow:<key> tag), chronologically ordered — the full timeline of a named flow (e.g. a release, an incident).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        flowKey: { type: 'string', description: 'Flow key (case-insensitive)' },
+      },
+      required: ['flowKey'],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'who_did_what',
+    description: 'Convenience join answering "who did what (to target / in context / within time range)?" over recorded events. Returns actor + action + event tuples; events without a resolvable actor are omitted.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        target: { type: 'string', description: 'Filter by target entity name' },
+        context: { type: 'string', description: 'Filter by context entity name' },
+        timeRange: {
+          type: 'object',
+          properties: {
+            start: { type: 'string', description: 'Inclusive lower bound (ISO 8601)' },
+            end: { type: 'string', description: 'Inclusive upper bound (ISO 8601)' },
+          },
+          additionalProperties: false,
+          description: 'Inclusive time range; either bound may be omitted',
+        },
+        limit: { type: 'number', description: 'Max entries to return' },
+      },
+      additionalProperties: false,
+    },
+  },
+
+  // ==================== RECONSTRUCTIVE MEMORY TOOLS (memoryjs v3.0.0) ====================
+  {
+    name: 'ingest_dialogue',
+    description: 'Distill raw dialogue turns into the Cue–Tag–Content associative memory graph (MRAgent-style "memory is reconstructed, not retrieved"). Episodic/semantic/topic layers are also persisted into the live knowledge graph. Multiple calls accumulate.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        turns: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', description: 'Unique turn id' },
+              speaker: { type: 'string', description: 'Speaker name' },
+              text: { type: 'string', description: 'Turn text' },
+              timestamp: { type: 'string', description: 'ISO 8601 timestamp' },
+            },
+            required: ['id', 'text'],
+            additionalProperties: false,
+          },
+          description: 'Dialogue turns to distill and ingest',
+        },
+      },
+      required: ['turns'],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'reconstruct_memory',
+    description: 'Answer a query via active multi-step traversal of the reconstructive (Cue–Tag–Content) memory graph. Returns accumulated evidence, the step-by-step trajectory, and whether the loop stopped early on a satisfied condition vs. budget.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: { type: 'string', description: 'Query to reconstruct an answer for' },
+        maxSteps: { type: 'number', description: 'Max reasoning turns (default 8)' },
+        perStepBudget: { type: 'number', description: 'Max content nodes routed per step (default 10)' },
+        evidenceTarget: { type: 'number', description: 'Stop once this many distinct evidence items accumulate (default 12)' },
+      },
+      required: ['query'],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: 'reconstructive_memory_stats',
+    description: 'Size statistics of the reconstructive (Cue–Tag–Content) memory graph: cue / tag / content node counts and edge counts.',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+  },
+
+  // ==================== RELATION CONSOLIDATION TOOLS (memoryjs v3.0.0) ====================
+  {
+    name: 'analyze_relation_duplicates',
+    description: 'Dry-run the three-tier relation janitor: tier 1 finds trivial relationType spelling variants (WorksAt/works-at/works_at) and redundant bidirectional mirrors; tier 2 (when an embedding provider is configured) finds semantically equivalent same-pair relations. Report-only — never mutates the graph.',
+    inputSchema: { type: 'object', properties: {}, additionalProperties: false },
+  },
+  {
+    name: 'consolidate_relations',
+    description: 'Run relation-duplicate analysis and — when apply=true — merge tier 1+2 duplicate groups (delete variants, create the canonical survivor with summed confirmationCount). apply=false (default) is identical to analyze_relation_duplicates.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        apply: { type: 'boolean', description: 'Apply tier 1+2 merges (default false = dry-run)' },
+      },
       additionalProperties: false,
     },
   },
