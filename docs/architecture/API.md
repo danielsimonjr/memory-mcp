@@ -949,7 +949,7 @@ Search using semantic similarity with embeddings.
 
 **Notes:**
 - Requires embedding provider configuration via `MEMORY_EMBEDDING_PROVIDER`
-- Supported providers: `openai`, `local`, `none`
+- Supported providers: `openai`, `local`, `llamacpp`, `none`
 - Call `index_embeddings` first to build the vector index
 
 **Example:**

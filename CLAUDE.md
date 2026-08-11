@@ -34,7 +34,7 @@ npm run tools:build   # Build all standalone tools
 
 ## Architecture Overview
 
-This is an **MCP protocol wrapper** around the `@danielsimonjr/memoryjs` library, exposing **241 knowledge graph tools** via the Model Context Protocol. After the Phase 13 extraction, this repo contains only 5 TypeScript source files — all core graph logic lives in memoryjs (currently `^3.0.0`). Phase 15 (v12.2.0) added 23 tools surfacing memoryjs v1.14+ features (bitemporal validity, OCC, RBAC, procedural memory, active retrieval, causal reasoning, world model). Phase 16 (v12.3.0) added 53 tools surfacing memoryjs v2.1.0 — `do_not_remember` exclusions (5), decision rationale + ADR markdown dual-write (10), structured project context (12), heuristic guidelines (10), tool affordance + `ToolCallObserver` pipeline (11), observation dedup (2), spell correction (3). Releases after Phase 16 added 12 more tools — a small "active project scope" pair (v12.3.2 backport) and a v12.5.0 engineering/diagnostics category. v12.7.0 upgraded to memoryjs 3.0.0 and added 16 tools — event memory (5), reconstructive memory (3 + 2 snapshot persistence), relation consolidation (2), agent reflection (4) — plus v3 graph-channel/explain options on `hybrid_search`, bringing the total to 241. Latest: v12.7.0 (npm + plugin).
+This is an **MCP protocol wrapper** around the `@danielsimonjr/memoryjs` library, exposing **241 knowledge graph tools** via the Model Context Protocol. After the Phase 13 extraction, this repo contains only 5 TypeScript source files — all core graph logic lives in memoryjs (currently `^3.1.0`). Phase 15 (v12.2.0) added 23 tools surfacing memoryjs v1.14+ features (bitemporal validity, OCC, RBAC, procedural memory, active retrieval, causal reasoning, world model). Phase 16 (v12.3.0) added 53 tools surfacing memoryjs v2.1.0 — `do_not_remember` exclusions (5), decision rationale + ADR markdown dual-write (10), structured project context (12), heuristic guidelines (10), tool affordance + `ToolCallObserver` pipeline (11), observation dedup (2), spell correction (3). Releases after Phase 16 added 12 more tools — a small "active project scope" pair (v12.3.2 backport) and a v12.5.0 engineering/diagnostics category. v12.7.0 upgraded to memoryjs 3.0.0 and added 16 tools — event memory (5), reconstructive memory (3 + 2 snapshot persistence), relation consolidation (2), agent reflection (4) — plus v3 graph-channel/explain options on `hybrid_search`, bringing the total to 241. Latest: v12.7.2 (npm + plugin) — memoryjs `^3.1.0` (Node 24 `better-sqlite3` prebuilds + `llamacpp` embedding provider).
 
 **npm:** `@danielsimonjr/memory-mcp` | **Core lib:** `@danielsimonjr/memoryjs` (versions in package.json)
 
@@ -156,9 +156,10 @@ New categories (v1.8.0/v1.9.0/Phase 14/Phase 15/Phase 16/v12.3.2/v12.5.0, bold a
 |----------|-------------|---------|
 | `MEMORY_FILE_PATH` | Path to storage file | `memory.jsonl` (cwd) |
 | `MEMORY_STORAGE_TYPE` | `jsonl` or `sqlite` | `jsonl` |
-| `MEMORY_EMBEDDING_PROVIDER` | `openai`, `local`, or `none` | `none` |
+| `MEMORY_EMBEDDING_PROVIDER` | `openai`, `local`, `llamacpp`, or `none` | `none` |
 | `MEMORY_OPENAI_API_KEY` | Required if provider is `openai` | — |
-| `MEMORY_EMBEDDING_MODEL` | Embedding model name | `text-embedding-3-small` / `Xenova/all-MiniLM-L6-v2` |
+| `MEMORY_EMBEDDING_MODEL` | Embedding model name | `text-embedding-3-small` / `Xenova/all-MiniLM-L6-v2` / `llamacpp-local` |
+| `MEMORY_EMBEDDING_BASE_URL` | `llama-server` base URL (when provider is `llamacpp`) | `http://127.0.0.1:8080` |
 | `MEMORY_AUTO_INDEX_EMBEDDINGS` | Auto-index on entity creation | `false` |
 
 ## Test Structure
@@ -210,7 +211,7 @@ npm publish --access public
 
 ## Gotchas
 
-- **memoryjs is a published dep** (v12.2.3+): `@danielsimonjr/memoryjs` resolves from npm at `^3.0.0`. For active dual-repo dev (editing memoryjs alongside memory-mcp), temporarily switch to `file:C:/Users/danie/Dropbox/Github/memoryjs` in package.json so changes are picked up on `npm install` without a publish — but **bump back to a registry version before `npm publish`**. The `release: bump @danielsimonjr/memoryjs file: → ^x.y.z (publishable)` commits in `git log` exist for exactly this swap. While in `file:` mode, `npm install` will fail on any machine without that local path.
+- **memoryjs is a published dep** (v12.2.3+): `@danielsimonjr/memoryjs` resolves from npm at `^3.1.0`. For active dual-repo dev (editing memoryjs alongside memory-mcp), temporarily switch to `file:C:/Users/danie/Dropbox/Github/memoryjs` in package.json so changes are picked up on `npm install` without a publish — but **bump back to a registry version before `npm publish`**. The `release: bump @danielsimonjr/memoryjs file: → ^x.y.z (publishable)` commits in `git log` exist for exactly this swap. While in `file:` mode, `npm install` will fail on any machine without that local path.
 - **Data files are gitignored**: `*.jsonl` and `memory.db` are in `.gitignore` — test runs create/modify these in the project root but they won't appear in `git status`.
 - **Error handling in dispatch**: `handleToolCall` catches exceptions from handlers and returns them as MCP-formatted error responses (not thrown). Check MCP response `isError` field when debugging.
 - **TypeScript target**: ES2022 with Node16 module resolution. The `prepare` script runs `npm run build` on install, so `dist/` is rebuilt automatically.

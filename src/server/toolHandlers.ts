@@ -1144,7 +1144,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const semanticSearch = ctx.semanticSearch;
     if (!semanticSearch) {
       return formatTextResponse(
-        'Semantic search is not available. Set MEMORY_EMBEDDING_PROVIDER environment variable to "openai" or "local".'
+        'Semantic search is not available. Set MEMORY_EMBEDDING_PROVIDER environment variable to "openai", "local", or "llamacpp".'
       );
     }
 
@@ -1173,7 +1173,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const semanticSearch = ctx.semanticSearch;
     if (!semanticSearch) {
       return formatTextResponse(
-        'Semantic search is not available. Set MEMORY_EMBEDDING_PROVIDER environment variable to "openai" or "local".'
+        'Semantic search is not available. Set MEMORY_EMBEDDING_PROVIDER environment variable to "openai", "local", or "llamacpp".'
       );
     }
 
@@ -1202,7 +1202,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const semanticSearch = ctx.semanticSearch;
     if (!semanticSearch) {
       return formatTextResponse(
-        'Semantic search is not available. Set MEMORY_EMBEDDING_PROVIDER environment variable to "openai" or "local".'
+        'Semantic search is not available. Set MEMORY_EMBEDDING_PROVIDER environment variable to "openai", "local", or "llamacpp".'
       );
     }
 

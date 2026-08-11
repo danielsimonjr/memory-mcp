@@ -7,6 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [12.7.2] - 2026-08-11
+
+### Changed
+
+- **Bumps `@danielsimonjr/memoryjs` `^3.0.0` → `^3.1.0`.** Pulls in the published
+  Node 24 `better-sqlite3` prebuild fix and the new `llamacpp` embedding provider.
+  No new MCP tools — the provider is selected via the existing
+  `MEMORY_EMBEDDING_PROVIDER` env (same path as `openai` / `local`).
+
+  - **`better-sqlite3` `^11.7.0` → `^12.11.1` (via memoryjs).** npm still served
+    memoryjs 3.0.0 with `^11.7.0`, which resolves to 11.10.0 and has **no Node 24
+    prebuild**, so installs fell through to a source build and failed without an
+    MSVC/C++ toolchain. This package's own `overrides.better-sqlite3` is raised
+    from `^12.10.1` → **`^12.11.1`** to match.
+  - **`LlamaCppEmbeddingService`** — embeddings from a local `llama-server`
+    (OpenAI-compatible `/v1/embeddings`). Select with
+    `MEMORY_EMBEDDING_PROVIDER=llamacpp`; point with `MEMORY_EMBEDDING_BASE_URL`
+    (default `http://127.0.0.1:8080`). Dimensions are discovered by probing the
+    server (never assumed), so swapping the GGUF mid-run throws rather than
+    writing incomparable vectors. Useful when cloud embedding is not permitted
+    and transformers.js MiniLM is too small for the corpus.
+  - Upstream also clears two high-severity advisories and fixes JsonlColumnStore
+    concurrency / shadow-write ordering (transparent to MCP callers).
+
+### Fixed
+
+- Semantic-search "not available" error text now lists `"llamacpp"` alongside
+  `"openai"` and `"local"`.
+
+Plugin manifest version aligned with the npm package (both 12.7.2).
+
 ## [12.7.1] - 2026-08-02
 
 ### Security

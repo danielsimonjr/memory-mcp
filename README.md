@@ -1,6 +1,6 @@
 # Memory MCP Server
 
-[![Version](https://img.shields.io/badge/version-12.7.0-blue.svg)](https://github.com/danielsimonjr/memory-mcp)
+[![Version](https://img.shields.io/badge/version-12.7.2-blue.svg)](https://github.com/danielsimonjr/memory-mcp)
 [![NPM](https://img.shields.io/npm/v/@danielsimonjr/memory-mcp.svg)](https://www.npmjs.com/package/@danielsimonjr/memory-mcp)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![MCP](https://img.shields.io/badge/MCP-1.0-purple.svg)](https://modelcontextprotocol.io)
@@ -707,9 +707,10 @@ Discrete facts about entities. Each observation should be atomic and independent
 |----------|-------------|---------|
 | `MEMORY_FILE_PATH` | Path to storage file | `memory.jsonl` (current directory) |
 | `MEMORY_STORAGE_TYPE` | Storage backend: `jsonl` or `sqlite` | `jsonl` |
-| `MEMORY_EMBEDDING_PROVIDER` | Embedding provider: `openai`, `local`, or `none` | `none` |
+| `MEMORY_EMBEDDING_PROVIDER` | Embedding provider: `openai`, `local`, `llamacpp`, or `none` | `none` |
 | `MEMORY_OPENAI_API_KEY` | OpenAI API key (required if provider is `openai`) | - |
-| `MEMORY_EMBEDDING_MODEL` | Embedding model to use | `text-embedding-3-small` (OpenAI) / `Xenova/all-MiniLM-L6-v2` (local) |
+| `MEMORY_EMBEDDING_MODEL` | Embedding model to use | `text-embedding-3-small` (OpenAI) / `Xenova/all-MiniLM-L6-v2` (local) / `llamacpp-local` (llamacpp) |
+| `MEMORY_EMBEDDING_BASE_URL` | Base URL of a local `llama-server` (used when provider is `llamacpp`) | `http://127.0.0.1:8080` |
 | `MEMORY_AUTO_INDEX_EMBEDDINGS` | Auto-index entities on creation | `false` |
 
 ### Storage Backends
@@ -908,9 +909,10 @@ We welcome contributions!
 
 All notable changes are documented in **[CHANGELOG.md](CHANGELOG.md)**.
 
-**Current version**: v12.7.0 - [View full changelog](CHANGELOG.md)
+**Current version**: v12.7.2 - [View full changelog](CHANGELOG.md)
 
 Recent highlights:
+- **v12.7.2**: Bumped `@danielsimonjr/memoryjs` `^3.0.0` → `^3.1.0` — Node 24 `better-sqlite3` prebuilds (`^12.11.1`) and the `llamacpp` embedding provider (`MEMORY_EMBEDDING_PROVIDER=llamacpp` + `MEMORY_EMBEDDING_BASE_URL`). No new tools.
 - **v12.7.0** (241 tools): Upgraded `@danielsimonjr/memoryjs` `^2.8.1` → `^3.0.0` and surfaced its new features as 16 tools — event memory (5), reconstructive Cue–Tag–Content memory + snapshot persistence (5), relation consolidation (2), agent reflection (4) — plus v3 graph-channel / evidence-path options on `hybrid_search`. Refactored handlers onto the new `ManagerContext` accessors (`hybridSearchManager`, `governanceManager`, `eventManager`, `reflectionManager`, `reconstructiveMemory()`, `close()`).
 - **v12.5.0** (225 tools): 10 engineering / diagnostic tools mirroring the memoryjs CLI surface (`diag`, `health`, `check_graph`, `reindex`, cache stats/clear, `graph_size`, `inspect_entity`, `hierarchy_tree`, `entity_neighbors`).
 - **v12.3.2** (215 tools): Backport of the deferred `set_project_scope` / `get_project_scope` pair.
