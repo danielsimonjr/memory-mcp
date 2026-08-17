@@ -17,7 +17,7 @@
     "targets": ["node22-win-x64"]
   },
   "devDependencies": {
-    "@types/node": "^26.1.2",
+    "@types/node": "^26.2.0",
     "@yao-pkg/pkg": "^6.22.0",
     "typescript": "^7.0.2"
   },
