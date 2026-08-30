@@ -4,16 +4,15 @@
  * Handles Model Context Protocol server initialization and tool registration.
  * Tool definitions and handlers are extracted to separate modules for maintainability.
  *
+ * Serves MCP protocol revision 2026-07-28 via `serveStdio`, with backward-compatible
+ * support for 2025-era clients on the same stdio connection.
+ *
  * @module server/MCPServer
  */
 
 import { createRequire } from 'node:module';
-import { Server } from "@modelcontextprotocol/sdk/server/index.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
-import {
-  CallToolRequestSchema,
-  ListToolsRequestSchema,
-} from "@modelcontextprotocol/sdk/types.js";
+import { Server, type CallToolRequest, type ListToolsResult, type Tool } from '@modelcontextprotocol/server';
+import { serveStdio, type StdioServerHandle } from '@modelcontextprotocol/server/stdio';
 import { logger, type ManagerContext } from '@danielsimonjr/memoryjs';
 import { toolDefinitions } from './toolDefinitions.js';
 import { handleToolCall } from './toolHandlers.js';
@@ -40,14 +39,22 @@ const version: string =
  * Exposes tools for entity/relation management, search, and analysis.
  */
 export class MCPServer {
-  private server: Server;
   private ctx: ManagerContext;
+  private stdioHandle: StdioServerHandle | null = null;
 
   constructor(ctx: ManagerContext) {
     this.ctx = ctx;
-    this.server = new Server(
+  }
+
+  /**
+   * Build a fresh Server instance for one stdio connection.
+   * `serveStdio` pins one instance per connection; the shared ManagerContext
+   * holds graph state across reconnects.
+   */
+  private createServer(): Server {
+    const server = new Server(
       {
-        name: "memory-server",
+        name: 'memory-server',
         version,
       },
       {
@@ -57,27 +64,25 @@ export class MCPServer {
       }
     );
 
-    this.registerToolHandlers();
-  }
+    server.setRequestHandler('tools/list', async (): Promise<ListToolsResult> => ({
+      tools: toolDefinitions as Tool[],
+    }));
 
-  private registerToolHandlers() {
-    // Register list tools handler
-    this.server.setRequestHandler(ListToolsRequestSchema, async () => {
-      return {
-        tools: toolDefinitions,
-      };
-    });
-
-    // Register call tool handler
-    this.server.setRequestHandler(CallToolRequestSchema, async (request) => {
+    server.setRequestHandler('tools/call', async (request: CallToolRequest) => {
       const { name, arguments: args } = request.params;
-      return handleToolCall(name, args || {}, this.ctx);
+      return handleToolCall(name, args ?? {}, this.ctx);
     });
+
+    return server;
   }
 
   async start() {
-    const transport = new StdioServerTransport();
-    await this.server.connect(transport);
-    logger.info('Knowledge Graph MCP Server running on stdio');
+    this.stdioHandle = serveStdio(() => this.createServer());
+    logger.info('Knowledge Graph MCP Server running on stdio (MCP 2026-07-28)');
+  }
+
+  async close() {
+    await this.stdioHandle?.close();
+    this.stdioHandle = null;
   }
 }

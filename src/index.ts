@@ -97,7 +97,10 @@ let managerContext: ManagerContext;
 // process alive as an orphan until manually killed.
 // ctx.close() (memoryjs v3) releases storage handles before exit; it is a
 // no-op for JSONL but closes the SQLite handle when MEMORY_STORAGE_TYPE=sqlite.
+let mcpServer: MCPServer | undefined;
+
 function shutdown(): never {
+  void mcpServer?.close();
   managerContext?.close();
   process.exit(0);
 }
@@ -118,8 +121,8 @@ async function main() {
   });
 
   // Initialize and start MCP server
-  const server = new MCPServer(managerContext);
-  await server.start();
+  mcpServer = new MCPServer(managerContext);
+  await mcpServer.start();
 }
 
 main().catch((error) => {
