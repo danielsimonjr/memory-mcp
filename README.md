@@ -178,14 +178,14 @@ git clone https://github.com/danielsimonjr/memory-mcp.git
 cd memory-mcp
 
 # Install and build
-npm install
-npm run build
+bun install
+bun run build
 
-# Run tests (791 tests, ~85% statement coverage)
-npm test
+# Run tests (794 tests, ~85% statement coverage)
+bun run test
 
 # Type check
-npm run typecheck
+bun run typecheck
 ```
 
 ### Claude Desktop Configuration
@@ -774,20 +774,20 @@ node dist/migrate-from-jsonl-to-sqlite.js --from memory.db --to memory.jsonl
 
 ### Prerequisites
 
-- Node.js 18+
-- npm 9+
-- TypeScript 5.6+
+- Bun 1.4+ (install + scripts; `bun.lock` is authoritative)
+- Node.js 22+ (shipped runtime — CI smokes `dist/` under Node)
+- TypeScript 7+
 
 ### Build Commands
 
 ```bash
-npm install           # Install dependencies
-npm run build         # Build TypeScript
-npm test              # Run tests (791 tests across 36 files; ~85% coverage)
-npm run typecheck     # Strict type checking
-npm run watch         # Development watch mode
-npm run clean         # Remove dist/ directory
-npm run docs:deps     # Generate dependency graph
+bun install           # Install dependencies
+bun run build         # Build TypeScript
+bun run test          # Run tests (794 tests across 37 files; ~85% coverage)
+bun run typecheck     # Strict type checking
+bun run watch         # Development watch mode
+bun run clean         # Remove dist/ directory
+bun run docs:deps     # Generate dependency graph
 ```
 
 ### Architecture

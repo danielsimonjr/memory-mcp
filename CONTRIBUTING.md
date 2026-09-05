@@ -19,17 +19,10 @@ See [WORKFLOW.md](WORKFLOW.md) for detailed development instructions.
 
 Quick start:
 ```bash
-# Navigate to source
-cd c:/mcp-servers/memory-mcp/src/memory
-
-# Install dependencies
-npm install
-
-# Build
-npm run build
-
-# Run tests
-npm test
+# From the repository root
+bun install
+bun run build
+bun run test
 ```
 
 ## What We Welcome
@@ -87,9 +80,8 @@ We're particularly interested in:
 
 4. **Build and test**
    ```bash
-   cd src/memory
-   npm run build
-   npm test
+   bun run build
+   bun run test
    ```
 
 5. **Commit your changes**

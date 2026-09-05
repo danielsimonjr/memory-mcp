@@ -3,8 +3,10 @@
   "version": "12.8.3",
   "description": "Enhanced MCP memory server with hierarchies, compression, archiving, graph algorithms, semantic search, temporal KG, RBAC, bitemporal validity, OCC, procedural memory, causal reasoning, world model, do_not_remember exclusions, decision rationale, project context, heuristic guidelines, tool affordance + observer, observation dedup, spell correction, event memory, reconstructive memory, relation consolidation, agent reflection, and 241 advanced tools",
   "license": "MIT",
+  "packageManager": "bun@1.4.0",
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=22.0.0",
+    "bun": ">=1.4.0"
   },
   "author": "Daniel Simon Jr. (https://github.com/danielsimonjr)",
   "homepage": "https://github.com/danielsimonjr/memory-mcp",
@@ -48,7 +50,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build",
+    "prepare": "tsc",
     "watch": "tsc --watch",
     "test": "vitest run --coverage",
     "typecheck": "tsc --noEmit --noUnusedLocals --noUnusedParameters --strict",

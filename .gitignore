@@ -41,6 +41,9 @@ build/Release
 # Dependency directories
 node_modules/
 tools/*/node_modules/
+
+# Root lockfile is bun.lock (CI + local). tools/* keep their own package-lock.json.
+/package-lock.json
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)

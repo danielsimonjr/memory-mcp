@@ -5,24 +5,11 @@ holds only what is still outstanding.
 
 ## Open
 
-- [ ] **🟡 Decide which lockfile is authoritative — `bun.lock` or the root `package-lock.json`.**
-  Both are committed for the same root package. Dependabot maintains the npm one (PR #165 was titled
-  *"across 5 directories"*), while CI installs from `bun.lock`.
-
-  **Current state is consistent, not broken.** `bc341764` updated both, and `package-lock.json`
-  matches `package.json` field-by-field. A divergence would also be **loud rather than silent**:
-  `bun install --frozen-lockfile` fails when `package.json` moves without `bun.lock`, which is
-  exactly what turned `main` red on 2026-08-25. The gate does catch it.
-
-  The problem is that `bun.lock` only moved because it was regenerated **by hand** on the PR branch.
-  Nothing automates that, so every future Dependabot PR needs the same manual step or it goes red.
-
-  The `tools/*` `package-lock.json` files are legitimate — separate npm mini-packages with no
-  `bun.lock`. **Only the root one is the duplicate.**
-
-  **Recommended:** delete the root `package-lock.json`, making `bun.lock` the single source of truth
-  and stopping Dependabot from maintaining a file nothing installs from. Needs a decision on whether
-  root dependencies are bun-managed or npm-managed, so it is not a drive-by fix.
+- [x] **Decide which lockfile is authoritative — `bun.lock` or the root `package-lock.json`.**
+  **Resolved 2026-09-05:** deleted the root `package-lock.json`; `bun.lock` is the single source of
+  truth for the root package (matches CI `bun install --frozen-lockfile` and Dependabot's npm
+  range-only updates). `tools/*` keep their own `package-lock.json` files. Root `/package-lock.json`
+  is gitignored so it cannot reappear by accident.
 
 - [x] **Confirm the nightly `schedule` on `typescript.yml` actually fires.** — **VERIFIED
   2026-08-29**: first scheduled run fired at 07:05:39Z, conclusion `success`, event `schedule`.
@@ -42,4 +29,4 @@ was deliberately left.
 | Stability | CI matrix (ubuntu/windows × Node 22/24) green on `main` | — |
 | Reliability | **fixed** — `main` could carry an auto-merged commit with no CI run at all; nightly `schedule` + `workflow_dispatch` added | `bc341764` itself stays ungauged; it predates the dispatch trigger and cannot be backfilled |
 | Security | **fixed** — `typescript.yml` now pins `permissions: contents: read` rather than inheriting the repo default (`read` today, but a repo-level setting that can widen silently). Advisory audit clean via temp-generated lock | — |
-| Maintainability | **found** — two lockfiles for one root package; see the open item above | not fixed: needs the bun-vs-npm decision |
+| Maintainability | **fixed** — root `package-lock.json` removed; `bun.lock` is sole root lockfile | tools/* remain npm-locked by design |

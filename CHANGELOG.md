@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Root lockfile is Bun-only.** Deleted the duplicate root `package-lock.json` so `bun.lock`
+  matches what CI already installs from (`bun install --frozen-lockfile`). Documented Bun as the
+  local/CI toolchain (Node remains the shipped runtime). `package.json` pins
+  `packageManager: bun@1.4.0` and `prepare` now runs `tsc` directly. `tools/*` still use npm +
+  their own lockfiles.
+
 - **This package now also publishes under the legacy name `@danielsimonjr/enhanced-memory-mcp`.**
   That name had exactly one version ever -- `0.7.0`, from 2025-11-11 -- while its `repository`
   field already pointed here. It was refreshed to **12.8.3** on 2026-09-03 by publishing this tree

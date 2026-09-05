@@ -14,9 +14,9 @@
 ### 1. Install + verify clean state
 
 ```bash
-npm install
-npm run typecheck
-SKIP_BENCHMARKS=true npm test
+bun install
+bun run typecheck
+SKIP_BENCHMARKS=1 bun run test
 ```
 
 ### 2. Edit code in `src/`
@@ -36,10 +36,10 @@ Per the project workflow:
 1. **Plan** — design the change (use `feature-dev:code-architect` / `Plan` / `superpowers:writing-plans` for non-trivial scope).
 2. **Review the plan** before writing code.
 3. **Write failing tests** in `tests/unit/` or `tests/e2e/tools/`.
-4. **Confirm RED** via `npx vitest run <file>`.
+4. **Confirm RED** via `bunx vitest run <file>`.
 5. **Implement** until tests pass GREEN.
-6. **Run typecheck** — `npm run typecheck` must be clean (`tsc --noEmit --noUnusedLocals --noUnusedParameters --strict`).
-7. **Run full suite** — `SKIP_BENCHMARKS=true npm test`. All 665+ tests must pass.
+6. **Run typecheck** — `bun run typecheck` must be clean (`tsc --noEmit --noUnusedLocals --noUnusedParameters --strict`).
+7. **Run full suite** — `SKIP_BENCHMARKS=1 bun run test`. All 665+ tests must pass.
 
 ### 4. Code review (mandatory, even for solo work)
 
@@ -89,7 +89,7 @@ No PR flow required for solo work; PRs are welcome for external contributions pe
 
 ## Release Workflow
 
-1. Verify `npm run typecheck && SKIP_BENCHMARKS=true npm test` clean.
+1. Verify `bun run typecheck && SKIP_BENCHMARKS=1 bun run test` clean.
 2. Decide bump (patch / minor / major) per semver.
 3. Update `package.json` `version` and `description` (if surface meaningfully changed).
 4. Rename `## [Unreleased]` → `## [X.Y.Z] - YYYY-MM-DD` in `CHANGELOG.md`.
@@ -103,13 +103,13 @@ No PR flow required for solo work; PRs are welcome for external contributions pe
 ## Quick Commands
 
 ```bash
-npm run typecheck                      # Strict TS check
-SKIP_BENCHMARKS=true npm test          # Default test run
-npx vitest run tests/unit/server/      # Single dir
-npx vitest run -t "should X"           # Pattern match
-npm run build                          # Compile to dist/
-npm run clean                          # Remove dist/
-node dist/index.js                     # Run server locally
+bun run typecheck                      # Strict TS check
+SKIP_BENCHMARKS=1 bun run test         # Default test run
+bunx vitest run tests/unit/server/     # Single dir
+bunx vitest run -t "should X"          # Pattern match
+bun run build                          # Compile to dist/
+bun run clean                          # Remove dist/
+node dist/index.js                     # Run server locally (Node is the shipped runtime)
 git log --oneline -10                  # Recent commits
 ```
 

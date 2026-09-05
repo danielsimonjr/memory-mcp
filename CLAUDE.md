@@ -5,31 +5,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Build & Development Commands
 
 ```bash
-npm install           # Install all dependencies
-npm run build         # Build TypeScript → JavaScript (tsc)
-npm test              # Run tests with coverage (vitest)
-npm run typecheck     # Strict type checking (includes --noUnusedLocals --noUnusedParameters)
-npm run watch         # Watch mode for development
-npm run clean         # Remove dist/ directory
+bun install           # Install all dependencies (bun.lock is authoritative)
+bun run build         # Build TypeScript → JavaScript (tsc)
+bun run test          # Run tests with coverage (vitest)
+bun run typecheck     # Strict type checking (includes --noUnusedLocals --noUnusedParameters)
+bun run watch         # Watch mode for development
+bun run clean         # Remove dist/ directory
 
 # Run a single test file
-npx vitest run tests/e2e/tools/entity-tools.test.ts
+bunx vitest run tests/e2e/tools/entity-tools.test.ts
 
 # Run tests matching a pattern
-npx vitest run -t "should create entities"
+bunx vitest run -t "should create entities"
 
-# Run server locally (after building)
+# Run server locally (after building) — Node is the shipped runtime
 node dist/index.js
 
 # Skip benchmark tests
 # PowerShell:
-$env:SKIP_BENCHMARKS=1; npm test
+$env:SKIP_BENCHMARKS=1; bun run test
 # Bash/Unix:
-SKIP_BENCHMARKS=1 npm test
+SKIP_BENCHMARKS=1 bun run test
 
-# Standalone tools (in tools/ directory)
-npm run tools:install # Install dependencies for all standalone tools
-npm run tools:build   # Build all standalone tools
+# Standalone tools (in tools/ directory — still npm + package-lock.json)
+bun run tools:install # Install dependencies for all standalone tools
+bun run tools:build   # Build all standalone tools
 ```
 
 ## Architecture Overview
@@ -203,7 +203,7 @@ The `tools/` directory has standalone utilities (each with own `package.json`, b
 # Token with "bypass 2FA" required — classic tokens are revoked
 npm config set //registry.npmjs.org/:_authToken=$(cat c:\mcp-servers\npm_key.txt)
 npm publish --access public
-# `prepare` script auto-builds, so separate `npm run build` is not needed before publish
+# `prepare` script auto-builds (`tsc`), so separate `bun run build` is not needed before publish
 # Verify tarball contents before publishing:
 # npm pack --dry-run 2>&1 | grep -E "jsonl|\.db|total files|package size"
 # Always bump version in package.json before publishing (npm won't re-publish an existing version)
@@ -214,5 +214,5 @@ npm publish --access public
 - **memoryjs is a published dep** (v12.2.3+): `@danielsimonjr/memoryjs` resolves from npm at `^3.1.0`. For active dual-repo dev (editing memoryjs alongside memory-mcp), temporarily switch to `file:C:/Users/danie/Dropbox/Github/memoryjs` in package.json so changes are picked up on `npm install` without a publish — but **bump back to a registry version before `npm publish`**. The `release: bump @danielsimonjr/memoryjs file: → ^x.y.z (publishable)` commits in `git log` exist for exactly this swap. While in `file:` mode, `npm install` will fail on any machine without that local path.
 - **Data files are gitignored**: `*.jsonl` and `memory.db` are in `.gitignore` — test runs create/modify these in the project root but they won't appear in `git status`.
 - **Error handling in dispatch**: `handleToolCall` catches exceptions from handlers and returns them as MCP-formatted error responses (not thrown). Check MCP response `isError` field when debugging.
-- **TypeScript target**: ES2022 with Node16 module resolution. The `prepare` script runs `npm run build` on install, so `dist/` is rebuilt automatically.
+- **TypeScript target**: ES2022 with Node16 module resolution. The `prepare` script runs `tsc` on install, so `dist/` is rebuilt automatically.
 - **Data files in `dist/` are excluded from the tarball**: The `files` field is `["dist"]`, but `.npmignore` excludes `dist/*.jsonl` and `dist/*.db`, so data files copied into `dist/` by local runs are not published. Verify with `npm pack --dry-run` before publishing.
