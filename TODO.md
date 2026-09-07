@@ -5,7 +5,13 @@ holds only what is still outstanding.
 
 ## Open
 
-- [ ] **vitest 4 -> 5 blocked: `@vitest/coverage-v8` 5 breaks the coverage step.** PRs #172
+- [x] **vitest 4 -> 5 — RESOLVED 2026-09-07 by landing both halves together (#172).**
+      Not a broken package: vitest 5 changed the core/provider contract, so
+      `onAfterSuiteRun({ coverage })` expects a FILENAME the provider wrote, while coverage-v8
+      v4 passes the raw V8 object inline. #172 and #174 were two halves of one bump, each red
+      for the other's absence. Verified locally before pushing: the suite completes at 85.97%
+      lines. #174 closed as superseded. Same fix landed in deepthinking-mcp #309.
+- [ ] ~~ORIGINAL (superseded):~~ **vitest 4 -> 5 blocked: `@vitest/coverage-v8` 5 breaks the coverage step.** PRs #172
       (vitest) and #174 (coverage-v8) are red on a REAL breaking change, not the `bun.lock`
       plumbing that accounted for the other bumps this morning:
 
