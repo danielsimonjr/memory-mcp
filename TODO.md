@@ -5,6 +5,23 @@ holds only what is still outstanding.
 
 ## Open
 
+- [ ] **vitest 4 -> 5 blocked: `@vitest/coverage-v8` 5 breaks the coverage step.** PRs #172
+      (vitest) and #174 (coverage-v8) are red on a REAL breaking change, not the `bun.lock`
+      plumbing that accounted for the other bumps this morning:
+
+      ```
+      TypeError: Expected string coverage payload, received object, {"result":[...
+      ```
+
+      The v8 coverage payload changed from a string to an object. **Confirmed identical in
+      deepthinking-mcp** (run 34108055630) — one upstream cause, four PRs across two repos, so
+      one fix clears both. **math-mcp took vitest 5 cleanly** (#106 merged the same morning)
+      because it runs no equivalent coverage job — the blocker is the coverage integration,
+      not vitest.
+
+      #172 and #174 must land TOGETHER; splitting them leaves the two majors mismatched.
+
+
 - [x] **Decide which lockfile is authoritative — `bun.lock` or the root `package-lock.json`.**
   **Resolved 2026-09-05:** deleted the root `package-lock.json`; `bun.lock` is the single source of
   truth for the root package (matches CI `bun install --frozen-lockfile` and Dependabot's npm
