@@ -5,27 +5,14 @@ holds only what is still outstanding.
 
 ## Open
 
-- [x] **vitest 4 -> 5 — RESOLVED 2026-09-07 by landing both halves together (#172).**
+- [x] **vitest 4 -> 5 blocked: `@vitest/coverage-v8` 5 breaks the coverage step.**
+      **RESOLVED 2026-09-07 by landing both halves together (#172)** — heading kept verbatim
+      so the closed item stays findable by the words it was filed under.
       Not a broken package: vitest 5 changed the core/provider contract, so
       `onAfterSuiteRun({ coverage })` expects a FILENAME the provider wrote, while coverage-v8
       v4 passes the raw V8 object inline. #172 and #174 were two halves of one bump, each red
       for the other's absence. Verified locally before pushing: the suite completes at 85.97%
       lines. #174 closed as superseded. Same fix landed in deepthinking-mcp #309.
-- [ ] ~~ORIGINAL (superseded):~~ **vitest 4 -> 5 blocked: `@vitest/coverage-v8` 5 breaks the coverage step.** PRs #172
-      (vitest) and #174 (coverage-v8) are red on a REAL breaking change, not the `bun.lock`
-      plumbing that accounted for the other bumps this morning:
-
-      ```
-      TypeError: Expected string coverage payload, received object, {"result":[...
-      ```
-
-      The v8 coverage payload changed from a string to an object. **Confirmed identical in
-      deepthinking-mcp** (run 34108055630) — one upstream cause, four PRs across two repos, so
-      one fix clears both. **math-mcp took vitest 5 cleanly** (#106 merged the same morning)
-      because it runs no equivalent coverage job — the blocker is the coverage integration,
-      not vitest.
-
-      #172 and #174 must land TOGETHER; splitting them leaves the two majors mismatched.
 
 
 - [x] **Decide which lockfile is authoritative — `bun.lock` or the root `package-lock.json`.**
