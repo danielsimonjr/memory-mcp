@@ -5,6 +5,23 @@ holds only what is still outstanding.
 
 ## Open
 
+- [x] **`multi-agent-tools.test.ts` teardown races the manager — `main` went RED on a
+      DOCS-ONLY commit.** Run 34119539526, leg `ci (ubuntu-latest, 22.x)`:
+      `ENOTEMPTY: directory not empty, rmdir '/tmp/multi-agent-tools-O4eK3p'`. 36 of 37 files
+      passed.
+
+      **Not caused by the vitest 5 merge**, which is the obvious suspect: `cb73d5db` (the
+      merge) went green, `e4bf9b62` (docs) green, `cccae138` (docs) RED — identical test code.
+      3/3 green locally in isolation, so it only fails under full-suite contention.
+
+      Root cause is in the test, and it is the same defect as the others found tonight:
+      `afterEach` waits **50 ms of wall-clock** — *"allow pending async writes to settle"* —
+      then removes the temp dir. The background consolidation writer is still going under
+      load, so `fs.rm` races it. `ManagerContext` exposes an **idempotent `close()`** whose own
+      doc example is `try { ... } finally { ctx.close(); }` — the test never calls it. Await
+      the real signal instead of guessing at a duration.
+
+
 - [x] **vitest 4 -> 5 blocked: `@vitest/coverage-v8` 5 breaks the coverage step.**
       **RESOLVED 2026-09-07 by landing both halves together (#172)** — heading kept verbatim
       so the closed item stays findable by the words it was filed under.

@@ -24,9 +24,27 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  // Allow pending async writes to settle before removing temp dir
-  await new Promise(resolve => setTimeout(resolve, 50));
-  await fs.rm(testDir, { recursive: true, force: true });
+  // Close the manager before removing its directory. This used to sleep 50 ms and
+  // hope -- "allow pending async writes to settle" -- which turned `main` red on a
+  // DOCS-ONLY commit (run 34119539526, ubuntu 22.x):
+  //
+  //   ENOTEMPTY: directory not empty, rmdir '/tmp/multi-agent-tools-O4eK3p'
+  //
+  // 50 ms is a guess at how long a background writer needs, and under full-suite
+  // contention it is the wrong guess: the consolidation writer was still adding
+  // files while `fs.rm` walked the tree. `close()` is the actual signal -- it is
+  // idempotent, and its own doc example is `try { ... } finally { ctx.close(); }`.
+  manager.close();
+  // Belt and braces for anything already in flight when close() returned. This is
+  // what vitest itself does when clearing its coverage directory, for the same
+  // reason: removal of a directory another process may still touch is inherently
+  // racy, so bound the retry rather than widen a sleep.
+  await fs.rm(testDir, {
+    recursive: true,
+    force: true,
+    maxRetries: 10,
+    retryDelay: 50,
+  });
 });
 
 async function seedGraph() {

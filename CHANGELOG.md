@@ -5,6 +5,28 @@ All notable changes to the Enhanced Memory MCP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- **Test teardown no longer races the manager it is tearing down.**
+  `multi-agent-tools.test.ts` turned `main` red on a **docs-only** commit (run 34119539526,
+  `ci (ubuntu-latest, 22.x)`): `ENOTEMPTY: directory not empty, rmdir
+  '/tmp/multi-agent-tools-O4eK3p'`, 36 of 37 files passing.
+
+  The vitest 5 merge was the obvious suspect and was **not** the cause: `cb73d5db` (the merge)
+  went green, `e4bf9b62` green, `cccae138` red — identical test code across all three.
+
+  `afterEach` slept **50 ms of wall-clock** — *"allow pending async writes to settle"* — then
+  removed the temp directory. That is a guess at how long a background writer needs, and under
+  full-suite contention it is the wrong guess: the consolidation writer kept adding files while
+  `fs.rm` walked the tree. It now calls `ManagerContext.close()`, the actual signal, which is
+  idempotent and whose own doc example is `try { ... } finally { ctx.close(); }`; the removal
+  additionally uses bounded `maxRetries`, the same thing vitest does when clearing its own
+  coverage directory.
+
+  Third instance of one shape in a night: a wall-clock duration standing in for a real signal.
+
 ## 2026-09-03 - CI now exercises the NODE runtime, not just Bun
 
 - Every CI step ran through `bun run` while `setup-node` was installed and never invoked, so
