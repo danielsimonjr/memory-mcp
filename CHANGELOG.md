@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Bun pinned to 1.4.2** in `packageManager`, `engines.bun` and the CI workflow.
+  All three together: a manifest pin that CI does not honour describes an install
+  nothing actually performs.
+
 ### Fixed
 
 - **Test teardown no longer races the manager it is tearing down.**
