@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`tools/migrate-from-jsonl-to-sqlite/scripts/rebuild-native.mjs`'s health check only detected a
+  MISSING better-sqlite3, not one that is present and broken.** `loads(pkg)` called plain
+  `require(pkg)`, which resolves the JS wrapper without ever touching the native binding -
+  better-sqlite3 compiles it lazily, inside the `Database` constructor. An ABI-mismatched addon
+  (Node upgraded since install) or one that fails at lazy load therefore read as "loads" and the
+  tool's own `postinstall`/`rebuild:native` scripts never ran a rebuild. `loads()` now opens a
+  `:memory:` database and runs `SELECT 1` before declaring success, porting the fix already
+  shipped in `@danielsimonjr/memoryjs`'s copy of this script. Proven with a `Module._load` stub
+  that returns a `Database` class whose constructor throws until a fake rebuild runs: the OLD
+  `loads()` reported "loads" against that stub and exited 0 having detected nothing; the fixed
+  version reports the failure, rebuilds, and verifies the reload
+  (`tests/unit/tools-migrate-rebuild-native.test.ts`). Suite: 39 files / 799 tests, all passing.
+
 - **`.claude-plugin/plugin.json` still declared `12.8.2` after the 12.9.0 release.** The release
   bumped `package.json` and not the plugin manifest, so the Claude Code plugin system — and the
   `local-marketplace` entry that mirrors this version — could not see 12.9.0 at all. The stale
