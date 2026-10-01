@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Dropped the ROOT from the npm Dependabot entry and KEPT `/tools/*`, which re-enables four
+  working updaters.** No updater ecosystem works on a Bun-managed root: `bun` fails with
+  "Unsupported bun.lock 'lockfileVersion' 2" and `npm_and_yarn` aborts with "cannot update
+  bun.lock. Set package-ecosystem: bun". Each error recommends the other. The abort happens
+  during FILE FETCHING for the WHOLE JOB, so while `/` was listed the four `tools/*` packages -
+  which each carry a real `package-lock.json` and update fine - were dead collateral. Job
+  #1594852631 failed 2026-09-28; #1585102117 succeeded 09-21. This is a narrowing, not a removal:
+  `tools/{chunking-for-files,compress-for-context,create-dependency-graph,migrate-from-jsonl-to-sqlite}`
+  get their updates back.
+- **Removed a comment that was never true of this repo.** It read "No package-lock.json is
+  committed", pasted from a sibling, and was contradicted four lines above it in the same file.
+
 - **`tools/migrate-from-jsonl-to-sqlite/scripts/rebuild-native.mjs`'s health check only detected a
   MISSING better-sqlite3, not one that is present and broken.** `loads(pkg)` called plain
   `require(pkg)`, which resolves the JS wrapper without ever touching the native binding -
