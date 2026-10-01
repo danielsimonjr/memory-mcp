@@ -4,7 +4,7 @@ name: Publish
 # under TWO names at the same version: the package name in package.json and the
 # legacy name below. For the legacy name, the job changes only the "name" field
 # before it publishes. It commits nothing. The job needs the repository secret
-# NPM (an npm automation token). Without it, the job fails in its first step and
+# NPM (an npm granular access token with read and write access and Bypass 2FA). Without it, the job fails in its first step and
 # publishes nothing.
 on:
   push:
@@ -31,7 +31,7 @@ jobs:
           NPM_TOKEN: ${{ secrets.NPM }}
         run: |
           if [ -z "$NPM_TOKEN" ]; then
-            echo "::error title=NPM secret missing::The repository secret NPM is empty or not set. Add an npm automation token as the secret NPM, then re-run this job."
+            echo "::error title=NPM secret missing::The repository secret NPM is empty or not set. Add an npm granular access token (read and write, Bypass 2FA) as the secret NPM, then re-run this job."
             exit 1
           fi
 
