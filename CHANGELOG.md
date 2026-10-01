@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Publish to npm on a release tag.** The new workflow `.github/workflows/publish.yml` runs when a `v*` tag is pushed. It refuses a tag that is not exactly the `package.json` version (`scripts/publish-version-guard.mjs`). It publishes the same tree under both names, `@danielsimonjr/memory-mcp` and the legacy `@danielsimonjr/enhanced-memory-mcp`, at the same version. For the legacy name, it changes only the `name` field in the workspace and commits nothing. It skips a name whose version is already on npm, so a re-run after a partial failure publishes only the missing name. It installs, typechecks, builds, tests, and runs `npm publish --provenance --access public`. The job needs the repository secret `NPM`. If the secret is empty, the first step fails with a clear message and nothing publishes.
+
 ### Fixed
 
 - **Dropped the ROOT from the npm Dependabot entry and KEPT `/tools/*`, which re-enables four

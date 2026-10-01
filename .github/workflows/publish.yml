@@ -1,0 +1,103 @@
+name: Publish
+
+# Publishes the package to npm when a v* tag is pushed. The same tree ships
+# under TWO names at the same version: the package name in package.json and the
+# legacy name below. For the legacy name, the job changes only the "name" field
+# before it publishes. It commits nothing. The job needs the repository secret
+# NPM (an npm automation token). Without it, the job fails in its first step and
+# publishes nothing.
+on:
+  push:
+    tags:
+      - 'v*'
+
+# contents: read checks out the tagged commit. id-token: write lets npm ask
+# Sigstore for a provenance statement (this repository is public).
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  LEGACY_NAME: '@danielsimonjr/enhanced-memory-mcp'
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Require the NPM secret
+        env:
+          NPM_TOKEN: ${{ secrets.NPM }}
+        run: |
+          if [ -z "$NPM_TOKEN" ]; then
+            echo "::error title=NPM secret missing::The repository secret NPM is empty or not set. Add an npm automation token as the secret NPM, then re-run this job."
+            exit 1
+          fi
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+        with:
+          bun-version: '1.4.2'
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22.x
+          registry-url: https://registry.npmjs.org
+
+      - name: Refuse a tag whose version is not package.json's version
+        run: node scripts/publish-version-guard.mjs "$GITHUB_REF_NAME"
+
+      # Lists each name whose package.json version is not on npm yet. A re-run
+      # after a partial failure then publishes only the missing name.
+      - name: Find the names that still need this version
+        id: registry
+        run: |
+          primary=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          names=""
+          for name in "$primary" "$LEGACY_NAME"; do
+            if out=$(npm view "$name@$version" version 2>"$RUNNER_TEMP/err.txt") && [ "$out" = "$version" ]; then
+              echo "$name@$version is already on npm. Skipping this name."
+            elif grep -q "E404" "$RUNNER_TEMP/err.txt"; then
+              echo "$name@$version is not on npm yet. It will be published."
+              names="$names $name"
+            else
+              echo "::error::npm view failed for $name@$version with an error that is not E404:"
+              cat "$RUNNER_TEMP/err.txt"
+              exit 1
+            fi
+          done
+          echo "names=${names# }" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        if: steps.registry.outputs.names != ''
+        run: bun install --frozen-lockfile
+      - name: Typecheck
+        if: steps.registry.outputs.names != ''
+        run: bun run typecheck
+      - name: Build
+        if: steps.registry.outputs.names != ''
+        run: bun run build
+      - name: Test
+        if: steps.registry.outputs.names != ''
+        run: bun run test
+        env:
+          SKIP_BENCHMARKS: '1'
+
+      - name: Publish to npm
+        if: steps.registry.outputs.names != ''
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM }}
+          NAMES: ${{ steps.registry.outputs.names }}
+        run: |
+          set -euo pipefail
+          primary=$(node -p "require('./package.json').name")
+          for name in $NAMES; do
+            echo "Publishing $name"
+            if [ "$name" != "$primary" ]; then
+              npm pkg set name="$name"
+            fi
+            npm publish --provenance --access public
+            git checkout -- package.json
+          done
