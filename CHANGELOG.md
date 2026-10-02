@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The Dependabot bun.lock workflow no longer leaves a PR BLOCKED.** GitHub holds the
+  `pull_request` runs that the workflow's lockfile push triggers at `action_required`, and a
+  `workflow_dispatch` run never reaches the PR's required checks. The workflow now approves the
+  held runs on the commit that it pushed, in place of the dispatch step. `head_ref` now reaches
+  the shell through `env:`, and only a Dependabot push cancels an in-flight run.
+
 - **Dropped the ROOT from the npm Dependabot entry and KEPT `/tools/*`, which re-enables four
   working updaters.** No updater ecosystem works on a Bun-managed root: `bun` fails with
   "Unsupported bun.lock 'lockfileVersion' 2" and `npm_and_yarn` aborts with "cannot update
