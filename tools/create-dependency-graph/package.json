@@ -16,11 +16,11 @@
     "targets": ["node22-win-x64"]
   },
   "dependencies": {
-    "js-yaml": "^5.4.2"
+    "js-yaml": "^5.4.3"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
-    "@types/node": "^26.6.4",
+    "@types/node": "^26.6.5",
     "@yao-pkg/pkg": "^6.23.0",
     "typescript": "^7.0.2"
   },
