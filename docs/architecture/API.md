@@ -2804,7 +2804,7 @@ Phase 15 (memoryjs η.5.5.b) added time-window and role gates, plus auto-promoti
 | `visibleFrom?: string` | ISO 8601 | Memory becomes visible at this instant |
 | `visibleUntil?: string` | ISO 8601 | Memory stops being visible at this instant |
 
-The handler accepts a plain `Entity` that is not yet an `AgentEntity`. Before the handler applies visibility, the handler stamps `agentId`, `memoryType: 'semantic'`, `confidence: 0.8`, `confirmationCount: 0` and `accessCount: 0`. The handler returns `{promoted: true, memoryName, agentId, visibility, ...}`, so callers can detect the promotion.
+The handler promotes a plain `Entity` that is not yet an `AgentEntity`. During the promotion, the handler stamps `agentId`, `memoryType: 'semantic'`, `confidence: 0.8`, `confirmationCount: 0` and `accessCount: 0` before it applies visibility. After the promotion, the handler returns `{promoted: true, memoryName, agentId, visibility, ...}`, so callers can detect the promotion.
 
 ---
 

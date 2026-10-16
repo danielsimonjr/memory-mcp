@@ -53,9 +53,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and a `.claude-plugin/plugin.json` has two version fields and nothing enforces that they agree.
 
 - **The architecture documents now describe the current repository, and the drift gate passes.**
-  `repo-tools check . --docs=docs/architecture` failed 7 claims in 4 documents, because the
-  publish-version guard (`scripts/publish-version-guard.mjs`) and its migrate test added files and
-  exports after the last map. The Verification blocks of the five hand-written documents now carry
+  `repo-tools check . --docs=docs/architecture` failed 7 claims in 4 documents, because two files
+  were added after the last map: the publish-version guard (`scripts/publish-version-guard.mjs`,
+  with two exports) and a test of the migrate tool's native-install check
+  (`tests/unit/tools-migrate-rebuild-native.test.ts`). The Verification blocks of the five
+  hand-written documents now carry
   the current counts from `repo-tools map .` and name that tool. They named the retired
   `repo_map.py`. Each block also says why its counts differ from the generated reports: the map reads
   the whole repository, and the generated reports read `src/` and the tests.
@@ -68,7 +70,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   references that `repo-tools ste` flagged in the five documents are rewritten.
   `scripts/publish-version-guard.mjs` gets a summary line on `versionFromTag` and on
   `assertTagMatchesPackageVersion`. The code is unchanged. The whole-repository doc scan reported
-  these two functions as its only MUST issues.
+  these two functions as its only MUST issues. An older entry held the Windows path
+  `...\node_modules\better-sqlite3`, which an escape error had split across two lines and
+  filled with a backspace character. The path is restored.
 
 ## [12.9.0] - 2026-09-15
 
@@ -410,8 +414,7 @@ Plugin manifest version aligned with the npm package (both 12.7.2).
 
 - **`engines.node: ">=18.0.0"` was false on Windows.** Adding the Windows CI leg (above) immediately proved it: `npm ci` **cannot install** on windows + Node 20. `better-sqlite3` — pulled in transitively via `@danielsimonjr/memoryjs` (`^11.7.0`) — ships **no prebuilt binary** for Node 20's ABI on win32, so install falls back to `node-gyp rebuild` and fails outright:
 
-      npm error path ...
-ode_modulesetter-sqlite3
+      npm error path ...\node_modules\better-sqlite3
       prebuild-install warn install No prebuilt binaries found
         (target=20.20.2 runtime=node arch=x64 platform=win32)
 

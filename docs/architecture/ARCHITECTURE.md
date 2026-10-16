@@ -33,7 +33,7 @@ Memory MCP is an enhanced Model Context Protocol (MCP) server that provides pers
 
 - **Tests**: Vitest runs unit, integration and end-to-end tests of the server layer. The tests of the core graph logic live in `@danielsimonjr/memoryjs`.
 - **Source Files**: 5 TypeScript files in `src/` after the Phase 13 extraction; all core graph logic lives in the `@danielsimonjr/memoryjs` library (`^3.0.0`).
-- **241 Tools**: The tools fall into 65 categories. The list below gives the categories in order:
+- **241 Tools**: The tools cover many categories. The categories include:
   - entity, search variants, semantic, graph algorithms, governance, freshness, sessions, decay/salience, multi-agent, dream engine, project scoping, memory versioning, temporal KG, ingestion, agent diary
   - **bitemporal validity** η.4.4, **OCC** η.5.5.c, **RBAC** η.6.1, **procedural memory** 3B.4, **active retrieval** 3B.5, **causal reasoning** 3B.6, **world model** 3B.7
   - **tool affordance**, **heuristic guidelines**, **project context**, **decision rationale**, **exclusions**, **observation dedup**
@@ -901,4 +901,4 @@ come from `tools/create-dependency-graph`, which reads `src/` and the tests. The
 | typeOnlyCircularDeps | 0 | repo-tools map (whole repository) |
 
 **Both circular-dependency counts are 0 and the search was not truncated**
-(`circularDepsTruncated: false`) means the counts are true zeros. The counts do not reflect an unfinished search.
+(`circularDepsTruncated: false`). The counts are true zeros, not the result of an unfinished search.
