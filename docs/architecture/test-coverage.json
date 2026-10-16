@@ -1,7 +1,7 @@
 {
   "metadata": {
     "totalSourceFiles": 5,
-    "totalTestFiles": 38,
+    "totalTestFiles": 39,
     "testedCount": 5,
     "untestedCount": 0,
     "coveragePercent": "100.0"
@@ -184,6 +184,7 @@
     ],
     "tests/unit/storage-readonly-contract.test.ts": [
       "src/server/toolHandlers.ts"
-    ]
+    ],
+    "tests/unit/tools-migrate-rebuild-native.test.ts": []
   }
 }

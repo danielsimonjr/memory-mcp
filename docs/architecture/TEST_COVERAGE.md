@@ -11,7 +11,7 @@
 | Metric | Count |
 |--------|-------|
 | Total Source Files | 5 |
-| Total Test Files | 38 |
+| Total Test Files | 39 |
 | Source Files with Tests | 5 |
 | Source Files without Tests | 0 |
 | Coverage | 100.0% |
@@ -77,3 +77,4 @@
 | `server/tool-definitions.test.ts` | 1 files |
 | `server/validate-fact-handler.test.ts` | 1 files |
 | `unit/storage-readonly-contract.test.ts` | 1 files |
+| `unit/tools-migrate-rebuild-native.test.ts` | 0 files |

@@ -1,7 +1,7 @@
 # Memory MCP - API Reference
 
 
-Complete reference for all 241 MCP tools provided by the Memory MCP server. The reference is in two parts: the original hand-written sections below (through Phase 15), then generated sections covering everything added since — Phase 12/14 surfaces that were previously undocumented here, Phase 16 (memoryjs v2.1.0), v12.3.2/v12.5.0, and v12.7.0 (memoryjs v3.0.0). Phase 15 extends three existing tools (`export_graph`, `create_entities`, `set_memory_visibility`) and v12.7.0 extends `hybrid_search` (graph channel, neighbor expansion, evidence-path explain, lookFor) — those updates are noted inline in their respective sections.
+Complete reference for all 241 MCP tools of the Memory MCP server. The reference has two parts. The first part holds the original hand-written sections (through Phase 15). The second part holds generated sections for everything added since. These sections cover the Phase 12/14 surfaces that this reference did not describe before. They also cover Phase 16 (memoryjs v2.1.0), v12.3.2/v12.5.0, and v12.7.0 (memoryjs v3.0.0). Phase 15 extends three existing tools (`export_graph`, `create_entities`, `set_memory_visibility`). v12.7.0 extends `hybrid_search` (graph channel, neighbor expansion, evidence-path explain, lookFor). The section of each tool notes its extension inline.
 
 ---
 
@@ -2731,7 +2731,7 @@ Capture a fresh snapshot: `entitiesByName + takenAt timestamp + size`. Capped at
 
 Validate a candidate observation against a target entity. Delegates to `MemoryValidator.validateConsistency`.
 
-When the local embedding provider is selected but `@xenova/transformers` isn't installed, the handler returns a structured graceful response instead of leaking the raw Node module-resolution error:
+When the local embedding provider is selected and `@xenova/transformers` is not installed, the handler returns a structured graceful response. The handler does not leak the raw Node module-resolution error. The response is:
 ```json
 {
   "observation": "...",
@@ -2804,7 +2804,7 @@ Phase 15 (memoryjs η.5.5.b) added time-window and role gates, plus auto-promoti
 | `visibleFrom?: string` | ISO 8601 | Memory becomes visible at this instant |
 | `visibleUntil?: string` | ISO 8601 | Memory stops being visible at this instant |
 
-When called on a plain `Entity` (not yet an `AgentEntity`), the handler now stamps `agentId`, `memoryType: 'semantic'`, `confidence: 0.8`, `confirmationCount: 0`, and `accessCount: 0` before applying visibility — and returns `{promoted: true, memoryName, agentId, visibility, ...}` so callers can detect the promotion.
+The handler accepts a plain `Entity` that is not yet an `AgentEntity`. Before the handler applies visibility, the handler stamps `agentId`, `memoryType: 'semantic'`, `confidence: 0.8`, `confirmationCount: 0` and `accessCount: 0`. The handler returns `{promoted: true, memoryName, agentId, visibility, ...}`, so callers can detect the promotion.
 
 ---
 
@@ -3453,7 +3453,7 @@ Find conflicting observations within an entity using semantic similarity
 
 ### consolidate_session
 
-Run the full ConsolidationPipeline on a session: promote working memory, merge duplicates, summarize, and extract patterns. Unlike run_consolidation_now (which runs the dedup scheduler), this is a comprehensive session-scoped pipeline.
+Run the full `ConsolidationPipeline` on a session. The pipeline promotes working memory, merges duplicates, summarizes, and extracts patterns. Unlike `run_consolidation_now` (which runs the dedup scheduler), the `ConsolidationPipeline` is a comprehensive session-scoped pipeline.
 
 **Parameters:**
 ```typescript
@@ -3503,7 +3503,7 @@ Smart priority-based deduplication that keeps the highest-scored entity per dupl
 
 ### compress_context
 
-Compress text using n-gram abbreviation with a legend for token-efficient context loading. Unlike format_with_salience_budget (which allocates token budget), this does text-level compression.
+Compress text using n-gram abbreviation with a legend for token-efficient context loading. Unlike `format_with_salience_budget` (which allocates token budget), the tool performs text-level compression.
 
 **Parameters:**
 ```typescript
@@ -3669,7 +3669,7 @@ Estimate execution cost (time, tokens) for all available search methods on a giv
 
 ### get_context_profile
 
-Get a ContextWindowManager profile configuration (salience weights, retrieval strategy). Unlike get_profile (user profile facts), this returns context-aware retrieval settings.
+Get a `ContextWindowManager` profile configuration (salience weights, retrieval strategy). Unlike `get_profile` (user profile facts), the tool returns context-aware retrieval settings.
 
 **Parameters:**
 ```typescript
@@ -4373,7 +4373,7 @@ v12.5.0 — Graph + storage footprint: entity / relation / observation counts, d
 
 ### inspect_entity
 
-v12.5.0 — Verbose snapshot of one entity: observations (resolved via ObservationManager so the column-store sidecar is consulted), outgoing + incoming relations, tags, importance, timestamps, parentId, immediate children, full ancestors. Errors when entity not found.
+v12.5.0 — Verbose snapshot of one entity. The snapshot lists observations, outgoing and incoming relations, tags, importance, timestamps, `parentId`, immediate children, and full ancestors. `ObservationManager` resolves the observations, so the column-store sidecar is consulted. The tool returns an error when the entity is not found.
 
 **Parameters:**
 ```typescript
@@ -4531,7 +4531,7 @@ Size statistics of the reconstructive (Cue–Tag–Content) memory graph: cue / 
 
 ### analyze_relation_duplicates
 
-Dry-run the three-tier relation janitor: tier 1 finds trivial relationType spelling variants (WorksAt/works-at/works_at) and redundant bidirectional mirrors; tier 2 (when an embedding provider is configured) finds semantically equivalent same-pair relations. Report-only — never mutates the graph.
+Dry-run the three-tier relation janitor. Tier 1 finds trivial relationType spelling variants (WorksAt/works-at/works_at) and redundant bidirectional mirrors. Tier 2 finds semantically equivalent same-pair relations when an embedding provider is configured. The tool only reports and never mutates the graph.
 
 **Parameters:** none
 
@@ -4757,15 +4757,17 @@ All tools return errors in this format:
 
 ## Verification
 
-Generated by `repo_map.py map`.
-Regenerate: `python repo_map.py map <repo> --out <dir>` · Check: `python repo_map.py check <repo> --docs docs/architecture`
+Generated 2026-10-16 by `repo-tools map`.
+Regenerate the generated reports: `npm run docs:deps` · Check: `repo-tools check . --docs=docs/architecture`
+
+The claims below come from `repo-tools map .`, which reads the whole repository. The generated reports in this directory
+come from `tools/create-dependency-graph`, which reads `src/` and the tests. Their counts differ for that reason.
 
 | Claim | Value | Source |
 |---|---|---|
-| totalExports | 46 | dependency-graph.json |
-| unusedExportsCount | 34 | dependency-graph.json |
+| totalExports | 48 | repo-tools map (whole repository) |
+| unusedExportsCount | 34 | repo-tools map (whole repository) |
 
-**`unusedExportsCount` is not a deletion list.** It counts exports with no importer *inside
-this repository*. This package is an MCP server: its tool handlers are invoked by protocol
-dispatch, not by a static import, so they read as unused to any import-graph analysis.
-Confirm with a second method before removing anything.
+**`unusedExportsCount` is not a deletion list.** The count covers exports that have no importer inside this repository.
+This package is an MCP server. Protocol dispatch calls the tool handlers, so an import-graph analysis reads them as unused.
+Confirm with a second method before you remove anything.

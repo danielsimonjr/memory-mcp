@@ -827,7 +827,7 @@ memory-mcp/
 │       ├── toolDefinitions.ts              # 241 tool schemas (name, description, inputSchema)
 │       ├── toolHandlers.ts                 # Handler registry: validate args → call manager → format response
 │       └── responseCompressor.ts           # Brotli + base64 wrapper for >256KB payloads
-├── tests/                                  # Test suite (36 files, 791 tests, ~85% statement coverage)
+├── tests/                                  # Test suite (39 files, 799 tests, ~85% statement coverage)
 │   ├── unit/                               # Unit tests (response compressor, tool defs, validate-fact handler)
 │   ├── integration/                        # MCP server lifecycle
 │   ├── e2e/tools/                          # Per-category tool tests + handler-smoke broad coverage
@@ -952,7 +952,7 @@ Enhanced fork of [Model Context Protocol memory server](https://github.com/model
 - Multi-format import/export with merge strategies
 - SQLite backend with better-sqlite3 (3-10x faster)
 - Transaction support with ACID guarantees
-- Comprehensive test suite (791 tests, 36 test files in this wrapper repo; full-coverage core graph tests live in `@danielsimonjr/memoryjs`)
+- Comprehensive test suite (799 tests, 39 test files in this wrapper repo; full-coverage core graph tests live in `@danielsimonjr/memoryjs`)
 
 ---
 

@@ -31,13 +31,17 @@ Memory MCP is an enhanced Model Context Protocol (MCP) server that provides pers
 
 ### Key Statistics (v12.7.0)
 
-- **791 Tests**: 100% passing (unit, integration, e2e, server layer). Performance benchmarks gated behind `SKIP_BENCHMARKS=true` for default runs. Core graph tests live in `@danielsimonjr/memoryjs`.
+- **Tests**: Vitest runs unit, integration and end-to-end tests of the server layer. The tests of the core graph logic live in `@danielsimonjr/memoryjs`.
 - **Source Files**: 5 TypeScript files in `src/` after the Phase 13 extraction; all core graph logic lives in the `@danielsimonjr/memoryjs` library (`^3.0.0`).
-- **241 Tools**: Organized across 65 categories (entity, search variants, semantic, graph algorithms, governance, freshness, sessions, decay/salience, multi-agent, dream engine, project scoping, memory versioning, temporal KG, ingestion, agent diary, **bitemporal validity** η.4.4, **OCC** η.5.5.c, **RBAC** η.6.1, **procedural memory** 3B.4, **active retrieval** 3B.5, **causal reasoning** 3B.6, **world model** 3B.7, **tool affordance**, **heuristic guidelines**, **project context**, **decision rationale**, **exclusions**, **observation dedup**, **spell correction** (Phase 16 / memoryjs v2.1.0), **engineering/diagnostics** (v12.5.0), **event memory**, **reconstructive memory + snapshot persistence**, **relation consolidation**, **agent reflection** (v12.7.0 / memoryjs v3.0.0)).
+- **241 Tools**: The tools fall into 65 categories. The list below gives the categories in order:
+  - entity, search variants, semantic, graph algorithms, governance, freshness, sessions, decay/salience, multi-agent, dream engine, project scoping, memory versioning, temporal KG, ingestion, agent diary
+  - **bitemporal validity** η.4.4, **OCC** η.5.5.c, **RBAC** η.6.1, **procedural memory** 3B.4, **active retrieval** 3B.5, **causal reasoning** 3B.6, **world model** 3B.7
+  - **tool affordance**, **heuristic guidelines**, **project context**, **decision rationale**, **exclusions**, **observation dedup**
+  - **spell correction** (Phase 16 / memoryjs v2.1.0), **engineering/diagnostics** (v12.5.0), **event memory**, **reconstructive memory + snapshot persistence**, **relation consolidation**, **agent reflection** (v12.7.0 / memoryjs v3.0.0)
 - **Lazy Initialization**: Managers in `ManagerContext` instantiated on first access; memoryjs v3 adds `hybridSearchManager`, `governanceManager`, `graphRankPrior`, `eventManager`, `reflectionManager`, `reconstructiveMemory()`, and `close()`.
 - **Phase 12 Performance** (in memoryjs): BM25 search, parallel execution, query plan caching, embedding cache, incremental indexing.
-- **Phase 15 (memoryjs v1.14+)**: 23 new tools surfacing entity bitemporal validity, optimistic concurrency control, role-based access control, procedural memory, active retrieval, causal reasoning, and world model. Plus W3C Linked Data export formats (Turtle / RDF/XML / JSON-LD — η.5.4) and PII redaction on export (η.6.3) wired into existing `export_graph`.
-- **v12.7.0 (memoryjs v3.0.0)**: 16 new tools — n-ary event memory, reconstructive Cue–Tag–Content memory with sidecar snapshot persistence, three-tier relation consolidation, agent reflections — plus a graph-connectivity channel, one-hop neighbor expansion, and evidence-path explanations on `hybrid_search`.
+- **Phase 15 (memoryjs v1.14+)**: 23 new tools expose entity bitemporal validity, optimistic concurrency control, and role-based access control. The tools also expose procedural memory, active retrieval, causal reasoning, and world model. The existing `export_graph` tool also gets W3C Linked Data export formats (Turtle / RDF/XML / JSON-LD — η.5.4) and PII redaction on export (η.6.3).
+- **v12.7.0 (memoryjs v3.0.0)**: 16 new tools: n-ary event memory, reconstructive Cue–Tag–Content memory with sidecar snapshot persistence, three-tier relation consolidation, and agent reflections. The release also adds a graph-connectivity channel, one-hop neighbor expansion, and evidence-path explanations on `hybrid_search`.
 
 ---
 
@@ -51,7 +55,7 @@ Memory MCP is an enhanced Model Context Protocol (MCP) server that provides pers
 ### 2. Testability
 - **Dependency Injection**: Storage injected into managers
 - **Pure Functions**: Utils are stateless and predictable
-- **Test Coverage**: 98%+ coverage across core components
+- **Test Layers**: Unit, integration and end-to-end tests cover the server layer (see Testing Strategy)
 
 ### 3. Performance
 - **Single I/O Operations**: Batch operations use one read/write cycle
@@ -276,8 +280,6 @@ class EntityManager {
 - Tag normalization (lowercase)
 - Validation using Zod schemas
 
-**Test Coverage**: 98%+ (48 tests)
-
 #### RelationManager (core/RelationManager.ts)
 
 **Responsibility**: Relation CRUD operations
@@ -299,8 +301,6 @@ class RelationManager {
 - Deferred integrity (relations to non-existent entities allowed)
 - Cascading updates on relation changes
 - Bidirectional relation tracking
-
-**Test Coverage**: 98%+ (26 tests)
 
 #### SearchManager (search/*)
 
@@ -336,8 +336,6 @@ class FuzzySearch {
 - Boolean query parsing (AND, OR, NOT, parentheses)
 - Levenshtein distance for fuzzy matching
 - Combined filtering (tags, importance, dates)
-
-**Test Coverage**: 98%+ (118 tests across all search implementations)
 
 #### SearchFilterChain (search/SearchFilterChain.ts)
 
@@ -386,8 +384,6 @@ class CompressionManager {
 2. Calculate similarity within buckets (weighted scoring)
 3. Merge entities above threshold
 4. Transfer relations and delete originals
-
-**Test Coverage**: 98%+ (29 tests)
 
 ### Layer 3: Storage
 
@@ -808,87 +804,35 @@ try {
 
 ## Testing Strategy
 
-### Test Coverage Summary
+The tests in this package cover the server layer. They test the tool definitions, the tool handlers, the response compressor, the file-path logic and the MCP protocol. The tests of the graph logic live in `@danielsimonjr/memoryjs`. Vitest runs all tests from `tests/`.
 
-| Metric | Count |
-|--------|-------|
-| Total Source Files | 58 |
-| Total Test Files | 74 |
-| Source Files with Tests | 56 |
-| Source Files without Tests | 2 |
-| Coverage | 96.6% |
+### Test Layout
 
-**Files Without Direct Test Coverage:**
-- `src/features/index.ts` (barrel export, tested indirectly)
-- `src/workers/index.ts` (barrel export, tested indirectly)
+| Directory | Scope |
+|-----------|-------|
+| `tests/e2e/tools/` | One file for each group of tools, and a smoke test of the handlers. Each test calls the tool handlers and checks the responses. |
+| `tests/integration/` | `server.test.ts` tests the `MCPServer` class. `mcp-2-protocol.test.ts` tests the MCP 2026-07-28 protocol revision. |
+| `tests/unit/` | The response compressor, the read-only contract of `loadGraph()`, and the native-install probe of the migrate tool. |
+| `tests/unit/server/` | The contract of the tool schemas, and the handler of `validate_fact_against_world`. |
+| `tests/` | `ensureMemoryFilePath` and `KnowledgeGraphManager`. |
 
-### Test Pyramid
+`TEST_COVERAGE.md` in this directory is a generated map from each source file to its test files.
 
-```
-            /\
-           /  \
-          / E2E \ (E2E Tools: 3 test files)
-         /______\
-        /        \
-       / Integr.  \ (Integration: 8 test files)
-      /____________\
-     /              \
-    /   Unit Tests   \ (Unit: 52 test files)
-   /                  \
-  /____________________\
- /                      \
-/   Performance Tests    \ (Performance: 7 test files)
-```
+### Coverage
 
-### Test Categories by Directory
-
-| Category | Test Files | Key Coverage Areas |
-|----------|------------|-------------------|
-| **E2E** | 3 | entity-tools, observation-tools, relation-tools |
-| **Edge Cases** | 1 | Boundary conditions, edge-cases |
-| **Integration** | 8 | server, workflows, streaming, compression |
-| **Performance** | 7 | benchmarks, write-performance, task-scheduler |
-| **Unit/Core** | 14 | EntityManager, GraphStorage, SQLiteStorage, etc. |
-| **Unit/Features** | 7 | IOManager, TagManager, ArchiveManager, etc. |
-| **Unit/Search** | 17 | BasicSearch, FuzzySearch, SemanticSearch, etc. |
-| **Unit/Server** | 4 | MCPServer, toolHandlers, responseCompressor |
-| **Unit/Utils** | 15 | schemas, entityUtils, compressionUtil, etc. |
-| **Unit/Workers** | 2 | levenshteinWorker, WorkerPool |
-
-### Most-Tested Source Files
-
-The following source files are tested by the most test files:
-
-| Source File | # of Test Files |
-|-------------|-----------------|
-| `core/GraphStorage.ts` | 45 |
-| `core/EntityManager.ts` | 22 |
-| `core/RelationManager.ts` | 14 |
-| `types/index.ts` | 14 |
-| `server/toolHandlers.ts` | 5 |
-
-### Test Coverage Metrics
-
-- **Source File Coverage**: 96.6% (56/58 files directly tested)
-- **Statement Coverage**: 98%+
-- **Branch Coverage**: 95%+
-- **Function Coverage**: 100%
-- **Line Coverage**: 98%+
+The `test` script prints a V8 coverage table for `src/`. Read the figures from that table. This document does not copy the figures, because each test change moves them.
 
 ### Continuous Integration
 
 ```bash
-# Run all tests
+# Run all tests with a coverage report
 npm test
 
 # Type checking
 npm run typecheck
 
-# Coverage report
-npm test -- --coverage
-
-# Generate dependency + test coverage analysis
-npm run docs:deps -- --include-tests
+# Regenerate the dependency and test coverage reports
+npm run docs:deps
 ```
 
 ---
@@ -933,7 +877,7 @@ class SQLiteStorage implements StorageBackend { }
 The Memory MCP architecture prioritizes:
 - ✅ **Simplicity**: Easy to understand and maintain
 - ✅ **Performance**: Efficient for typical use cases (<5000 entities)
-- ✅ **Testability**: 98%+ test coverage
+- ✅ **Testability**: Unit, integration and end-to-end tests of the server layer
 - ✅ **Security**: Input validation, path protection
 - ✅ **Extensibility**: Modular design, clear interfaces
 - ✅ **Context Efficiency**: Optimized for AI assistant token usage (v0.47.0)
@@ -944,14 +888,17 @@ This architecture serves the current use case well and provides a solid foundati
 
 ## Verification
 
-Generated by `repo_map.py map`.
-Regenerate: `python repo_map.py map <repo> --out <dir>` · Check: `python repo_map.py check <repo> --docs docs/architecture`
+Generated 2026-10-16 by `repo-tools map`.
+Regenerate the generated reports: `npm run docs:deps` · Check: `repo-tools check . --docs=docs/architecture`
+
+The claims below come from `repo-tools map .`, which reads the whole repository. The generated reports in this directory
+come from `tools/create-dependency-graph`, which reads `src/` and the tests. Their counts differ for that reason.
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 50 | dependency-graph.json |
-| runtimeCircularDeps | 0 | dependency-graph.json |
-| typeOnlyCircularDeps | 0 | dependency-graph.json |
+| totalSourceFiles | 52 | repo-tools map (whole repository) |
+| runtimeCircularDeps | 0 | repo-tools map (whole repository) |
+| typeOnlyCircularDeps | 0 | repo-tools map (whole repository) |
 
 **Both circular-dependency counts are 0 and the search was not truncated**
-(`circularDepsTruncated: false`), so these are true zeros rather than an unfinished search.
+(`circularDepsTruncated: false`) means the counts are true zeros. The counts do not reflect an unfinished search.

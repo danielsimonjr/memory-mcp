@@ -13,7 +13,13 @@
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 
-/** @param {string} tag @returns {string | null} */
+/**
+ * Returns the version that a release tag names, or null when the ref is not a v* tag.
+ * The ref `v1.2.3` and the ref `refs/tags/v1.2.3` both return `1.2.3`.
+ *
+ * @param {string} tag
+ * @returns {string | null}
+ */
 export function versionFromTag(tag) {
   if (typeof tag !== 'string' || tag.length < 2) return null;
   const name = tag.startsWith('refs/tags/') ? tag.slice('refs/tags/'.length) : tag;
@@ -22,6 +28,9 @@ export function versionFromTag(tag) {
 }
 
 /**
+ * Compares the version in a release tag with the version in package.json.
+ * Returns `ok: true` on a match. Returns `ok: false` and a message on a mismatch or a ref that is not a v* tag.
+ *
  * @param {string} tag
  * @param {string} packageVersion
  * @returns {{ ok: boolean, message: string }}
