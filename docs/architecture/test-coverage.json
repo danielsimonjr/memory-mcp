@@ -1,7 +1,7 @@
 {
   "metadata": {
     "totalSourceFiles": 5,
-    "totalTestFiles": 39,
+    "totalTestFiles": 40,
     "testedCount": 5,
     "untestedCount": 0,
     "coveragePercent": "100.0"
@@ -173,6 +173,7 @@
     "tests/knowledge-graph.test.ts": [
       "src/index.ts"
     ],
+    "tests/unit/create-dependency-graph-clause-items.test.ts": [],
     "tests/unit/response-compressor.test.ts": [
       "src/server/responseCompressor.ts"
     ],

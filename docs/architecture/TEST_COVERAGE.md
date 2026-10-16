@@ -11,7 +11,7 @@
 | Metric | Count |
 |--------|-------|
 | Total Source Files | 5 |
-| Total Test Files | 39 |
+| Total Test Files | 40 |
 | Source Files with Tests | 5 |
 | Source Files without Tests | 0 |
 | Coverage | 100.0% |
@@ -73,6 +73,7 @@
 | `integration/mcp-2-protocol.test.ts` | 2 files |
 | `integration/server.test.ts` | 3 files |
 | `tests/knowledge-graph.test.ts` | 1 files |
+| `unit/create-dependency-graph-clause-items.test.ts` | 0 files |
 | `unit/response-compressor.test.ts` | 1 files |
 | `server/tool-definitions.test.ts` | 1 files |
 | `server/validate-fact-handler.test.ts` | 1 files |

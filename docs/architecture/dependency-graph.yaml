@@ -19,7 +19,7 @@ modules:
             - defaultMemoryPath
             - ensureMemoryFilePath
             - ManagerContext
-            - "// Re-export types for backward compatibility\r\n  type Entity"
+            - Entity
             - Relation
             - KnowledgeGraph
             - GraphStats
@@ -32,7 +32,7 @@ modules:
             - BooleanQueryNode
             - ImportResult
             - CompressionResult
-            - "// v1.7.0 new types\r\n  type ArtifactEntity"
+            - ArtifactEntity
             - ArtifactType
             - ArtifactFilter
             - FreshnessReport

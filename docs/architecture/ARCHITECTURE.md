@@ -896,7 +896,7 @@ come from `tools/create-dependency-graph`, which reads `src/` and the tests. The
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 52 | repo-tools map (whole repository) |
+| totalSourceFiles | 54 | repo-tools map (whole repository) |
 | runtimeCircularDeps | 0 | repo-tools map (whole repository) |
 | typeOnlyCircularDeps | 0 | repo-tools map (whole repository) |
 

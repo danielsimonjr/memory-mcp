@@ -38,9 +38,7 @@ The codebase is organized into the following modules:
 **External Dependencies:**
 | Package | Import |
 |---------|--------|
-| `@danielsimonjr/memoryjs` | `logger, defaultMemoryPath, ensureMemoryFilePath, ManagerContext, // Re-export types for backward compatibility
-  type Entity, Relation, KnowledgeGraph, GraphStats, ValidationReport, ValidationIssue, ValidationWarning, SavedSearch, TagAlias, SearchResult, BooleanQueryNode, ImportResult, CompressionResult, // v1.7.0 new types
-  type ArtifactEntity, ArtifactType, ArtifactFilter, FreshnessReport, AuditEntry, AuditOperation, RefEntry, RefIndexStats, AgentRole, RoleProfile, CognitiveLoadMetrics, AdaptiveReductionResult, SynthesisResult, FailureDistillationResult, DistilledLesson` |
+| `@danielsimonjr/memoryjs` | `logger, defaultMemoryPath, ensureMemoryFilePath, ManagerContext, Entity, Relation, KnowledgeGraph, GraphStats, ValidationReport, ValidationIssue, ValidationWarning, SavedSearch, TagAlias, SearchResult, BooleanQueryNode, ImportResult, CompressionResult, ArtifactEntity, ArtifactType, ArtifactFilter, FreshnessReport, AuditEntry, AuditOperation, RefEntry, RefIndexStats, AgentRole, RoleProfile, CognitiveLoadMetrics, AdaptiveReductionResult, SynthesisResult, FailureDistillationResult, DistilledLesson` |
 
 **Internal Dependencies:**
 | File | Imports | Type |

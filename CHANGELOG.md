@@ -13,6 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The dependency-graph tool no longer puts comment text into import and export names.**
+  `tools/create-dependency-graph` reads the names between `{` and `}` of an import or export
+  clause and splits them on commas. A `//` comment or a block comment inside the braces joined
+  the next name, so `DEPENDENCY_GRAPH.md`, `dependency-graph.json` and `dependency-graph.yaml`
+  held names such as `// Re-export types for backward compatibility` followed by a line break and
+  `type Entity`. The new `clause-items.ts` removes the comments before it splits the list. The tool
+  uses it at all three places that read a clause: `import { }`, `export { }` and
+  `export { } from`. The new test file `tests/unit/create-dependency-graph-clause-items.test.ts`
+  has 9 tests, and 7 of them fail without the comment removal. A run of the real tool on a small
+  project gave 12 damaged names before the fix and none after it, and putting the old split back
+  at any one of the three places brings damaged names back. The generated reports were run again,
+  so the External Dependencies row of `@danielsimonjr/memoryjs` is clean.
+
 - **The Dependabot bun.lock workflow no longer leaves a PR BLOCKED.** GitHub holds the
   `pull_request` runs that the workflow's lockfile push triggers at `action_required`, and a
   `workflow_dispatch` run never reaches the PR's required checks. The workflow now approves the

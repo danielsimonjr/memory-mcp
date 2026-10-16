@@ -27,6 +27,7 @@ npx tsx tools/create-dependency-graph.ts
 
 - Scans all TypeScript files in `src/`
 - Parses imports and exports
+- Removes `//` and block comments from the names inside `{ }` of a clause (`clause-items.ts`)
 - Categorizes files into logical modules
 - Detects circular dependencies
 - Generates statistics (file count, export count, etc.)

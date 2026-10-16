@@ -17,6 +17,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'fs';
 import yaml from 'js-yaml';
 import { basename, dirname, join, relative } from 'path';
+import { splitClauseItems } from './clause-items';
 
 // Types
 interface Dependency {
@@ -450,7 +451,7 @@ function parseFile(filePath: string): ParsedFile {
     let hasRuntimeImport = !isTypeOnlyImport;
 
     if (namedImports) {
-      const importItems = namedImports.split(',').map(s => s.trim());
+      const importItems = splitClauseItems(namedImports);
       for (const item of importItems) {
         // Check for inline type imports: import { type Foo, Bar }
         const isInlineType = item.startsWith('type ');
@@ -492,7 +493,7 @@ function parseFile(filePath: string): ParsedFile {
   // Named exports: export { foo, bar }
   const namedExportRegex = /export\s*{\s*([^}]+)\s*}/g;
   while ((match = namedExportRegex.exec(content)) !== null) {
-    const exports = match[1].split(',').map(s => s.trim().split(' as ')[0]).filter(Boolean);
+    const exports = splitClauseItems(match[1]).map(s => s.split(' as ')[0]);
     result.exports.named.push(...exports);
   }
 
@@ -559,7 +560,7 @@ function parseFile(filePath: string): ParsedFile {
   // Re-exports: export { foo } from
   const reExportNamedRegex = /export\s*{\s*([^}]+)\s*}\s*from\s+['"]([^'"]+)['"]/g;
   while ((match = reExportNamedRegex.exec(content)) !== null) {
-    const exports = match[1].split(',').map(s => s.trim().split(' as ')[0]).filter(Boolean);
+    const exports = splitClauseItems(match[1]).map(s => s.split(' as ')[0]);
     result.internalDependencies.push({
       file: match[2],
       imports: exports,
