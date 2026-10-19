@@ -11,7 +11,7 @@
 | Metric | Count |
 |--------|-------|
 | Total Source Files | 5 |
-| Total Test Files | 41 |
+| Total Test Files | 42 |
 | Source Files with Tests | 5 |
 | Source Files without Tests | 0 |
 | Coverage | 100.0% |
@@ -31,7 +31,7 @@
 | `server/MCPServer.ts` | `server.test.ts` |
 | `server/responseCompressor.ts` | `response-compressor.test.ts` |
 | `server/toolDefinitions.ts` | `mcp-2-protocol.test.ts`, `server.test.ts`, `handle-tool-call-unknown-names.test.ts`, `tool-definitions.test.ts` |
-| `server/toolHandlers.ts` | `advanced-tools.test.ts`, `artifact-tools.test.ts`, `cognitive-load-tools.test.ts`, `consolidation-tools.test.ts`, `decay-salience-tools.test.ts`, `decision-tools.test.ts`, `dream-tools.test.ts`, `engineering-tools.test.ts`, `entity-tools.test.ts`, `entropy-tools.test.ts`, `exclusion-tools.test.ts`, `freshness-tools.test.ts`, `governance-tools.test.ts`, `handler-smoke.test.ts`, `heuristic-tools.test.ts`, `maintenance-tools.test.ts`, `memoryjs-v3-tools.test.ts`, `multi-agent-tools.test.ts`, `observability-tools.test.ts`, `observation-dedup-tools.test.ts`, `observation-tools.test.ts`, `project-context-tools.test.ts`, `project-scope-tools.test.ts`, `ref-index-tools.test.ts`, `relation-tools.test.ts`, `role-profile-tools.test.ts`, `session-tools.test.ts`, `spell-correction-tools.test.ts`, `temporal-search-tools.test.ts`, `tool-affordance-tools.test.ts`, `mcp-2-protocol.test.ts`, `server.test.ts`, `handle-tool-call-unknown-names.test.ts`, `validate-fact-handler.test.ts`, `storage-readonly-contract.test.ts` |
+| `server/toolHandlers.ts` | `advanced-tools.test.ts`, `artifact-tools.test.ts`, `boolean-flag-validation.test.ts`, `cognitive-load-tools.test.ts`, `consolidation-tools.test.ts`, `decay-salience-tools.test.ts`, `decision-tools.test.ts`, `dream-tools.test.ts`, `engineering-tools.test.ts`, `entity-tools.test.ts`, `entropy-tools.test.ts`, `exclusion-tools.test.ts`, `freshness-tools.test.ts`, `governance-tools.test.ts`, `handler-smoke.test.ts`, `heuristic-tools.test.ts`, `maintenance-tools.test.ts`, `memoryjs-v3-tools.test.ts`, `multi-agent-tools.test.ts`, `observability-tools.test.ts`, `observation-dedup-tools.test.ts`, `observation-tools.test.ts`, `project-context-tools.test.ts`, `project-scope-tools.test.ts`, `ref-index-tools.test.ts`, `relation-tools.test.ts`, `role-profile-tools.test.ts`, `session-tools.test.ts`, `spell-correction-tools.test.ts`, `temporal-search-tools.test.ts`, `tool-affordance-tools.test.ts`, `mcp-2-protocol.test.ts`, `server.test.ts`, `handle-tool-call-unknown-names.test.ts`, `validate-fact-handler.test.ts`, `storage-readonly-contract.test.ts` |
 
 ---
 
@@ -41,6 +41,7 @@
 |-----------|---------------------|
 | `tools/advanced-tools.test.ts` | 1 files |
 | `tools/artifact-tools.test.ts` | 1 files |
+| `tools/boolean-flag-validation.test.ts` | 1 files |
 | `tools/cognitive-load-tools.test.ts` | 1 files |
 | `tools/consolidation-tools.test.ts` | 1 files |
 | `tools/decay-salience-tools.test.ts` | 1 files |

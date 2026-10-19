@@ -1,7 +1,7 @@
 {
   "metadata": {
     "totalSourceFiles": 5,
-    "totalTestFiles": 41,
+    "totalTestFiles": 42,
     "testedCount": 5,
     "untestedCount": 0,
     "coveragePercent": "100.0"
@@ -34,6 +34,7 @@
     "src/server/toolHandlers.ts": [
       "tests/e2e/tools/advanced-tools.test.ts",
       "tests/e2e/tools/artifact-tools.test.ts",
+      "tests/e2e/tools/boolean-flag-validation.test.ts",
       "tests/e2e/tools/cognitive-load-tools.test.ts",
       "tests/e2e/tools/consolidation-tools.test.ts",
       "tests/e2e/tools/decay-salience-tools.test.ts",
@@ -74,6 +75,9 @@
       "src/server/toolHandlers.ts"
     ],
     "tests/e2e/tools/artifact-tools.test.ts": [
+      "src/server/toolHandlers.ts"
+    ],
+    "tests/e2e/tools/boolean-flag-validation.test.ts": [
       "src/server/toolHandlers.ts"
     ],
     "tests/e2e/tools/cognitive-load-tools.test.ts": [
