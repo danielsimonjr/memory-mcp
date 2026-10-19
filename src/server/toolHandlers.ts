@@ -2018,8 +2018,9 @@ export const toolHandlers: Record<string, ToolHandler> = {
     return formatToolResponse(result);
   },
 
-  priority_dedup: async (ctx) => {
-    const result = await ctx.compressionManager.priorityDedup();
+  priority_dedup: async (ctx, args) => {
+    const dryRun = args.dryRun !== undefined ? validateWithSchema(args.dryRun, z.boolean(), 'Invalid dryRun value') : undefined;
+    const result = await ctx.compressionManager.priorityDedup({ dryRun });
     return formatToolResponse(result);
   },
 

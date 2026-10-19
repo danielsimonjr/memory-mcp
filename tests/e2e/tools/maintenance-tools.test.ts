@@ -226,6 +226,66 @@ describe('Maintenance Tools E2E', () => {
       const data = parseResponse(result);
       expect(data).toBeDefined();
     });
+
+    describe('dryRun', () => {
+      // Two near-identical people (one duplicate group) and one unrelated company.
+      async function seedDuplicates() {
+        await handleToolCall('create_entities', {
+          entities: [
+            { name: 'Alice Johnson', entityType: 'person', observations: ['software engineer', 'works at Acme', 'lives in Boston'], importance: 8 },
+            { name: 'Alice Johnsen', entityType: 'person', observations: ['software engineer', 'works at Acme', 'lives in Boston'], importance: 2 },
+            { name: 'Acme', entityType: 'company', observations: ['tech startup'] },
+          ],
+        }, manager);
+        await handleToolCall('create_relations', {
+          relations: [{ from: 'Alice Johnsen', to: 'Acme', relationType: 'works_at' }],
+        }, manager);
+      }
+
+      const readGraph = async () => parseResponse(await handleToolCall('read_graph', {}, manager));
+
+      it('should leave the graph unchanged and describe the groups when dryRun is true', async () => {
+        await seedDuplicates();
+        const before = await readGraph();
+
+        const result = await handleToolCall('priority_dedup', { dryRun: true }, manager);
+        expect(result.isError).toBeUndefined();
+        const data = parseResponse(result);
+        expect(data.groups).toHaveLength(1);
+        expect(data.groups[0].kept).toBe('Alice Johnson');
+        expect(data.groups[0].removed).toEqual(['Alice Johnsen']);
+        expect(data.totalRemoved).toBe(1);
+
+        expect(await readGraph()).toEqual(before);
+      });
+
+      it('should merge the group when dryRun is false', async () => {
+        await seedDuplicates();
+        const result = await handleToolCall('priority_dedup', { dryRun: false }, manager);
+        expect(result.isError).toBeUndefined();
+        expect(parseResponse(result).totalRemoved).toBe(1);
+        const names = (await readGraph()).entities.map((e: { name: string }) => e.name).sort();
+        expect(names).toEqual(['Acme', 'Alice Johnson']);
+      });
+
+      it('should merge the group when dryRun is absent', async () => {
+        await seedDuplicates();
+        const result = await handleToolCall('priority_dedup', {}, manager);
+        expect(result.isError).toBeUndefined();
+        expect(parseResponse(result).totalRemoved).toBe(1);
+        const names = (await readGraph()).entities.map((e: { name: string }) => e.name).sort();
+        expect(names).toEqual(['Acme', 'Alice Johnson']);
+      });
+
+      it.each(['true', 1, null, {}])('should reject a dryRun that is not a boolean (%j) and leave the graph unchanged', async (dryRun) => {
+        await seedDuplicates();
+        const before = await readGraph();
+        const result = await handleToolCall('priority_dedup', { dryRun }, manager);
+        expect(result.isError).toBe(true);
+        expect(result.content[0].text).toContain('Invalid dryRun');
+        expect(await readGraph()).toEqual(before);
+      });
+    });
   });
 
   // ==================== compress_context ====================

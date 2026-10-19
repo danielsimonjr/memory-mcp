@@ -52,6 +52,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`priority_dedup` honors `dryRun`.** The input schema of the tool declares `dryRun` ("report what
+  would be deduplicated without making changes"), but the handler called `priorityDedup()` with no
+  argument. A request with `dryRun: true` did not preview. It merged each group of duplicate
+  entities into the entity with the best score, removed the others and moved their relations to the
+  kept entity. The handler now validates `dryRun` as a boolean and passes it to memoryjs, which
+  returns the groups that it would merge and changes nothing. A `dryRun` that is not a boolean
+  returns `Invalid dryRun value`. A request with `dryRun: false`, or without `dryRun`, still merges.
+  The new tests in `tests/e2e/tools/maintenance-tools.test.ts` build a real duplicate group. On the
+  unfixed code the `dryRun: true` test fails because the graph changed. A scan of the 241 handlers
+  and the 12 local helpers of `toolHandlers.ts` found two other calls of a memoryjs method with an
+  options object that has a flag and receives none: `merge_entities` (`skipSave` means that the
+  caller saves) and `split_transcript` (memoryjs never reads the `dryRun` option of
+  `splitTranscript`, and the method writes nothing). Neither changes data without being asked.
+
 - **`handleToolCall` answers "Unknown tool" for every name that is not a registered tool.**
   `toolHandlers` is a plain object, and `handleToolCall` looked up the name that the client sends
   with `toolHandlers[name]`. A name that `Object.prototype` defines found an inherited member and
