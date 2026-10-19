@@ -43,15 +43,11 @@ In-depth technical architecture documentation covering:
 - Modular server design (MCPServer, toolDefinitions, toolHandlers)
 - Lazy initialization patterns
 - Performance optimization strategies
-- Context optimization improvements (v0.47.0)
 
 ### [Component Reference](./architecture/COMPONENTS.md)
-Detailed documentation for all system components:
-- Server components (MCPServer, toolDefinitions, toolHandlers)
-- Core components (KnowledgeGraphManager, EntityManager, GraphStorage)
-- Search components (SearchManager, BasicSearch, RankedSearch, BooleanSearch, FuzzySearch)
-- Feature components (HierarchyManager, CompressionManager, ExportManager, etc.)
-- Utility components and type definitions
+Documentation of the five source files and of the memoryjs contract:
+- Server components (the entry point, MCPServer, toolDefinitions, toolHandlers, responseCompressor)
+- The memoryjs names that the server imports, in groups by role
 - Component dependencies diagram
 
 ### [Data Flow](./architecture/DATAFLOW.md)

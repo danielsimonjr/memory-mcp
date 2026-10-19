@@ -34,6 +34,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   features that the document names are in its source. The mitigation "Future: Optional integrity
   checking" named a feature that exists, so it now names the `check_graph` tool.
 
+- **`docs/architecture/COMPONENTS.md` describes the five source files and the memoryjs contract.**
+  The sections "Core Components", "Search Components", "Feature Components", "Utility Components" and
+  "Type Definitions" described the internals of `@danielsimonjr/memoryjs`. Nothing checked them against
+  the installed package, and they had drifted: they gave `COMPRESSION_CONFIG = { THRESHOLD: 262144,
+  QUALITY: 6 }`, but the installed constant has the keys `AUTO_COMPRESS_RESPONSE_SIZE` and
+  `BROTLI_QUALITY_BATCH`. The memoryjs repository documents those internals. They are replaced by one
+  section, "The memoryjs Contract", that lists the 100 names the server imports from the package, in
+  groups by role, with the kind of each name and the file that uses it. `bun run typecheck` fails when
+  one of the names goes away. The server sections are rewritten from the source. The old text had a
+  statistics table from before the code moved to memoryjs, and it gave 67 lines for `MCPServer.ts`,
+  which has 88. The new text drops the line counts. It also lists the seven handlers that use
+  `withCompression`, the helper objects that `toolHandlers.ts` keeps for each context, and the
+  behavior of `handleToolCall`. The document states no memoryjs version; `package.json` holds the
+  range. `docs/README.md` no longer describes the removed sections, and no longer lists the "Context
+  optimization" bullet that `ARCHITECTURE.md` lost.
+
 ### Fixed
 
 - **The dependency-graph tool no longer puts comment text into import and export names.**
