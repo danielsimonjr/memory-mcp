@@ -7,7 +7,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
 [![Coverage](https://img.shields.io/badge/coverage-84.8%25-yellowgreen.svg)](docs/architecture/TEST_COVERAGE.md)
 
-An **enhanced fork** of the official [Model Context Protocol](https://modelcontextprotocol.io) memory server with advanced features for **hierarchical nesting**, **intelligent compression**, **semantic search**, **graph algorithms**, **archiving**, **advanced search**, and **multi-format import/export**.
+An **enhanced fork** of the official [Model Context Protocol](https://modelcontextprotocol.io) memory server. The fork adds **hierarchical nesting**, **intelligent compression**, **semantic search**, **graph algorithms**, **archiving**, **advanced search**, and **multi-format import/export**.
 
 > **Enterprise-grade knowledge graph** with **241 tools** including hierarchical organization, semantic search with embeddings, graph traversal algorithms, duplicate detection, smart archiving, project scoping, temporal knowledge graph, semantic forget, agent diary, **entity bitemporal validity (η.4.4)**, **optimistic concurrency control (η.5.5.c)**, **role-based access control (η.6.1)**, **W3C Linked Data exports** (Turtle / JSON-LD / RDF/XML — η.5.4), **PII redaction on export** (η.6.3), **procedural memory (3B.4)**, **active retrieval (3B.5)**, **causal reasoning (3B.6)**, **world model (3B.7)**, **`do_not_remember` exclusions**, **decision rationale** (ADR memory + markdown dual-write), **structured project context** (facts / conventions / commands / glossary), **heuristic guidelines**, **tool affordance + ToolCallObserver pipeline** (with MCP shim), **observation dedup**, **spell correction** (memoryjs v2.1.0 — Phase 16), **n-ary event memory**, **reconstructive (Cue–Tag–Content) memory with snapshot persistence**, **relation consolidation**, **agent reflections**, and a **graph-connectivity hybrid-search channel with evidence-path explanations** (memoryjs v3.0.0 — v12.7.0) for long-term memory management.
 
@@ -559,7 +559,7 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `predict_outcome` | Predict downstream effects of an action by walking the causal subgraph (delegates to `find_effects`) |
 
 #### Phase 15 enhancements to existing tools
-- **`export_graph`** — Now accepts `format: 'turtle' | 'rdf-xml' | 'json-ld'` for W3C Linked Data exports (memoryjs η.5.4) and `redactPii: true` to scrub PII (email / SSN / credit-card / phone / IPv4) from observations using the η.6.3 `PiiRedactor`.
+- **`export_graph`** — Accepts `format: 'turtle' | 'rdf-xml' | 'json-ld'` for W3C Linked Data exports (memoryjs η.5.4). Accepts `redactPii: true` to scrub PII (email / SSN / credit-card / phone / IPv4) from observations with the η.6.3 `PiiRedactor`.
 - **`create_entities`** — Now accepts v1.6 freshness fields (`ttl`, `confidence`), v1.8 project scope (`projectId`), and η.4.4 bitemporal fields (`validFrom`, `validUntil`, `observationMeta`) per entity.
 - **`set_memory_visibility`** — Auto-promotes plain entities to `AgentEntity` (stamps `agentId` / `memoryType` / `confidence`) instead of silently returning `null`. Supports η.5.5.b extensions (`allowedRoles`, `visibleFrom`, `visibleUntil`).
 
@@ -697,7 +697,11 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `archive_reflection` | Soft-delete a reflection out of default listings |
 
 #### v12.7.0 enhancements to existing tools
-- **`hybrid_search`** — Now accepts memoryjs v3's additive options: `graphWeight` (graph-connectivity channel via normalized PageRank), `expandNeighbors` (one-hop expansion of top results with damped scores), `explain` (annotate results with evidence paths from query anchors), and `lookFor` (rank expansion neighbors by a free-text connection description).
+- **`hybrid_search`** — Accepts four additive options from memoryjs v3:
+  - `graphWeight`: a graph-connectivity channel through normalized PageRank.
+  - `expandNeighbors`: a one-hop expansion of the top results with damped scores.
+  - `explain`: annotates results with evidence paths from the query anchors.
+  - `lookFor`: ranks the expansion neighbors by a free-text connection description.
 
 ## Configuration
 
@@ -907,24 +911,7 @@ We welcome contributions!
 
 ## Changelog
 
-All notable changes are documented in **[CHANGELOG.md](CHANGELOG.md)**.
-
-**Current version**: v12.7.2 - [View full changelog](CHANGELOG.md)
-
-Recent highlights:
-- **v12.7.2**: Bumped `@danielsimonjr/memoryjs` `^3.0.0` → `^3.1.0` — Node 24 `better-sqlite3` prebuilds (`^12.11.1`) and the `llamacpp` embedding provider (`MEMORY_EMBEDDING_PROVIDER=llamacpp` + `MEMORY_EMBEDDING_BASE_URL`). No new tools.
-- **v12.7.0** (241 tools): Upgraded `@danielsimonjr/memoryjs` `^2.8.1` → `^3.0.0` and surfaced its new features as 16 tools — event memory (5), reconstructive Cue–Tag–Content memory + snapshot persistence (5), relation consolidation (2), agent reflection (4) — plus v3 graph-channel / evidence-path options on `hybrid_search`. Refactored handlers onto the new `ManagerContext` accessors (`hybridSearchManager`, `governanceManager`, `eventManager`, `reflectionManager`, `reconstructiveMemory()`, `close()`).
-- **v12.5.0** (225 tools): 10 engineering / diagnostic tools mirroring the memoryjs CLI surface (`diag`, `health`, `check_graph`, `reindex`, cache stats/clear, `graph_size`, `inspect_entity`, `hierarchy_tree`, `entity_neighbors`).
-- **v12.3.2** (215 tools): Backport of the deferred `set_project_scope` / `get_project_scope` pair.
-- **v12.3.0** (213 tools): **Phase 16** — 53 new tools surfacing memoryjs v2.1.0 across seven new manager surfaces: `do_not_remember` exclusion rules (5), decision rationale + ADR markdown dual-write (10), structured project context (12), heuristic guidelines (10), tool affordance + `ToolCallObserver` producer pipeline (11), observation dedup (2), spell correction (3). Bumped `@danielsimonjr/memoryjs` dep `^1.15.0` → `^2.1.0`.
-- **v12.2.3**: Publishability — switched `@danielsimonjr/memoryjs` dep from local `file:` link to published `^1.15.0` (npm rejects `file:` deps for published packages).
-- **v12.2.2**: Doc-only — roadmap completion audit grading Phase 6-15 status against current code.
-- **v12.2.1**: Doc-only — comprehensive consistency pass across 68 markdown documents to align with v12.2.0's 160-tool surface.
-- **v12.2.0** (160 tools): 23 new tools — entity bitemporal validity (η.4.4), OCC update (η.5.5.c), RBAC (η.6.1), procedural memory (3B.4), active retrieval (3B.5), causal reasoning (3B.6), world model (3B.7), plus W3C Linked Data exports (η.5.4) and PII redaction (η.6.3) wired into existing `export_graph`. Plus four pre-publish fixes from end-to-end MCP smoke testing (memoryjs v1.14+).
-- **v12.1.0** (106 tools): 12 new tools — Project Scoping, Memory Versioning, Semantic Forget, Profiles, Temporal KG, Ingestion, Agent Diary (memoryjs v1.8.0/v1.9.0)
-- **v12.0.0** (94 tools): 32 new tools — Ref Index, Artifacts, Temporal Search, Distillation, Freshness, LLM Query, Governance, Role Profiles, Entropy, Consolidation, Formatter, Collaborative, Failure Handling, Cognitive Load
-- **v11.1.1**: npm tarball cleanup, excluded data files from published package
-- **v11.1.0**: MCP error framing, dynamic server version, handler smoke tests, response compressor tests
+All notable changes, with the version of each, are documented in **[CHANGELOG.md](CHANGELOG.md)**.
 
 ## License
 
