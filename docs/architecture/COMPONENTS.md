@@ -24,7 +24,7 @@ This document describes the five files and the contract between them and memoryj
  MCP client
      │  stdio
      ▼
- src/index.ts ──────────► creates ManagerContext, starts MCPServer, closes both at the end of stdin
+ src/index.ts ──────────► creates ManagerContext, starts MCPServer, and exits at the end of stdin
      │
      ▼
  src/server/MCPServer.ts ─► answers tools/list and tools/call
@@ -32,15 +32,15 @@ This document describes the five files and the contract between them and memoryj
      ▼                 ▼
  toolDefinitions.ts   toolHandlers.ts ──► responseCompressor.ts
  (the tool schemas)   (one handler per tool)
-                           │
-                           ▼
-              @danielsimonjr/memoryjs  (ManagerContext and the managers)
+
+ Every file except toolDefinitions.ts imports from
+ @danielsimonjr/memoryjs  (ManagerContext, the managers and helper functions)
 ```
 
 | File | Role |
 |---|---|
 | `src/index.ts` | Entry point. Starts the server. Re-exports names for older importers. |
-| `src/server/MCPServer.ts` | Creates the MCP server for each stdio connection. Routes the two tool requests. |
+| `src/server/MCPServer.ts` | Builds the MCP server for the stdio transport. Routes the two tool requests. |
 | `src/server/toolDefinitions.ts` | The array of tool schemas: name, description and input schema. |
 | `src/server/toolHandlers.ts` | The registry of tool handlers and the function that dispatches a call. |
 | `src/server/responseCompressor.ts` | Compresses a large text response with Brotli. |
@@ -59,7 +59,7 @@ This document describes the five files and the contract between them and memoryj
 3. The code creates one `ManagerContext` with `storagePath` and `storageType`.
 4. The code creates `MCPServer` with that context and calls `start()`.
 
-**End sequence**: The `end` and `close` events of `process.stdin` call `shutdown()`. The function calls `MCPServer.close()` and `ManagerContext.close()`, then exits with code 0.
+**End sequence**: The `end` and `close` events of `process.stdin` call `shutdown()`. The function starts `MCPServer.close()` and does not wait for it, calls `ManagerContext.close()`, and then exits with code 0.
 Without this step, file watchers and timers can keep the process alive after the client closes the pipe.
 
 **Exports**: `defaultMemoryPath`, `ensureMemoryFilePath`, `ManagerContext`, and `KnowledgeGraphManager` (an alias of `ManagerContext`). The file also re-exports the types in the group "Types that `src/index.ts` re-exports" below.
@@ -79,14 +79,14 @@ export class MCPServer {
 ```
 
 **Responsibilities**:
-- `start()` calls `serveStdio` with a factory. The factory builds one `Server` for each stdio connection.
+- `start()` calls `serveStdio` with a factory function. The SDK calls the factory to get a `Server`. The SDK decides when to call it, and how often.
 - Each `Server` has the name `memory-server` and the capability `tools`.
 - The handler of `tools/list` returns `toolDefinitions`.
 - The handler of `tools/call` calls `handleToolCall(name, args ?? {}, ctx)`.
-- All connections share one `ManagerContext`, so the graph state stays when a client connects again.
+- All `Server` instances of one process share one `ManagerContext`. The process exits when stdin ends, so a new client connection starts a new process and a new `ManagerContext`. The graph persists in storage.
 - The server version comes from `package.json`. The plugin bundle gets it from the constant `__PKG_VERSION__`, which `scripts/build-bundle.mjs` injects.
 
-**Dependencies**: `toolDefinitions`, `toolHandlers`, `ManagerContext`, `logger`, and the MCP SDK packages `@modelcontextprotocol/server` and `@modelcontextprotocol/server/stdio`.
+**Dependencies**: `toolDefinitions`, `toolHandlers`, `ManagerContext`, `logger`, and the MCP SDK package `@modelcontextprotocol/server` (its root export and its `/stdio` export).
 
 ---
 
@@ -137,7 +137,7 @@ export async function handleToolCall(
 export function getActiveProjectScope(ctx: ManagerContext): string | undefined
 ```
 
-**Pattern**: `toolHandlers` is a registry. The key is the tool name. A handler checks its arguments with `validateWithSchema` and a schema, calls a manager through the context, and returns `formatToolResponse(...)` or `formatTextResponse(...)`.
+**Pattern**: `toolHandlers` is a registry. The key is the tool name. A handler that takes arguments checks them with `validateWithSchema` and a schema. The handler reaches a manager, or the storage, through the context, and returns `formatToolResponse(...)`, `formatTextResponse(...)` or `formatRawResponse(...)`.
 
 **Dispatch**: `handleToolCall` looks up the handler. A name with no handler returns a response with `isError: true` and the text `Error: Unknown tool: <name>`.
 An exception from a handler returns a response with `isError: true` and the text `Error: <message>`. The function does not rethrow.
@@ -145,12 +145,13 @@ An exception from a handler returns a response with `isError: true` and the text
 **Compression**: The wrapper `withCompression` passes the text of a response to `maybeCompressResponse`. When the text is over the size limit, the wrapper replaces it with the JSON text of a `CompressedResponse`.
 Seven handlers use the wrapper: `read_graph`, `open_nodes`, `search_nodes`, `get_subtree`, `synthesize_collaborative_context`, `search_cross_agent` and `get_visible_memories`.
 
-**Cached helper objects**: Some helper objects are not members of `ManagerContext`. The file creates each one on first use and keeps it in a `WeakMap` that is keyed on the context.
-The helpers are `RefIndex`, `FreshnessManager`, `ArtifactManager`, `DistillationPipeline`, `FailureDistillation`, `ConsolidationScheduler`, `DreamEngine` and `QueryCostEstimator`.
+**Cached helper objects**: The file keeps eight kinds of helper object. Each kind has its own `WeakMap`, keyed on the context.
+The kinds are `RefIndex`, `FreshnessManager`, `ArtifactManager`, `DistillationPipeline`, `FailureDistillation`, `ConsolidationScheduler`, `DreamEngine` and `QueryCostEstimator`.
+A handler creates a helper on first use and reuses it. Two handlers, `run_consolidation_now` and `dream_run_now`, create a one-off instance when they find none, and do not store it.
 
 **Active project scope**: The tool `set_project_scope` stores a project id in a `WeakMap` that is keyed on the context. An empty `projectId` removes the scope. The tool `get_project_scope` and `getActiveProjectScope(ctx)` read it.
 The handler of `create_entities` adds the scope to each entity that has no `projectId`.
-The scope is state of one running server. The graph does not store the scope.
+The scope is state of one running server. The graph does not store the active scope. An entity keeps the `projectId` that `create_entities` sets from it.
 
 ---
 
