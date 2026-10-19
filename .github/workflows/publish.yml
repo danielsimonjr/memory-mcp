@@ -48,6 +48,10 @@ jobs:
       - name: Refuse a tag whose version is not package.json's version
         run: node scripts/publish-version-guard.mjs "$GITHUB_REF_NAME"
 
+      # The plugin runs the committed bundle. A bundle that reports another version was not rebuilt for this release.
+      - name: Refuse a committed bundle that reports another version
+        run: bun run check:bundle
+
       # Lists each name whose package.json version is not on npm yet. A re-run
       # after a partial failure then publishes only the missing name.
       - name: Find the names that still need this version
@@ -79,6 +83,9 @@ jobs:
       - name: Build
         if: steps.registry.outputs.names != ''
         run: bun run build
+      - name: Refuse a pack list with a file that has no source
+        if: steps.registry.outputs.names != ''
+        run: bun run check:pack
       - name: Test
         if: steps.registry.outputs.names != ''
         run: bun run test

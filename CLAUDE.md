@@ -6,11 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ```bash
 bun install           # Install all dependencies (bun.lock is authoritative)
-bun run build         # Build TypeScript → JavaScript (tsc)
+bun run build         # Remove dist/, then build TypeScript → JavaScript (tsc)
 bun run test          # Run tests with coverage (vitest)
 bun run typecheck     # Strict type checking (includes --noUnusedLocals --noUnusedParameters)
 bun run watch         # Watch mode for development
 bun run clean         # Remove dist/ directory
+bun run check:pack    # Fail when the npm tarball holds a build file that has no source
+bun run check:bundle  # Fail when the committed bundle reports another version than package.json
 
 # Run a single test file
 bunx vitest run tests/e2e/tools/entity-tools.test.ts
@@ -199,20 +201,33 @@ The `tools/` directory has standalone utilities (each with own `package.json`, b
 
 ## Publishing to npm
 
+A pushed `v*` tag runs `.github/workflows/publish.yml`. The workflow publishes both package names with provenance. The workflow needs the repository secret `NPM`: a granular npm token with read and write access and Bypass 2FA. Without the secret, the first step fails and nothing is published.
+
+Release steps:
+
+1. Change the version in `package.json`, `.claude-plugin/plugin.json` and the CHANGELOG heading. Update the other files that name the version (`CLAUDE.md` and the reports under `docs/architecture`).
+2. Build the plugin bundle after the version change: `node scripts/build-bundle.mjs`. Build it in a clean clone after `bun install --frozen-lockfile`. Commit `bundle/index.mjs`.
+3. Merge the release pull request. Push the tag `vX.Y.Z` on the merge commit.
+4. Read the registry back for both names: `npm view <name>@X.Y.Z dist.integrity dist.fileCount`. Install the package in an empty folder and start it.
+
+Two checks run in CI and before every publish. `bun run check:pack` fails when the tarball holds a file that is not package metadata and has no source. `bun run check:bundle` fails when the bundle that `.mcp.json` starts reports a version that differs from `package.json`.
+
+When the secret is missing, publish by hand from a fresh clone:
+
 ```bash
-# Token with "bypass 2FA" required — classic tokens are revoked
-npm config set //registry.npmjs.org/:_authToken=$(cat c:\mcp-servers\npm_key.txt)
-npm publish --access public
-# `prepare` script auto-builds (`tsc`), so separate `bun run build` is not needed before publish
-# Verify tarball contents before publishing:
-# npm pack --dry-run 2>&1 | grep -E "jsonl|\.db|total files|package size"
-# Always bump version in package.json before publishing (npm won't re-publish an existing version)
+git clone https://github.com/danielsimonjr/memory-mcp.git release && cd release
+git checkout vX.Y.Z                    # the release commit
+bun install --frozen-lockfile && bun run build && bun run check:pack
+npm pack --ignore-scripts
+npm publish ./danielsimonjr-memory-mcp-X.Y.Z.tgz --ignore-scripts --access public
 ```
+
+Publish the legacy name `@danielsimonjr/enhanced-memory-mcp` the same way. Unpack the tarball in a scratch folder. Change only `name` with `npm pkg set name=@danielsimonjr/enhanced-memory-mcp`. Run `npm pack --ignore-scripts` there and publish that tarball. A local publish has no provenance attestation. Never publish from a working copy, because `dist/` can hold old output. Compare `dist.integrity` in the registry with the sha512 of the tarball that you published.
 
 ## Gotchas
 
 - **memoryjs is a published dep** (v12.2.3+): `@danielsimonjr/memoryjs` resolves from npm at `^4.2.0`. For active dual-repo dev (editing memoryjs alongside memory-mcp), temporarily switch to `file:C:/Users/danie/Dropbox/Github/memoryjs` in package.json so changes are picked up on `npm install` without a publish — but **bump back to a registry version before `npm publish`**. The `release: bump @danielsimonjr/memoryjs file: → ^x.y.z (publishable)` commits in `git log` exist for exactly this swap. While in `file:` mode, `npm install` will fail on any machine without that local path.
 - **Data files are gitignored**: `*.jsonl` and `memory.db` are in `.gitignore` — test runs create/modify these in the project root but they won't appear in `git status`.
 - **Error handling in dispatch**: `handleToolCall` catches exceptions from handlers and returns them as MCP-formatted error responses (not thrown). Check MCP response `isError` field when debugging.
-- **TypeScript target**: ES2022 with Node16 module resolution. The `prepare` script runs `tsc` on install, so `dist/` is rebuilt automatically.
-- **Data files in `dist/` are excluded from the tarball**: The `files` field is `["dist"]`, but `.npmignore` excludes `dist/*.jsonl` and `dist/*.db`, so data files copied into `dist/` by local runs are not published. Verify with `npm pack --dry-run` before publishing.
+- **TypeScript target**: ES2022 with Node16 module resolution. The `prepare` script runs `npm run build`. That script removes `dist/` and then runs `tsc`, so `dist/` never holds output of a deleted source file.
+- **Data files in `dist/` are excluded from the tarball**: The `files` field is `["dist"]`. `.npmignore` excludes `dist/*.jsonl` and `dist/*.db`, so the tarball does not hold data files that local runs copy into `dist/`. Run `bun run check:pack` before you publish.

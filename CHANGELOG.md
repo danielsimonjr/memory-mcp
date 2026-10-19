@@ -7,7 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Two checks run in CI and before every publish.** `bun run check:pack` lists the files that `npm pack` would put in the tarball. The check fails when a file is not package metadata and has no source file. `bun run check:bundle` starts the bundle that `.mcp.json` runs and reads the version in its `initialize` answer. The check fails when that version differs from `package.json` or `.claude-plugin/plugin.json`. Both scripts take their folders and settings from flags or environment variables. The defaults sit in one place in each script.
+- **Tests for the release scripts.** `tests/unit/scripts` covers the two new checks and `scripts/publish-version-guard.mjs`, which had no test.
+
 ### Changed
+
+- **`build` and `prepare` remove `dist/` before they run `tsc`.** `tsc` never deletes the output of a source file that no longer exists, so a build over an old `dist/` kept the old files. `npm publish` runs `prepare`, so a publish from a working copy now packs a clean build.
+- **The "Publishing to npm" section of `CLAUDE.md` describes the tag workflow and the hand publish from a fresh clone.** It no longer names a token file.
 
 - **The text that `tools/list` returns declares what the handlers accept, and says in plain words what
   they ignore.** Nothing checks the arguments of a call against the `inputSchema`, so this text is the
@@ -37,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   three settings to the controller fails 4 of the cases.
 
 ### Fixed
+
+- **The npm package no longer carries 150 stale build files.** The primary name held 168 files in every version from 12.7.0 to 12.9.0. The legacy name held 168 files in 12.8.3 and 12.9.0. In each of these versions, 150 of the files were old output in `dist/utils`, `dist/search`, `dist/core`, `dist/features`, `dist/workers` and `dist/types`. None of the 150 files had a source file. Version 12.9.1 was packed from a clean build and holds 18 files: 407 kB unpacked, where 168 files took 1.24 MB. The `exports` map never exposed the old files. The entry file imports none of the old files.
 
 - **`add_procedure` validates its arguments.** The handler cast its arguments to the library type, and
   the library checks only that `steps` is present. The library stored a step list given as a string.

@@ -57,6 +57,13 @@ jobs:
         run: bun run typecheck
       - name: Build
         run: bun run build
+      # The npm tarball must hold no build file without a source. `tsc` never deletes old output,
+      # and 150 such files shipped in every release from 12.8.2 to 12.9.0.
+      - name: Pack list holds no file without a source
+        run: bun run check:pack
+      # The plugin runs the committed bundle, not dist/. A bundle that nobody rebuilt keeps its old version.
+      - name: Committed bundle reports the version of package.json
+        run: bun run check:bundle
       - name: Node runtime smoke (the shipped artifact must load under Node)
         run: |
           node --input-type=module -e '
