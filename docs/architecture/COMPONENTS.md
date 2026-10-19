@@ -110,7 +110,7 @@ export const toolDefinitions: ToolDefinition[]
 ```
 
 The file has no imports. Each array entry is one tool. The array is grouped by category with comment headers.
-[API.md](API.md) lists every tool with its parameters and its category.
+[API.md](API.md) is the tool reference.
 
 ---
 
@@ -141,7 +141,6 @@ export function getActiveProjectScope(ctx: ManagerContext): string | undefined
 
 **Dispatch**: `handleToolCall` looks up the handler. A name with no handler returns a response with `isError: true` and the text `Error: Unknown tool: <name>`.
 An exception from a handler returns a response with `isError: true` and the text `Error: <message>`. The function does not rethrow.
-The lookup is a property access on a plain object. A name that `Object.prototype` also defines, for example `toString`, is therefore not rejected as an unknown tool.
 
 **Compression**: The wrapper `withCompression` passes the text of a response to `maybeCompressResponse`. When the text is over the size limit, the wrapper replaces it with the JSON text of a `CompressedResponse`.
 Seven handlers use the wrapper: `read_graph`, `open_nodes`, `search_nodes`, `get_subtree`, `synthesize_collaborative_context`, `search_cross_agent` and `get_visible_memories`.
@@ -348,7 +347,7 @@ This document states no memoryjs version. The range is in `package.json`, and `b
 ```
 
 Every file also imports from `@danielsimonjr/memoryjs`, except `toolDefinitions.ts`, which has no imports.
-`repo-tools map` writes the full import graph to [DEPENDENCY_GRAPH.md](DEPENDENCY_GRAPH.md).
+The command `npm run docs:deps` writes the full import graph to [DEPENDENCY_GRAPH.md](DEPENDENCY_GRAPH.md). Its generator is `tools/create-dependency-graph`.
 
 ---
 
