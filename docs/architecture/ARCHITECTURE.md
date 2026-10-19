@@ -29,19 +29,19 @@ Memory MCP is an enhanced Model Context Protocol (MCP) server that provides pers
 - **Timestamps**: Automatic tracking of creation and modification times
 - **Batch Operations**: Efficient bulk updates
 
-### Key Statistics (v12.7.0)
+### Key Statistics
 
 - **Tests**: Vitest runs unit, integration and end-to-end tests of the server layer. The tests of the core graph logic live in `@danielsimonjr/memoryjs`.
-- **Source Files**: 5 TypeScript files in `src/` after the Phase 13 extraction; all core graph logic lives in the `@danielsimonjr/memoryjs` library (`^3.0.0`).
+- **Source Files**: 5 TypeScript files in `src/`. All core graph logic lives in the `@danielsimonjr/memoryjs` library. `package.json` holds the version range of that library.
 - **241 Tools**: The tools cover many categories. The categories include:
   - entity, search variants, semantic, graph algorithms, governance, freshness, sessions, decay/salience, multi-agent, dream engine, project scoping, memory versioning, temporal KG, ingestion, agent diary
   - **bitemporal validity** η.4.4, **OCC** η.5.5.c, **RBAC** η.6.1, **procedural memory** 3B.4, **active retrieval** 3B.5, **causal reasoning** 3B.6, **world model** 3B.7
   - **tool affordance**, **heuristic guidelines**, **project context**, **decision rationale**, **exclusions**, **observation dedup**
-  - **spell correction** (Phase 16 / memoryjs v2.1.0), **engineering/diagnostics** (v12.5.0), **event memory**, **reconstructive memory + snapshot persistence**, **relation consolidation**, **agent reflection** (v12.7.0 / memoryjs v3.0.0)
-- **Lazy Initialization**: Managers in `ManagerContext` instantiated on first access; memoryjs v3 adds `hybridSearchManager`, `governanceManager`, `graphRankPrior`, `eventManager`, `reflectionManager`, `reconstructiveMemory()`, and `close()`.
-- **Phase 12 Performance** (in memoryjs): BM25 search, parallel execution, query plan caching, embedding cache, incremental indexing.
-- **Phase 15 (memoryjs v1.14+)**: 23 new tools expose entity bitemporal validity, optimistic concurrency control, and role-based access control. The tools also expose procedural memory, active retrieval, causal reasoning, and world model. The existing `export_graph` tool also gets W3C Linked Data export formats (Turtle / RDF/XML / JSON-LD — η.5.4) and PII redaction on export (η.6.3).
-- **v12.7.0 (memoryjs v3.0.0)**: 16 new tools: n-ary event memory, reconstructive Cue–Tag–Content memory with sidecar snapshot persistence, three-tier relation consolidation, and agent reflections. The release also adds a graph-connectivity channel, one-hop neighbor expansion, and evidence-path explanations on `hybrid_search`.
+  - **spell correction**, **engineering/diagnostics**, **event memory**, **reconstructive memory + snapshot persistence**, **relation consolidation**, **agent reflection**
+- **Lazy Initialization**: Managers in `ManagerContext` are created on first access. The accessors include `hybridSearchManager`, `governanceManager`, `graphRankPrior`, `eventManager`, `reflectionManager` and `reconstructiveMemory()`. The method `close()` releases the storage handles.
+- **Search performance** (in memoryjs): BM25 search, parallel execution, query plan caching, embedding cache, incremental indexing.
+- **Export**: The `export_graph` tool writes W3C Linked Data formats (Turtle / RDF/XML / JSON-LD — η.5.4) and redacts PII on request (η.6.3).
+- **Hybrid search**: The `hybrid_search` tool has a graph-connectivity channel, one-hop neighbor expansion, and evidence-path explanations.
 
 ---
 
@@ -592,7 +592,7 @@ features/
 **Mitigation**:
 - Documentation clearly states behavior
 - Export/import tools handle cleanup
-- Future: Optional integrity checking
+- The `check_graph` tool reports dangling relations on request. It repairs them when `apply` is true
 
 ---
 
@@ -703,45 +703,15 @@ MCP Response to Client
 
 ## Performance Considerations
 
-### Benchmarks (v0.47.0)
-
-| Operation | Scale | Budget | Actual |
-|-----------|-------|--------|--------|
-| Create entities | 1 | <50ms | ~10ms |
-| Create entities | 100 | <200ms | ~100ms |
-| Create entities | 1000 | <1500ms | ~800ms |
-| Batch update | 100 | <200ms | ~150ms |
-| Basic search | 500 entities | <100ms | ~50ms |
-| Ranked search | 500 entities | <600ms | ~500ms |
-| Boolean search | 500 entities | <150ms | ~100ms |
-| Fuzzy search | 500 entities | <200ms | ~150ms |
-| Find duplicates | 100 | <300ms | ~200ms |
-| Find duplicates | 500 | <1500ms | ~1100ms |
-| Compress graph | 100 | <400ms | ~300ms |
-
-### Optimization Strategies (v0.47.0)
+### Optimization Strategies
 
 1. **Batch Operations**: Single I/O cycle for multiple operations
 2. **In-Memory Caching**: Graph cached with write-through invalidation
 3. **Efficient Algorithms**: TF-IDF, Levenshtein with early termination
-4. **Bucketing**: Reduce O(n²) to O(n²/k) for similarity (50x faster)
-5. **Lazy Manager Initialization**: 10 managers created on-demand using `??=`
+4. **Bucketing**: Reduce O(n²) to O(n²/k) for similarity
+5. **Lazy Manager Initialization**: Managers are created on demand using `??=`
 6. **Unified Filter Logic**: SearchFilterChain eliminates duplicate code
-7. **Modular Server**: 92.6% reduction in MCPServer.ts (907→67 lines)
-
-### Context Optimization (v0.42.0 - v0.58.0)
-
-Refactoring reduced token/context usage significantly:
-
-| Component | Before | After | Reduction |
-|-----------|--------|-------|-----------|
-| MCPServer.ts | 907 lines | 67 lines | 92.6% |
-| Managers | 10 separate | 5 consolidated | 50% fewer |
-| JSON.stringify patterns | 41 duplicates | centralized | ~41 patterns |
-| Filter logic | ~65 lines x 4 | SearchFilterChain | ~260 lines |
-| Manager initialization | Eager (10 managers) | Lazy on-demand (5) | Faster startup |
-| Search algorithms | 2 files | 1 file (searchAlgorithms.ts) | Consolidated |
-| Constants | Duplicated | Unified in constants.ts | Single source |
+7. **Modular Server**: `MCPServer` is separate from the tool definitions and the tool handlers
 
 ### Scalability Limits
 
@@ -837,41 +807,6 @@ npm run docs:deps
 
 ---
 
-## Future Enhancements
-
-### Recently Implemented (v0.42.0 - v0.47.0)
-
-- ✅ **Caching**: In-memory graph caching with write-through invalidation
-- ✅ **Lazy Initialization**: Managers created on-demand
-- ✅ **Modular Server**: MCPServer split for maintainability
-- ✅ **Unified Filtering**: SearchFilterChain consolidation
-- ✅ **Package Exports**: Tree-shaking support via exports map
-
-### Planned Improvements
-
-1. **Pagination**: Cursor-based pagination for large result sets
-2. **TF-IDF Indexing**: Pre-calculated indices for faster ranked search
-3. **Streaming**: Support for very large graphs (>10k entities)
-4. **Async Validation**: Non-blocking integrity checks
-5. **Transaction Batching**: Combine multiple operations into atomic transactions
-
-### Architectural Evolution
-
-**Current**: Single-file JSONL, in-memory processing with caching
-**Future**: Pluggable storage backends (JSONL, SQLite, PostgreSQL)
-
-```typescript
-interface StorageBackend {
-  loadGraph(): Promise<KnowledgeGraph>
-  saveGraph(graph: KnowledgeGraph): Promise<void>
-}
-
-class JSONLStorage implements StorageBackend { }
-class SQLiteStorage implements StorageBackend { }
-```
-
----
-
 ## Conclusion
 
 The Memory MCP architecture prioritizes:
@@ -880,9 +815,7 @@ The Memory MCP architecture prioritizes:
 - ✅ **Testability**: Unit, integration and end-to-end tests of the server layer
 - ✅ **Security**: Input validation, path protection
 - ✅ **Extensibility**: Modular design, clear interfaces
-- ✅ **Context Efficiency**: Optimized for AI assistant token usage (v0.47.0)
-
-This architecture serves the current use case well and provides a solid foundation for future enhancements.
+- ✅ **Context Efficiency**: Optimized for AI assistant token usage
 
 ---
 

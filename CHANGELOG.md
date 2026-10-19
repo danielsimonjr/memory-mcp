@@ -24,6 +24,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   v12.7.2, whose changes (the bump of `@danielsimonjr/memoryjs` to `^3.1.0`) are listed under
   the v12.8.0 heading.
 
+- **`docs/architecture/ARCHITECTURE.md` holds no version, benchmark or roadmap text.** The document had a
+  heading "Key Statistics (v12.7.0)" and per-release bullets, two tables of measurements and line counts
+  from earlier versions ("Benchmarks (v0.47.0)" and "Context Optimization"), and a section "Future
+  Enhancements" that listed done work and plans. A design document states what the system is, and this
+  file records what changed. The heading, the bullets, both tables and the section are removed. The
+  kept statements are checked: the `ManagerContext` accessors, `reconstructiveMemory()` and `close()` exist in
+  `@danielsimonjr/memoryjs` 4.2.0, the version that `bun.lock` resolves, and the search-performance
+  features that the document names are in its source. The mitigation "Future: Optional integrity
+  checking" named a feature that exists, so it now names the `check_graph` tool.
+
 ### Fixed
 
 - **The dependency-graph tool no longer puts comment text into import and export names.**
