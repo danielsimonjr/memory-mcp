@@ -36,4 +36,36 @@ describe('toolDefinitions contract', () => {
       expect(def?.inputSchema?.additionalProperties).toBe(false);
     });
   });
+
+  describe('text that a client reads in tools/list', () => {
+    // A tag such as a release version (v2.1.0), a memoryjs phase id (eta.4.4 written with the
+    // Greek letter, 3B.4) or a release note in a description tells the client nothing about
+    // the tool. It also goes stale. The "Phase 1:" to "Phase 8:" labels of the dream tools
+    // are not tags: they name the stages of the pipeline.
+    const RELEASE_TAG = /(?<![A-Za-z0-9_])(?:v\d+(?:\.\d+)*|η\.\d+(?:\.\d+)*(?:\.[a-z])?|3B\.\d+)(?![A-Za-z0-9_])/;
+
+    const collect = (value: unknown, path: string, out: string[]): void => {
+      if (typeof value === 'string') {
+        if (RELEASE_TAG.test(value)) out.push(`${path}: ${value}`);
+      } else if (Array.isArray(value)) {
+        value.forEach((item, i) => collect(item, `${path}[${i}]`, out));
+      } else if (value && typeof value === 'object') {
+        for (const [key, item] of Object.entries(value)) collect(item, `${path}.${key}`, out);
+      }
+    };
+
+    it('has no version or phase tag in any string of any tool definition', () => {
+      const offenders: string[] = [];
+      for (const def of toolDefinitions) collect(def, def.name, offenders);
+      expect(toolDefinitions.length).toBeGreaterThan(0);
+      expect(offenders).toEqual([]);
+    });
+
+    it('does not flag the dream pipeline stages, which are not tags', () => {
+      const dream = toolDefinitions.find(t => t.name === 'dream_start');
+      const stages = JSON.stringify(dream?.inputSchema);
+      expect(stages).toContain('Phase 1:');
+      expect(RELEASE_TAG.test(stages)).toBe(false);
+    });
+  });
 });

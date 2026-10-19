@@ -29,7 +29,7 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== ENTITY TOOLS ====================
   {
     name: 'create_entities',
-    description: 'Create multiple new entities in the knowledge graph. Supports v1.6 freshness (ttl/confidence), v1.8 project scoping, and η.4.4 bitemporal validity (validFrom/validUntil/observationMeta).',
+    description: 'Create multiple new entities in the knowledge graph. Supports freshness (ttl/confidence), project scoping, and bitemporal validity (validFrom/validUntil/observationMeta).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -62,29 +62,29 @@ export const toolDefinitions: ToolDefinition[] = [
               },
               ttl: {
                 type: 'number',
-                description: 'v1.6 freshness — seconds until entity is considered stale',
+                description: 'Freshness — seconds until entity is considered stale',
               },
               confidence: {
                 type: 'number',
                 minimum: 0,
                 maximum: 1,
-                description: 'v1.6 freshness — belief strength [0, 1]',
+                description: 'Freshness — belief strength [0, 1]',
               },
               projectId: {
                 type: 'string',
-                description: 'v1.8 project scope identifier',
+                description: 'Project scope identifier',
               },
               validFrom: {
                 type: 'string',
-                description: 'η.4.4 ISO 8601 — entity is valid from this instant. Absent ⇒ always valid since creation.',
+                description: 'ISO 8601 — entity is valid from this instant. Absent ⇒ always valid since creation.',
               },
               validUntil: {
                 type: 'string',
-                description: 'η.4.4 ISO 8601 — entity is valid until this instant. Absent ⇒ still valid.',
+                description: 'ISO 8601 — entity is valid until this instant. Absent ⇒ still valid.',
               },
               observationMeta: {
                 type: 'array',
-                description: 'η.4.4 per-observation temporal metadata; indexed parallel to observations[] by content match',
+                description: 'Per-observation temporal metadata; indexed parallel to observations[] by content match',
                 items: {
                   type: 'object',
                   properties: {
@@ -499,7 +499,7 @@ export const toolDefinitions: ToolDefinition[] = [
   {
     name: 'hybrid_search',
     description:
-      'Search using combined semantic, lexical, and metadata signals. Provides better recall than single-signal search by fusing multiple relevance signals. v3 additive options: graphWeight adds a graph-connectivity (PageRank) channel, expandNeighbors appends one-hop neighbors of top results, explain annotates results with evidence paths from query anchors, lookFor ranks expansion neighbors by a free-text connection description.',
+      'Search using combined semantic, lexical, and metadata signals. Provides better recall than single-signal search by fusing multiple relevance signals. Additive options: graphWeight adds a graph-connectivity (PageRank) channel, expandNeighbors appends one-hop neighbors of top results, explain annotates results with evidence paths from query anchors, lookFor ranks expansion neighbors by a free-text connection description.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -1135,7 +1135,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'export_graph',
-    description: 'Export knowledge graph in various formats with optional brotli compression and streaming for large graphs. Supports W3C Linked Data formats (turtle, rdf-xml, json-ld) added in η.5.4.',
+    description: 'Export knowledge graph in various formats with optional brotli compression and streaming for large graphs. Supports W3C Linked Data formats (turtle, rdf-xml, json-ld).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -1147,7 +1147,7 @@ export const toolDefinitions: ToolDefinition[] = [
         redactPii: {
           type: 'boolean',
           default: false,
-          description: 'When true, scrub PII (email/SSN/credit-card/phone/IPv4) from observations before export. Uses η.6.3 PiiRedactor with default pattern bank.',
+          description: 'When true, scrub PII (email/SSN/credit-card/phone/IPv4) from observations before export. Uses PiiRedactor with default pattern bank.',
         },
         filter: {
           type: 'object',
@@ -2258,7 +2258,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'set_memory_visibility',
-    description: 'Set the visibility of a memory entity for multi-agent access control. Auto-promotes plain entities to AgentEntity (stamps agentId/memoryType/etc.) instead of failing silently. Supports η.5.5.b extensions: allowedRoles (role gate), visibleFrom/visibleUntil (time-window gate).',
+    description: 'Set the visibility of a memory entity for multi-agent access control. Auto-promotes plain entities to AgentEntity (stamps agentId/memoryType/etc.) instead of failing silently. Supports these extensions: allowedRoles (role gate), visibleFrom/visibleUntil (time-window gate).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2268,15 +2268,15 @@ export const toolDefinitions: ToolDefinition[] = [
         allowedRoles: {
           type: 'array',
           items: { type: 'string' },
-          description: 'η.5.5.b — Optional role gate. When set, requesting agents whose AgentMetadata.role is NOT in this list are denied even if the visibility level would grant. AND-combined with the level check.',
+          description: 'Optional role gate. When set, requesting agents whose AgentMetadata.role is NOT in this list are denied even if the visibility level would grant. AND-combined with the level check.',
         },
         visibleFrom: {
           type: 'string',
-          description: 'η.5.5.b — ISO 8601. Memory becomes visible at this instant. Absent ⇒ visible since creation. Denies even the owner before this time.',
+          description: 'ISO 8601. Memory becomes visible at this instant. Absent ⇒ visible since creation. Denies even the owner before this time.',
         },
         visibleUntil: {
           type: 'string',
-          description: 'η.5.5.b — ISO 8601. Memory stops being visible at this instant. Useful for shared drafts that expire on a known handoff date.',
+          description: 'ISO 8601. Memory stops being visible at this instant. Useful for shared drafts that expire on a known handoff date.',
         },
       },
       required: ['memoryName', 'agentId', 'visibility'],
@@ -2363,7 +2363,7 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== η.4.4 BITEMPORAL ENTITY TOOLS ====================
   {
     name: 'invalidate_entity',
-    description: 'η.4.4 — Mark an entity as no longer valid by setting validUntil. Idempotent. Does not delete the entity — entity_as_of still returns it for past asOf timestamps. Orthogonal to v1.8 supersession.',
+    description: 'Mark an entity as no longer valid by setting validUntil. Idempotent. Does not delete the entity — entity_as_of still returns it for past asOf timestamps. Orthogonal to supersession.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2376,7 +2376,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'entity_as_of',
-    description: 'η.4.4 — Time-travel query for an entity. Returns the entity at a given point in time, or null if it was already invalidated then. An entity is valid at asOf when validFrom <= asOf AND (validUntil is undefined OR validUntil >= asOf).',
+    description: 'Time-travel query for an entity. Returns the entity at a given point in time, or null if it was already invalidated then. An entity is valid at asOf when validFrom <= asOf AND (validUntil is undefined OR validUntil >= asOf).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2389,7 +2389,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'entity_timeline',
-    description: 'η.4.4 — Get all temporal versions of an entity in chronological order (by validFrom asc, with unbounded entities last). Returns the v1.8 supersession chain when one exists.',
+    description: 'Get all temporal versions of an entity in chronological order (by validFrom asc, with unbounded entities last). Returns the supersession chain when one exists.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2401,7 +2401,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'invalidate_observation',
-    description: 'η.4.4 — Mark a specific observation on an entity as no longer valid. Creates a parallel observationMeta[] entry if absent. Throws if observation not found on entity.',
+    description: 'Mark a specific observation on an entity as no longer valid. Creates a parallel observationMeta[] entry if absent. Throws if observation not found on entity.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2415,7 +2415,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'observations_as_of',
-    description: 'η.4.4 — Get observations valid at a given point in time. Observations with no observationMeta entry are treated as unbounded (always-valid).',
+    description: 'Get observations valid at a given point in time. Observations with no observationMeta entry are treated as unbounded (always-valid).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2430,7 +2430,7 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== η.5.5 OCC + ATTRIBUTION TOOLS ====================
   {
     name: 'update_entity',
-    description: 'η.5.5.c — Update an entity with optional optimistic concurrency control. Pass expectedVersion to assert the live entity is at that version; throws VersionConflictError on mismatch. Omit for legacy last-write-wins. OCC-guarded writes auto-increment version.',
+    description: 'Update an entity with optional optimistic concurrency control. Pass expectedVersion to assert the live entity is at that version; throws VersionConflictError on mismatch. Omit for legacy last-write-wins. OCC-guarded writes auto-increment version.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2453,7 +2453,7 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== η.6.1 RBAC TOOLS ====================
   {
     name: 'rbac_assign_role',
-    description: 'η.6.1 — Grant a role to an agent. Roles: reader (read), writer (read+write), admin (read+write+delete), owner (all four). Optional resourceType narrows to one type; optional scope narrows to a name prefix; optional validUntil expires the grant.',
+    description: 'Grant a role to an agent. Roles: reader (read), writer (read+write), admin (read+write+delete), owner (all four). Optional resourceType narrows to one type; optional scope narrows to a name prefix; optional validUntil expires the grant.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2471,7 +2471,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'rbac_revoke_role',
-    description: 'η.6.1 — Remove a specific role assignment. Matching is by agentId + role + resourceType (exact, including undefined).',
+    description: 'Remove a specific role assignment. Matching is by agentId + role + resourceType (exact, including undefined).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2485,7 +2485,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'rbac_check_permission',
-    description: 'η.6.1 — Check whether an agent can perform an action on a resource type. Falls back to defaultRole=reader for agents with no assignments.',
+    description: 'Check whether an agent can perform an action on a resource type. Falls back to defaultRole=reader for agents with no assignments.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2501,7 +2501,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'rbac_list_assignments',
-    description: 'η.6.1 — List role assignments for an agent (active or all).',
+    description: 'List role assignments for an agent (active or all).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2517,7 +2517,7 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== 3B.4 PROCEDURAL MEMORY TOOLS ====================
   {
     name: 'add_procedure',
-    description: '3B.4 — Persist a new procedural memory (executable how-to sequence). Steps are ordered (1-indexed) with optional fallback chains. Auto-generates id when omitted. Distinct from semantic facts and episodic events.',
+    description: 'Persist a new procedural memory (executable how-to sequence). Steps are ordered (1-indexed) with optional fallback chains. Auto-generates id when omitted. Distinct from semantic facts and episodic events.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2547,7 +2547,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'get_procedure',
-    description: '3B.4 — Load a procedure by id.',
+    description: 'Load a procedure by id.',
     inputSchema: {
       type: 'object',
       properties: { id: { type: 'string' } },
@@ -2557,7 +2557,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'match_procedure',
-    description: '3B.4 — Token-overlap match a context description against stored procedures. Returns ranked matches with Jaccard-like scores.',
+    description: 'Token-overlap match a context description against stored procedures. Returns ranked matches with Jaccard-like scores.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2571,7 +2571,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'refine_procedure',
-    description: '3B.4 — Apply caller feedback after a procedure execution. Increments executionCount and updates successRate via EWMA (α=0.2).',
+    description: 'Apply caller feedback after a procedure execution. Increments executionCount and updates successRate via EWMA (α=0.2).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2586,7 +2586,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'get_procedure_step',
-    description: '3B.4 — Load a specific step from a procedure by 1-indexed order, OR get the next step relative to currentOrder.',
+    description: 'Load a specific step from a procedure by 1-indexed order, OR get the next step relative to currentOrder.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2602,7 +2602,7 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== 3B.5 ACTIVE RETRIEVAL TOOL ====================
   {
     name: 'adaptive_retrieve',
-    description: '3B.5 — Run iterative query-rewriting retrieval. Up to maxRounds of (search → score coverage → rewrite). Stops early when coverage ≥ minCoverage or no expansion tokens. Pure symbolic — no LLM provider required.',
+    description: 'Run iterative query-rewriting retrieval. Up to maxRounds of (search → score coverage → rewrite). Stops early when coverage ≥ minCoverage or no expansion tokens. Pure symbolic — no LLM provider required.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2620,7 +2620,7 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== 3B.6 CAUSAL REASONING TOOLS ====================
   {
     name: 'find_causes',
-    description: '3B.6 — Find causal chains ending at the named effect. Searches paths from candidate causes via causal relation types (causes/enables/prevents/precedes/correlates). Sorted by score = product of per-edge causalStrength.',
+    description: 'Find causal chains ending at the named effect. Searches paths from candidate causes via causal relation types (causes/enables/prevents/precedes/correlates). Sorted by score = product of per-edge causalStrength.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2634,7 +2634,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'find_effects',
-    description: '3B.6 — Find causal chains starting at the named cause and reaching any candidate effect. Symmetric counterpart to find_causes.',
+    description: 'Find causal chains starting at the named cause and reaching any candidate effect. Symmetric counterpart to find_causes.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2648,7 +2648,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'counterfactual_query',
-    description: '3B.6 — "What if we remove edge (removeFrom → removeTo)? Is predict still reachable from seed?" Returns chains from seed to predict that DO NOT use the removed edge. Pure: does not mutate the graph.',
+    description: '"What if we remove edge (removeFrom → removeTo)? Is predict still reachable from seed?" Returns chains from seed to predict that DO NOT use the removed edge. Pure: does not mutate the graph.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2664,7 +2664,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'detect_causal_cycles',
-    description: '3B.6 — Detect cycles in the causal subgraph rooted at seed. CAVEAT: treats prevents as a directed edge, not as logical negation — prevents+enables triangles ARE flagged.',
+    description: 'Detect cycles in the causal subgraph rooted at seed. CAVEAT: treats prevents as a directed edge, not as logical negation — prevents+enables triangles ARE flagged.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2679,7 +2679,7 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== 3B.7 WORLD MODEL TOOLS ====================
   {
     name: 'get_world_state',
-    description: '3B.7 — Capture a fresh snapshot of the live graph: entitiesByName + takenAt timestamp + size. Capped at maxSnapshotSize (default 1000); over-cap prefers high-importance entities.',
+    description: 'Capture a fresh snapshot of the live graph: entitiesByName + takenAt timestamp + size. Capped at maxSnapshotSize (default 1000); over-cap prefers high-importance entities.',
     inputSchema: {
       type: 'object',
       properties: {},
@@ -2688,7 +2688,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'validate_fact_against_world',
-    description: '3B.7 — Validate a candidate observation against a target entity. Delegates to MemoryValidator.validateConsistency. Returns null if no validator is wired.',
+    description: 'Validate a candidate observation against a target entity. Delegates to MemoryValidator.validateConsistency. Returns null if no validator is wired.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2701,7 +2701,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'predict_outcome',
-    description: '3B.7 — Predict downstream effects of an action by walking the causal subgraph. Delegates to CausalReasoner.findEffects.',
+    description: 'Predict downstream effects of an action by walking the causal subgraph. Delegates to CausalReasoner.findEffects.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2716,7 +2716,7 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== v2.1.0 TOOL AFFORDANCE TOOLS ====================
   {
     name: 'record_tool_outcome',
-    description: 'v2.1.0 — Record a single tool-call outcome directly via ToolAffordanceManager (bypasses ToolCallObserver). Creates the record on first call; appends to rolling window on subsequent. Throws "conflict" on concurrent writer mismatch.',
+    description: 'Record a single tool-call outcome directly via ToolAffordanceManager (bypasses ToolCallObserver). Creates the record on first call; appends to rolling window on subsequent. Throws "conflict" on concurrent writer mismatch.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2731,7 +2731,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'get_tool_affordance_stats',
-    description: 'v2.1.0 — Flat rolling stats for a tool: success_rate, total_calls, common_failure_modes, avg_duration_ms.',
+    description: 'Flat rolling stats for a tool: success_rate, total_calls, common_failure_modes, avg_duration_ms.',
     inputSchema: {
       type: 'object',
       properties: { toolName: { type: 'string' } },
@@ -2741,7 +2741,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'suggest_tool',
-    description: 'v2.1.0 — Suggest tools matching a task hint, ranked by successRate × recency factor (1.0 at ≤1d, linearly decays to 0.1 at ≥30d).',
+    description: 'Suggest tools matching a task hint, ranked by successRate × recency factor (1.0 at ≤1d, linearly decays to 0.1 at ≥30d).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2755,12 +2755,12 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'list_tool_affordances',
-    description: 'v2.1.0 — All recorded ToolAffordanceRecords.',
+    description: 'All recorded ToolAffordanceRecords.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
   {
     name: 'remove_tool_affordance',
-    description: 'v2.1.0 — Drop a tool-affordance record by toolName.',
+    description: 'Drop a tool-affordance record by toolName.',
     inputSchema: {
       type: 'object',
       properties: { toolName: { type: 'string' } },
@@ -2770,7 +2770,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'observe_tool_start',
-    description: 'v2.1.0 — Begin observing a tool call. Returns a callId the caller threads through observe_tool_complete / observe_tool_error / observe_tool_partial / observe_tool_cancel. Emits toolCall:start on the observer EventEmitter.',
+    description: 'Begin observing a tool call. Returns a callId the caller threads through observe_tool_complete / observe_tool_error / observe_tool_partial / observe_tool_cancel. Emits toolCall:start on the observer EventEmitter.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2783,7 +2783,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'observe_tool_complete',
-    description: 'v2.1.0 — Record successful completion. Computes durationMs from observe_tool_start. No-op on unknown callId.',
+    description: 'Record successful completion. Computes durationMs from observe_tool_start. No-op on unknown callId.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2796,7 +2796,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'observe_tool_error',
-    description: 'v2.1.0 — Record failure with an error message. No-op on unknown callId.',
+    description: 'Record failure with an error message. No-op on unknown callId.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2809,7 +2809,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'observe_tool_partial',
-    description: 'v2.1.0 — Record a partial result (tool returned a usable but incomplete result). No-op on unknown callId.',
+    description: 'Record a partial result (tool returned a usable but incomplete result). No-op on unknown callId.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2822,7 +2822,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'observe_tool_cancel',
-    description: 'v2.1.0 — Drop an in-flight observation without recording (e.g. user cancelled). No-op on unknown callId.',
+    description: 'Drop an in-flight observation without recording (e.g. user cancelled). No-op on unknown callId.',
     inputSchema: {
       type: 'object',
       properties: { callId: { type: 'string' } },
@@ -2832,14 +2832,14 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'tool_observer_in_flight_count',
-    description: 'v2.1.0 — Diagnostic: number of in-flight (started but not yet completed) tool-call observations.',
+    description: 'Diagnostic: number of in-flight (started but not yet completed) tool-call observations.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
 
   // ==================== v2.1.0 HEURISTIC GUIDELINES TOOLS ====================
   {
     name: 'add_heuristic',
-    description: 'v2.1.0 — Register a new condition→action heuristic. Storage-backed; default confidence 0.5. Pass an explicit content-addressed id (e.g. h_<sha256(condition|action)>) for caller-managed idempotency.',
+    description: 'Register a new condition→action heuristic. Storage-backed; default confidence 0.5. Pass an explicit content-addressed id (e.g. h_<sha256(condition|action)>) for caller-managed idempotency.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2857,7 +2857,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'get_heuristic',
-    description: 'v2.1.0 — Sync lookup by HeuristicId.',
+    description: 'Sync lookup by HeuristicId.',
     inputSchema: {
       type: 'object',
       properties: { id: { type: 'string' } },
@@ -2867,17 +2867,17 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'list_heuristics',
-    description: 'v2.1.0 — All registered heuristics.',
+    description: 'All registered heuristics.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
   {
     name: 'heuristic_count',
-    description: 'v2.1.0 — Count of stored heuristics.',
+    description: 'Count of stored heuristics.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
   {
     name: 'match_heuristics',
-    description: 'v2.1.0 — Find heuristics whose condition matches input via Jaccard token-overlap × confidence; sorted descending, then by priority.',
+    description: 'Find heuristics whose condition matches input via Jaccard token-overlap × confidence; sorted descending, then by priority.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2891,7 +2891,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'reinforce_heuristic',
-    description: 'v2.1.0 — Record a successful application: bumps support; raises confidence asymptotically (new = old + (1-old)*0.1). OCC-protected — surfaces "conflict" when concurrent writer collides.',
+    description: 'Record a successful application: bumps support; raises confidence asymptotically (new = old + (1-old)*0.1). OCC-protected — surfaces "conflict" when concurrent writer collides.',
     inputSchema: {
       type: 'object',
       properties: { id: { type: 'string' } },
@@ -2901,7 +2901,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'record_heuristic_contradiction',
-    description: 'v2.1.0 — Record a counter-example: bumps contradictions; lowers confidence (new = old - old*0.2). OCC-protected.',
+    description: 'Record a counter-example: bumps contradictions; lowers confidence (new = old - old*0.2). OCC-protected.',
     inputSchema: {
       type: 'object',
       properties: { id: { type: 'string' } },
@@ -2911,12 +2911,12 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'detect_heuristic_conflicts',
-    description: 'v2.1.0 — Pair-wise overlap/contradiction detection across stored heuristics. Surfaces overlap (same condition tokens, different actions) and contradiction (opposing actions on overlapping conditions; negation prefixes such as "do not" / "never" / "avoid").',
+    description: 'Pair-wise overlap/contradiction detection across stored heuristics. Surfaces overlap (same condition tokens, different actions) and contradiction (opposing actions on overlapping conditions; negation prefixes such as "do not" / "never" / "avoid").',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
   {
     name: 'remove_heuristic',
-    description: 'v2.1.0 — Drop a heuristic by id.',
+    description: 'Drop a heuristic by id.',
     inputSchema: {
       type: 'object',
       properties: { id: { type: 'string' } },
@@ -2926,14 +2926,14 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'clear_heuristics',
-    description: 'v2.1.0 — Drop every heuristic (across all entities of type "heuristic").',
+    description: 'Drop every heuristic (across all entities of type "heuristic").',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
 
   // ==================== v2.1.0 PROJECT CONTEXT TOOLS ====================
   {
     name: 'upsert_project_context',
-    description: 'v2.1.0 — Merge structured project knowledge into the ProjectContextRecord for `projectId`. Array fields (facts/conventions/commands/glossary) append + dedup; scalars overwrite. One record per projectId.',
+    description: 'Merge structured project knowledge into the ProjectContextRecord for `projectId`. Array fields (facts/conventions/commands/glossary) append + dedup; scalars overwrite. One record per projectId.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -2970,7 +2970,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'get_project_context',
-    description: 'v2.1.0 — Sync lookup of the ProjectContextRecord for projectId.',
+    description: 'Sync lookup of the ProjectContextRecord for projectId.',
     inputSchema: {
       type: 'object',
       properties: { projectId: { type: 'string' } },
@@ -2980,7 +2980,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'append_project_fact',
-    description: 'v2.1.0 — Append one fact to a project context (auto-creates the record on first call; dedups).',
+    description: 'Append one fact to a project context (auto-creates the record on first call; dedups).',
     inputSchema: {
       type: 'object',
       properties: { projectId: { type: 'string' }, fact: { type: 'string' } },
@@ -2990,7 +2990,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'append_project_convention',
-    description: 'v2.1.0 — Append one convention to a project context (auto-creates; dedups).',
+    description: 'Append one convention to a project context (auto-creates; dedups).',
     inputSchema: {
       type: 'object',
       properties: { projectId: { type: 'string' }, convention: { type: 'string' } },
@@ -3000,7 +3000,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'append_project_command',
-    description: 'v2.1.0 — Append a documented project command (dedup by name).',
+    description: 'Append a documented project command (dedup by name).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3015,7 +3015,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'append_project_glossary_term',
-    description: 'v2.1.0 — Append a glossary term (dedup by term).',
+    description: 'Append a glossary term (dedup by term).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3029,7 +3029,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'remove_project_fact',
-    description: 'v2.1.0 — Remove a single fact. Returns true if found.',
+    description: 'Remove a single fact. Returns true if found.',
     inputSchema: {
       type: 'object',
       properties: { projectId: { type: 'string' }, fact: { type: 'string' } },
@@ -3039,7 +3039,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'remove_project_convention',
-    description: 'v2.1.0 — Remove a single convention. Returns true if found.',
+    description: 'Remove a single convention. Returns true if found.',
     inputSchema: {
       type: 'object',
       properties: { projectId: { type: 'string' }, convention: { type: 'string' } },
@@ -3049,7 +3049,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'remove_project_command',
-    description: 'v2.1.0 — Remove a command by name. Returns true if found.',
+    description: 'Remove a command by name. Returns true if found.',
     inputSchema: {
       type: 'object',
       properties: { projectId: { type: 'string' }, commandName: { type: 'string' } },
@@ -3059,7 +3059,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'remove_project_glossary_term',
-    description: 'v2.1.0 — Remove a glossary entry by term. Returns true if found.',
+    description: 'Remove a glossary entry by term. Returns true if found.',
     inputSchema: {
       type: 'object',
       properties: { projectId: { type: 'string' }, term: { type: 'string' } },
@@ -3069,7 +3069,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'clear_project_context',
-    description: 'v2.1.0 — Wipe the four arrays (facts/conventions/commands/glossary) for projectId; keeps the entity.',
+    description: 'Wipe the four arrays (facts/conventions/commands/glossary) for projectId; keeps the entity.',
     inputSchema: {
       type: 'object',
       properties: { projectId: { type: 'string' } },
@@ -3079,7 +3079,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'format_project_context_for_llm',
-    description: 'v2.1.0 — Render the ProjectContextRecord as a prose summary suitable for the wakeUp L0 layer or a system prompt. Honors budgetChars with ellipsis truncation.',
+    description: 'Render the ProjectContextRecord as a prose summary suitable for the wakeUp L0 layer or a system prompt. Honors budgetChars with ellipsis truncation.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3094,7 +3094,7 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== v2.1.0 DECISION RATIONALE TOOLS ====================
   {
     name: 'propose_decision',
-    description: 'v2.1.0 — Propose a new architecture-decision-record (ADR-equivalent). Creates a "proposed" DecisionRecord. Default importance 8.',
+    description: 'Propose a new architecture-decision-record (ADR-equivalent). Creates a "proposed" DecisionRecord. Default importance 8.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3115,7 +3115,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'accept_decision',
-    description: 'v2.1.0 — Transition a proposed decision to accepted. Returns one of: accepted | already-accepted | not-found | illegal-transition | conflict | vanished-mid-update.',
+    description: 'Transition a proposed decision to accepted. Returns one of: accepted | already-accepted | not-found | illegal-transition | conflict | vanished-mid-update.',
     inputSchema: {
       type: 'object',
       properties: { id: { type: 'string', description: 'DecisionId' } },
@@ -3125,7 +3125,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'reject_decision',
-    description: 'v2.1.0 — Transition a proposed decision to rejected with a reason. Returns rejected | already-rejected | not-found | illegal-transition | conflict | vanished-mid-update.',
+    description: 'Transition a proposed decision to rejected with a reason. Returns rejected | already-rejected | not-found | illegal-transition | conflict | vanished-mid-update.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3138,7 +3138,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'supersede_decision',
-    description: 'v2.1.0 — Mark an accepted decision as superseded by another. illegal-transition when target is not accepted. not-found when target or replacement is missing.',
+    description: 'Mark an accepted decision as superseded by another. illegal-transition when target is not accepted. not-found when target or replacement is missing.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3151,7 +3151,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'find_decisions_by_context',
-    description: 'v2.1.0 — Substring search across context, decision, and consequences fields.',
+    description: 'Substring search across context, decision, and consequences fields.',
     inputSchema: {
       type: 'object',
       properties: { query: { type: 'string', description: 'Substring to search for' } },
@@ -3161,7 +3161,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'get_decision_chain',
-    description: 'v2.1.0 — Walk the supersedes link backward from the supplied id to the original proposal. Returns chain oldest-first; cycle-protected.',
+    description: 'Walk the supersedes link backward from the supplied id to the original proposal. Returns chain oldest-first; cycle-protected.',
     inputSchema: {
       type: 'object',
       properties: { id: { type: 'string', description: 'Any DecisionId in the chain' } },
@@ -3171,7 +3171,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'list_decisions',
-    description: 'v2.1.0 — List decisions, optionally filtered by status / sourceSessionId / sourceProjectId.',
+    description: 'List decisions, optionally filtered by status / sourceSessionId / sourceProjectId.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3185,7 +3185,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'get_decision',
-    description: 'v2.1.0 — Sync lookup by DecisionId.',
+    description: 'Sync lookup by DecisionId.',
     inputSchema: {
       type: 'object',
       properties: { id: { type: 'string', description: 'DecisionId' } },
@@ -3195,7 +3195,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'export_decision_as_adr_markdown',
-    description: 'v2.1.0 — Render a stored decision as ADR-format markdown (# title, Status, Context, Decision, Consequences bullet list, Alternatives bullet list, optional Supersedes link).',
+    description: 'Render a stored decision as ADR-format markdown (# title, Status, Context, Decision, Consequences bullet list, Alternatives bullet list, optional Supersedes link).',
     inputSchema: {
       type: 'object',
       properties: { id: { type: 'string', description: 'DecisionId' } },
@@ -3205,7 +3205,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'parse_adr_markdown',
-    description: 'v2.1.0 — Parse a hand-written or previously-exported ADR markdown into a DecisionInput shape (static; no persistence). Returns null when required Context or Decision sections are missing.',
+    description: 'Parse a hand-written or previously-exported ADR markdown into a DecisionInput shape (static; no persistence). Returns null when required Context or Decision sections are missing.',
     inputSchema: {
       type: 'object',
       properties: { text: { type: 'string', description: 'Raw ADR markdown text' } },
@@ -3217,7 +3217,7 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== v2.1.0 do_not_remember (Exclusion) TOOLS ====================
   {
     name: 'add_exclusion_rule',
-    description: 'v2.1.0 — Add a content-pattern exclusion rule (do_not_remember). Hard-deletes existing matches (per `scope`) and write-blocks future ones when consulted by upstream callers. v1 substring-only.',
+    description: 'Add a content-pattern exclusion rule (do_not_remember). Hard-deletes existing matches (per `scope`) and write-blocks future ones when consulted by upstream callers. Substring matching only.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3236,12 +3236,12 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'list_exclusion_rules',
-    description: 'v2.1.0 — Return every registered ExclusionRule.',
+    description: 'Return every registered ExclusionRule.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
   {
     name: 'remove_exclusion_rule',
-    description: 'v2.1.0 — Drop an exclusion rule by id. Does NOT restore previously deleted memories — the contract is "user said forget".',
+    description: 'Drop an exclusion rule by id. Does NOT restore previously deleted memories — the contract is "user said forget".',
     inputSchema: {
       type: 'object',
       properties: { id: { type: 'string', description: 'Rule id (exclusion-...)' } },
@@ -3251,7 +3251,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'check_exclusion',
-    description: 'v2.1.0 — Check whether content would be blocked by any active forward-blocking rule. Returns {blocked, ruleId?, reason?}. Past-only rules are skipped.',
+    description: 'Check whether content would be blocked by any active forward-blocking rule. Returns {blocked, ruleId?, reason?}. Past-only rules are skipped.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3264,7 +3264,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'find_matching_memories_for_rule',
-    description: 'v2.1.0 — Dry-run preview: return entities whose observations would match the candidate exclusion pattern. Does NOT persist the rule.',
+    description: 'Dry-run preview: return entities whose observations would match the candidate exclusion pattern. Does NOT persist the rule.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3279,7 +3279,7 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== v2.1.0 OBSERVATION DEDUP TOOLS ====================
   {
     name: 'find_duplicate_observations',
-    description: 'v2.1.0 — Find verbatim duplicate observation strings across distinct entities (SHA-256 exact tier). Complementary to MemoryEngine.checkDuplicate (turn-level) and CompressionManager.findDuplicates (whole-entity). Report-only.',
+    description: 'Find verbatim duplicate observation strings across distinct entities (SHA-256 exact tier). Complementary to MemoryEngine.checkDuplicate (turn-level) and CompressionManager.findDuplicates (whole-entity). Report-only.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3300,7 +3300,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'find_jaccard_duplicate_observations',
-    description: 'v2.1.0 — Find near-duplicate observation strings across distinct entities via token-Jaccard similarity with union-find grouping. More expensive than the exact tier (O(o²)); opt-in for higher recall.',
+    description: 'Find near-duplicate observation strings across distinct entities via token-Jaccard similarity with union-find grouping. More expensive than the exact tier (O(o²)); opt-in for higher recall.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3322,7 +3322,7 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== v2.1.0 SPELL CORRECTION TOOLS ====================
   {
     name: 'spell_suggest',
-    description: 'v2.1.0 — Suggest close matches for a (potentially misspelled) query over the vocabulary of entity names + tag values. Two-stage: bigram-Jaccard pre-filter (NGramIndex) + Levenshtein re-rank.',
+    description: 'Suggest close matches for a (potentially misspelled) query over the vocabulary of entity names + tag values. Two-stage: bigram-Jaccard pre-filter (NGramIndex) + Levenshtein re-rank.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3337,7 +3337,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'spell_rebuild_vocabulary',
-    description: 'v2.1.0 — Force a rebuild of the SpellChecker vocabulary + n-gram index. Call after bulk entity churn; the lazy cache is otherwise correct for low-churn graphs.',
+    description: 'Force a rebuild of the SpellChecker vocabulary + n-gram index. Call after bulk entity churn; the lazy cache is otherwise correct for low-churn graphs.',
     inputSchema: {
       type: 'object',
       properties: {},
@@ -3346,7 +3346,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'spell_vocabulary_size',
-    description: 'v2.1.0 — Return the count of unique terms in the SpellChecker vocabulary (entity names + tag values by default). Mostly diagnostic.',
+    description: 'Return the count of unique terms in the SpellChecker vocabulary (entity names + tag values by default). Mostly diagnostic.',
     inputSchema: {
       type: 'object',
       properties: {},
@@ -3360,17 +3360,17 @@ export const toolDefinitions: ToolDefinition[] = [
   // but the graph state is suspect.
   {
     name: 'diag',
-    description: 'v12.5.0 — Runtime + storage diagnostic snapshot: node version, platform, storage path/type/size, entity + relation counts, ISO timestamp. Good first call when something feels off.',
+    description: 'Runtime + storage diagnostic snapshot: node version, platform, storage path/type/size, entity + relation counts, ISO timestamp. Good first call when something feels off.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
   {
     name: 'health',
-    description: 'v12.5.0 — Fast integrity checks: storage:loadGraph, entities:distinct-names, relations:no-orphans, hierarchy:no-cycles-no-missing-parents. Returns per-check duration; ok=false when any check fails.',
+    description: 'Fast integrity checks: storage:loadGraph, entities:distinct-names, relations:no-orphans, hierarchy:no-cycles-no-missing-parents. Returns per-check duration; ok=false when any check fails.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
   {
     name: 'check_graph',
-    description: 'v12.5.0 — Detect orphan relations (from/to references a missing entity), missing parents (entity.parentId references a missing entity), and hierarchy cycles. Reports findings. With apply=true, deletes orphan relations and clears missing parentIds; cycles are always reported but never auto-repaired (no safe default for which edge to break).',
+    description: 'Detect orphan relations (from/to references a missing entity), missing parents (entity.parentId references a missing entity), and hierarchy cycles. Reports findings. With apply=true, deletes orphan relations and clears missing parentIds; cycles are always reported but never auto-repaired (no safe default for which edge to break).',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3381,7 +3381,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'reindex',
-    description: 'v12.5.0 — Rebuild search-side indexes that may have drifted (TF-IDF/BM25 ranked + spell-checker vocabulary). Pass ranked=false or spell=false to scope. Returns per-target ok flag + durationMs.',
+    description: 'Rebuild search-side indexes that may have drifted (TF-IDF ranked index + spell-checker vocabulary). Pass ranked=false or spell=false to scope. Returns per-target ok flag + durationMs.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3393,22 +3393,22 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'cache_stats',
-    description: 'v12.5.0 — Per-tier snapshot of the global search caches (basic / ranked / boolean / fuzzy) showing hits / misses / size / hitRate. Process-local — every fresh server process starts at zero.',
+    description: 'Per-tier snapshot of the global search caches (basic / ranked / boolean / fuzzy) showing hits / misses / size / hitRate. Process-local — every fresh server process starts at zero.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
   {
     name: 'cache_clear',
-    description: 'v12.5.0 — Bust all four global search caches. Idempotent; safe after manual graph edits to drop stale results.',
+    description: 'Bust all four global search caches. Idempotent; safe after manual graph edits to drop stale results.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
   {
     name: 'graph_size',
-    description: 'v12.5.0 — Graph + storage footprint: entity / relation / observation counts, distinct tag count, avg observations per entity, on-disk byte size + JSONL line count.',
+    description: 'Graph + storage footprint: entity / relation / observation counts, distinct tag count, avg observations per entity, on-disk byte size + JSONL line count.',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
   },
   {
     name: 'inspect_entity',
-    description: 'v12.5.0 — Verbose snapshot of one entity: observations (resolved via ObservationManager so the column-store sidecar is consulted), outgoing + incoming relations, tags, importance, timestamps, parentId, immediate children, full ancestors. Errors when entity not found.',
+    description: 'Verbose snapshot of one entity: observations (resolved via ObservationManager so the column-store sidecar is consulted), outgoing + incoming relations, tags, importance, timestamps, parentId, immediate children, full ancestors. Errors when entity not found.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3420,7 +3420,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'hierarchy_tree',
-    description: 'v12.5.0 — Hierarchy tree as nested JSON. With an explicit root, returns just that subtree; without, returns all root entities. Useful for visualising parent/child structure.',
+    description: 'Hierarchy tree as nested JSON. With an explicit root, returns just that subtree; without, returns all root entities. Useful for visualising parent/child structure.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -3431,7 +3431,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'entity_neighbors',
-    description: 'v12.5.0 — Incoming + outgoing relations for one entity, plus in/out degree counts. Lighter than inspect_entity when you only need the graph-topology view.',
+    description: 'Incoming + outgoing relations for one entity, plus in/out degree counts. Lighter than inspect_entity when you only need the graph-topology view.',
     inputSchema: {
       type: 'object',
       properties: {

@@ -13,6 +13,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The text that `tools/list` returns holds no version or phase tag.** 100 strings in 90 tool
+  definitions began with, or contained, a release version (`v2.1.0`, `v12.5.0`, `v1.8`) or a memoryjs
+  phase id (`η.4.4`, `3B.4`): 86 tool descriptions began with one, and the others are 3 parameter
+  descriptions and the description of `set_memory_visibility`, 7 strings of `create_entities`, 2 of
+  `export_graph` and the description of `hybrid_search`. A tag tells a client nothing about the tool, and it goes
+  stale. Each tag is removed and the plain words stay (`Orthogonal to v1.8 supersession.` is now
+  `Orthogonal to supersession.`). Two descriptions change in meaning, not only in tags: `reindex` named a
+  BM25 index, but `RankedSearch.buildIndex` builds a TF-IDF index only, so the description now says that;
+  `add_exclusion_rule` said `v1 substring-only` and now says `Substring matching only.` No tool name,
+  property name, type, default or `required` list changes. A new test in
+  `tests/unit/server/tool-definitions.test.ts` fails when any string of a tool definition holds a tag. The
+  labels `Phase 1:` to `Phase 8:` in `dream_start` and `dream_run_now` name pipeline stages and stay.
+
+- **Three comments in `src/server/toolHandlers.ts` are corrected.** The file header gave a count of 137
+  tools and now names no count. The comment of the `toolHandlers` registry named 4 handlers that use
+  `withCompression`; 7 use it (the others are `synthesize_collaborative_context`, `search_cross_agent` and
+  `get_visible_memories`), and the comment sat above `parseObservationDedupFilter` instead of above the
+  registry. The comment of `parseObservationDedupFilter` began with a version tag. No code changes.
+
 - **`README.md` passes `repo-tools ste` with 0 problems.** The check reported 7 long sentences
   (26 to 45 words). Four of them were the version-history bullets of the section "Recent
   highlights". That section copied `CHANGELOG.md`, and it had fallen behind it: it named v12.7.2

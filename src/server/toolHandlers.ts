@@ -1,7 +1,7 @@
 /**
  * MCP Tool Handlers
  *
- * Contains handler functions for all 137 Knowledge Graph tools.
+ * Contains one handler function for each tool in toolDefinitions.ts.
  * Handlers call managers directly via ManagerContext.
  * All core functionality is imported from @danielsimonjr/memoryjs.
  *
@@ -248,17 +248,7 @@ async function withCompression(
 }
 
 /**
- * Registry of all tool handlers keyed by tool name.
- * Handlers call managers directly for reduced abstraction layers.
- *
- * Note: Tools that can return unbounded result sets (read_graph, search_nodes,
- * get_subtree, open_nodes) are wrapped with withCompression() for payloads >256KB.
- * Filtered/limited search tools (search_nodes_ranked, fuzzy_search, etc.) are not
- * wrapped because their results are bounded by query specificity or limit params.
- */
-
-/**
- * v2.1.0 — Parse `find_duplicate_observations` / `find_jaccard_duplicate_observations`
+ * Parse `find_duplicate_observations` / `find_jaccard_duplicate_observations`
  * filter args into the manager's `ObservationDedupFilter` shape. Validates each
  * field independently so a stray garbage value falls back to the manager default
  * rather than throwing — REST-like leniency since these are diagnostic tools.
@@ -287,6 +277,16 @@ function parseObservationDedupFilter(args: Record<string, unknown>): {
   return out;
 }
 
+/**
+ * Registry of all tool handlers keyed by tool name.
+ * Handlers call managers directly for reduced abstraction layers.
+ *
+ * Note: These handlers wrap their response in withCompression(), which compresses a
+ * payload over 256KB: read_graph, open_nodes, search_nodes, get_subtree,
+ * synthesize_collaborative_context, search_cross_agent and get_visible_memories.
+ * Filtered/limited search tools (search_nodes_ranked, fuzzy_search, etc.) are not
+ * wrapped because their results are bounded by query specificity or limit params.
+ */
 export const toolHandlers: Record<string, ToolHandler> = {
   // ==================== ENTITY HANDLERS ====================
   create_entities: async (ctx, args) => {

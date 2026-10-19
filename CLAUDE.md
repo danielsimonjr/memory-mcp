@@ -164,7 +164,7 @@ New categories (v1.8.0/v1.9.0/Phase 14/Phase 15/Phase 16/v12.3.2/v12.5.0, bold a
 
 ## Test Structure
 
-41 test files, 831 tests, ~85% statement coverage (verified via `coverage/coverage-summary.json`: statements 84.67%, lines 85.99%, functions 84.25%, branches 69.55%). Core graph tests — and the bulk of coverage — live in the memoryjs package.
+41 test files, 833 tests, ~85% statement coverage (verified via `coverage/coverage-summary.json`: statements 84.67%, lines 85.99%, functions 84.25%, branches 69.55%). Core graph tests — and the bulk of coverage — live in the memoryjs package.
 
 Tests are organized in three tiers:
 - **Unit** (`tests/unit/`): Isolated module tests (e.g., response compressor)
