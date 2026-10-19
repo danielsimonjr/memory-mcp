@@ -52,6 +52,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`handleToolCall` answers "Unknown tool" for every name that is not a registered tool.**
+  `toolHandlers` is a plain object, and `handleToolCall` looked up the name that the client sends
+  with `toolHandlers[name]`. A name that `Object.prototype` defines found an inherited member and
+  not "no handler", and the server called that member as a tool handler. `constructor` returned the
+  manager context as the tool result, `toString` returned the text `[object Undefined]`, and
+  `valueOf`, `hasOwnProperty`, `__proto__` and the other names failed with a message that does not
+  name the tool (for example `Cannot convert undefined or null to object` and `handler is not a
+  function`). The lookup now tests for an own property with `Object.hasOwn`. The new test
+  `tests/unit/server/handle-tool-call-unknown-names.test.ts` calls `handleToolCall` with 12 of these
+  names and with every own property name of `Object.prototype`. A search of `src/` found no other
+  lookup of a caller-supplied name on a plain object. The other objects that the handlers build have
+  fixed keys.
+
 - **The dependency-graph tool no longer puts comment text into import and export names.**
   `tools/create-dependency-graph` reads the names between `{` and `}` of an import or export
   clause and splits them on commas. A `//` comment or a block comment inside the braces joined

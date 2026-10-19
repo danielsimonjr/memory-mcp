@@ -3616,7 +3616,8 @@ export async function handleToolCall(
   args: Record<string, unknown>,
   ctx: ManagerContext
 ): Promise<ToolResponse> {
-  const handler = toolHandlers[name];
+  // `toolHandlers` is a plain object; the client supplies `name`. Only an own property is a tool.
+  const handler = Object.hasOwn(toolHandlers, name) ? toolHandlers[name] : undefined;
   if (!handler) {
     return {
       content: [{ type: 'text' as const, text: `Error: Unknown tool: ${name}` }],
