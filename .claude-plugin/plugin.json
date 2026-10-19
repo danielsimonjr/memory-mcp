@@ -1,5 +1,5 @@
 {
   "name": "memory-mcp",
-  "version": "12.9.0",
+  "version": "12.9.1",
   "description": "Knowledge-graph memory store (memory-mcp server, sqlite-backed)."
 }
