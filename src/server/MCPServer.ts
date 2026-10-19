@@ -49,7 +49,8 @@ export class MCPServer {
   /**
    * Build a fresh Server instance for one stdio connection.
    * `serveStdio` pins one instance per connection; the shared ManagerContext
-   * holds graph state across reconnects.
+   * holds the graph state of the process. `index.ts` exits when stdin closes, so a
+   * reconnect starts a new process.
    */
   private createServer(): Server {
     const server = new Server(

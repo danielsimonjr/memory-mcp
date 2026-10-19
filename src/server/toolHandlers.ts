@@ -86,7 +86,7 @@ import { maybeCompressResponse } from './responseCompressor.js';
 
 // ==================== SINGLETON INFRASTRUCTURE ====================
 // WeakMap-based singletons keyed on ManagerContext to avoid re-instantiation per request.
-// These managers are not on ManagerContext directly, so we wire them up once per ctx.
+// This file creates these managers on first use, once per ctx.
 
 const refIndexMap = new WeakMap<ManagerContext, RefIndex>();
 const freshnessMap = new WeakMap<ManagerContext, FreshnessManager>();

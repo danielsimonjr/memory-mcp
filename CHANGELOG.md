@@ -26,11 +26,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `tests/unit/server/tool-definitions.test.ts` fails when any string of a tool definition holds a tag. The
   labels `Phase 1:` to `Phase 8:` in `dream_start` and `dream_run_now` name pipeline stages and stay.
 
-- **Three comments in `src/server/toolHandlers.ts` are corrected.** The file header gave a count of 137
-  tools and now names no count. The comment of the `toolHandlers` registry named 4 handlers that use
-  `withCompression`; 7 use it (the others are `synthesize_collaborative_context`, `search_cross_agent` and
-  `get_visible_memories`), and the comment sat above `parseObservationDedupFilter` instead of above the
-  registry. The comment of `parseObservationDedupFilter` began with a version tag. No code changes.
+- **Five comments in `src/server/` are corrected.** In `toolHandlers.ts`: the file header gave a count of
+  137 tools and now names no count; the comment of the `toolHandlers` registry named 4 handlers that use
+  `withCompression`, but 7 use it (the others are `synthesize_collaborative_context`,
+  `search_cross_agent` and `get_visible_memories`), and it sat above `parseObservationDedupFilter` instead
+  of above the registry; the comment of `parseObservationDedupFilter` began with a version tag; the comment
+  above the singleton maps said that the managers are not on `ManagerContext`, but its accessors include
+  `refIndex`, `artifactManager`, `consolidationScheduler` and `dreamEngine()`, so it now says only that
+  this file creates the managers on first use. In `MCPServer.ts`: the comment of `createServer` said that
+  the `ManagerContext` holds graph state across reconnects, but `index.ts` exits when stdin closes, so a
+  reconnect starts a new process. No code changes.
 
 - **`README.md` passes `repo-tools ste` with 0 problems.** The check reported 7 long sentences
   (26 to 45 words). Four of them were the version-history bullets of the section "Recent
