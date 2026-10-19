@@ -204,6 +204,12 @@ export const toolDefinitions: ToolDefinition[] = [
                 type: 'string',
                 description: "The type of the relation in active voice (e.g., 'works_at', 'knows')",
               },
+              weight: { type: 'number', minimum: 0, maximum: 1, description: 'Optional strength of the relation, from 0 to 1' },
+              confidence: { type: 'number', minimum: 0, maximum: 1, description: 'Optional confidence in the relation, from 0 to 1' },
+              metadata: {
+                type: 'object',
+                description: 'Optional free-form data to store with the relation',
+              },
             },
             required: ['from', 'to', 'relationType'],
             additionalProperties: false,
@@ -648,6 +654,7 @@ export const toolDefinitions: ToolDefinition[] = [
         minImportance: { type: 'number', description: 'Optional minimum importance' },
         maxImportance: { type: 'number', description: 'Optional maximum importance' },
         description: { type: 'string', description: 'Optional description of the search' },
+        entityType: { type: 'string', description: 'Optional entity type, stored with the saved search; not applied when the saved search runs' },
       },
       required: ['name', 'query'],
       additionalProperties: false,
@@ -693,7 +700,19 @@ export const toolDefinitions: ToolDefinition[] = [
       type: 'object',
       properties: {
         name: { type: 'string', description: 'Name of the saved search' },
-        updates: { type: 'object', description: 'Fields to update' },
+        updates: {
+          type: 'object',
+          description: 'Fields to update. The name cannot change',
+          properties: {
+            description: { type: 'string', description: 'Description of the search' },
+            query: { type: 'string', description: 'Search query' },
+            tags: { type: 'array', items: { type: 'string' }, description: 'Tags filter' },
+            minImportance: { type: 'number', description: 'Minimum importance' },
+            maxImportance: { type: 'number', description: 'Maximum importance' },
+            entityType: { type: 'string', description: 'Entity type, stored with the saved search; not applied when the saved search runs' },
+          },
+          additionalProperties: false,
+        },
       },
       required: ['name', 'updates'],
       additionalProperties: false,
@@ -1947,13 +1966,13 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== SESSION & WORKING MEMORY TOOLS ====================
   {
     name: 'session_start',
-    description: 'Start a new agent session via AgentMemoryManager. Tracks session lifecycle, enables working memory, and supports session chaining. Returns a SessionEntity with id and timestamps.',
+    description: 'Start a new agent session via AgentMemoryManager. Tracks session lifecycle, enables working memory, and supports session chaining. Returns a SessionEntity with id and timestamps. The metadata parameter is accepted and ignored.',
     inputSchema: {
       type: 'object',
       properties: {
         taskDescription: { type: 'string', description: 'Description of the task for this session' },
         parentSessionId: { type: 'string', description: 'ID of a parent session to chain from' },
-        metadata: { type: 'object', description: 'Arbitrary metadata to attach to the session' },
+        metadata: { type: 'object', description: 'Accepted and ignored: the session record has no metadata field, so nothing is stored' },
       },
       additionalProperties: false,
     },
@@ -2522,7 +2541,7 @@ export const toolDefinitions: ToolDefinition[] = [
       type: 'object',
       properties: {
         id: { type: 'string', description: 'Optional stable id; auto-generated if omitted' },
-        name: { type: 'string', description: 'Human-readable name' },
+        name: { type: 'string', description: 'Accepted and echoed in this response; the stored procedure reports its id as its name' },
         description: { type: 'string' },
         steps: {
           type: 'array',
@@ -2602,15 +2621,15 @@ export const toolDefinitions: ToolDefinition[] = [
   // ==================== 3B.5 ACTIVE RETRIEVAL TOOL ====================
   {
     name: 'adaptive_retrieve',
-    description: 'Run iterative query-rewriting retrieval. Up to maxRounds of (search → score coverage → rewrite). Stops early when coverage ≥ minCoverage or no expansion tokens. Pure symbolic — no LLM provider required.',
+    description: 'Run iterative query-rewriting retrieval. Up to 3 rounds of (search → score coverage → rewrite), 10 results per round. Stops early when coverage reaches 0.6 or no expansion tokens remain. Pure symbolic — no LLM provider required. The parameters budgetTokens, maxRounds, minCoverage and resultsPerRound are accepted and ignored: the settings above are fixed.',
     inputSchema: {
       type: 'object',
       properties: {
         query: { type: 'string' },
-        budgetTokens: { type: 'number', description: 'Optional token budget; rejects retrieval if cost exceeds budget' },
-        maxRounds: { type: 'number', default: 3 },
-        minCoverage: { type: 'number', minimum: 0, maximum: 1, default: 0.6 },
-        resultsPerRound: { type: 'number', default: 10 },
+        budgetTokens: { type: 'number', description: 'Accepted and ignored: no token budget is checked. A value that is not a positive integer is rejected' },
+        maxRounds: { type: 'number', description: 'Accepted and ignored: the retrieval always runs at most 3 rounds' },
+        minCoverage: { type: 'number', minimum: 0, maximum: 1, description: 'Accepted and ignored: the retrieval always stops at a coverage of 0.6' },
+        resultsPerRound: { type: 'number', description: 'Accepted and ignored: each round always returns 10 results' },
       },
       required: ['query'],
       additionalProperties: false,

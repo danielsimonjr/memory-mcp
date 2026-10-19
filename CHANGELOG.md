@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **The text that `tools/list` returns declares what the handlers accept, and says in plain words what
+  they ignore.** Nothing checks the arguments of a call against the `inputSchema`, so this text is the
+  whole contract for a client. Six tools change:
+  - `adaptive_retrieve`: `budgetTokens`, `maxRounds`, `minCoverage` and `resultsPerRound` are accepted
+    and ignored. The library fixes the settings at 3 rounds, 10 results per round and a coverage of 0.6,
+    and the handler passes only the query. The text now says so. The sentence "rejects retrieval if cost
+    exceeds budget" is removed, because no budget is checked. The three `default` annotations are removed,
+    because they described the fixed settings, not parameters that a client can set. All four parameters
+    stay in the schema. A `budgetTokens` that is not a positive integer is still rejected.
+  - `session_start`: `metadata` is accepted and ignored, because the session record has no such field.
+  - `add_procedure`: the description of `name` says that the response echoes it and that the stored
+    procedure reports its id as its name.
+  - `save_search` and `update_saved_search`: `entityType` is declared. The library stores it. The saved
+    search does not apply it when it runs, and the text says so. `updates` now declares its six keys
+    (`description`, `query`, `tags`, `minImportance`, `maxImportance`, `entityType`) with
+    `additionalProperties: false`, which matches the validator.
+  - `create_relations`: `weight` and `confidence` (numbers from 0 to 1) and `metadata` (an object) are
+    declared. The handler already stored them. `delete_relations` is unchanged: the storage layer matches a
+    relation on `from`, `to` and `relationType` only.
+  No tool name or `required` list changes. 14 new cases in `tests/unit/server/tool-definitions.test.ts`
+  fail on the old text. The new `tests/e2e/tools/declared-parameters.test.ts` pins the behaviour that the
+  text describes (the four ignored parameters change nothing, with a control query and a control setting
+  that does change the result), and it fails when the library starts to honour one of them.
+
 ### Fixed
 
 - **`add_procedure` validates its arguments.** The handler cast its arguments to the library type, and
