@@ -541,7 +541,7 @@ Discrete facts about entities. Each observation should be atomic and independent
 #### Active Retrieval (1 tool) — Phase 15 / memoryjs 3B.5
 | Tool | Description |
 |------|-------------|
-| `adaptive_retrieve` | Iterative query-rewriting retrieval (search → score coverage → rewrite); stops early when `coverage ≥ minCoverage`. Pure symbolic — no LLM provider required. |
+| `adaptive_retrieve` | Iterative query-rewriting retrieval (search → score coverage → rewrite); up to 3 rounds, and it stops early when the coverage reaches 0.6. Pure symbolic — no LLM provider required. |
 
 #### Causal Reasoning (4 tools) — Phase 15 / memoryjs 3B.6
 | Tool | Description |

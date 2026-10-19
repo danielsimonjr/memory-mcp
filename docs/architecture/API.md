@@ -1,7 +1,7 @@
 # Memory MCP - API Reference
 
 
-Complete reference for all 241 MCP tools of the Memory MCP server. The reference has two parts. The first part holds the original hand-written sections (through Phase 15). The second part holds generated sections for everything added since. These sections cover the Phase 12/14 surfaces that this reference did not describe before. They also cover Phase 16 (memoryjs v2.1.0), v12.3.2/v12.5.0, and v12.7.0 (memoryjs v3.0.0). Phase 15 extends three existing tools (`export_graph`, `create_entities`, `set_memory_visibility`). v12.7.0 extends `hybrid_search` (graph channel, neighbor expansion, evidence-path explain, lookFor). The section of each tool notes its extension inline.
+Complete reference for all 241 MCP tools of the Memory MCP server. Each tool has one section, in the order of the table of contents. A section states the Parameters of the tool. Many sections also show a Returns block and an Example. Three tools have an extended section in "Phase 15 enhancements to existing tools": `export_graph`, `create_entities` and `set_memory_visibility`.
 
 ---
 
@@ -59,7 +59,7 @@ Additional categories (Phase 12 → v12.7.0), documented after the sections abov
 - [Auto-Enhancement (Phase 14)](#auto-enhancement-phase-14) (7 tools)
 - [Context Compression (Phase 14)](#context-compression-phase-14) (1 tool)
 - [Decay & Salience (Phase 14)](#decay-salience-phase-14) (5 tools)
-- [Multi-Agent (Phase 14)](#multi-agent-phase-14) (4 tools)
+- [Multi-Agent (Phase 14)](#multi-agent-phase-14) (5 tools)
 - [Observability (Phase 14)](#observability-phase-14) (4 tools)
 - [Tool Affordance (Phase 16 / memoryjs v2.1.0)](#tool-affordance-phase-16-memoryjs-v210) (11 tools)
 - [Heuristic Guidelines (Phase 16 / memoryjs v2.1.0)](#heuristic-guidelines-phase-16-memoryjs-v210) (10 tools)
@@ -125,6 +125,10 @@ Create one or more entities in the knowledge graph.
 - Duplicate entities are filtered out
 - Tags normalized to lowercase
 - Automatic timestamp generation
+
+**Keys that the tool accepts and the inputSchema does not declare:**
+
+The validator also accepts these keys on each entity: `id`, `version`, `isLatest`, `supersededBy`, `lifecycleStatus`, `createdAt`, `lastModified`, `contentHash` (exactly 64 characters), `parentEntityName` and `rootEntityName`. The tool stores each one as sent. They are system fields, and a client normally omits them.
 
 ---
 
@@ -227,6 +231,9 @@ Create one or more relations between entities.
     from: string;           // Source entity name
     to: string;             // Target entity name
     relationType: string;   // Relation type (1-100 chars)
+    weight?: number;        // Strength of the relation, 0 to 1
+    confidence?: number;    // Confidence in the relation, 0 to 1
+    metadata?: object;      // Free-form data stored with the relation
   }>
 }
 ```
@@ -243,6 +250,7 @@ Create one or more relations between entities.
 - Duplicate relations filtered out
 - Deferred integrity: entities don't need to exist
 - Automatic timestamp generation
+- The validator also accepts `createdAt`, `lastModified` and `properties`, which the inputSchema does not declare. The tool stores `createdAt` and `lastModified` as sent. It accepts `properties`, and the stored relation shows an empty `properties` object.
 
 **Example:**
 ```json
@@ -281,6 +289,7 @@ Delete one or more relations from the knowledge graph.
 **Notes:**
 - Maximum 1000 relations per batch
 - Non-existent relations silently ignored
+- The tool matches a relation on `from`, `to` and `relationType` only. The validator accepts the other relation keys (`weight`, `confidence`, `metadata`, `properties`, `createdAt`, `lastModified`) and ignores them. A request with a different `weight` still deletes the relation.
 
 **Example:**
 ```json
@@ -378,18 +387,18 @@ Remove specific observations from entities.
 
 ### normalize_observations
 
-Normalize observations for an entity by resolving coreferences and anchoring temporal references.
+Normalize the observations of one entity, or of all entities, by resolving coreferences and anchoring temporal references. With `persist` set to true, the tool writes the normalized observations to storage.
 
 **Parameters:**
 ```typescript
 {
-  entityName: string;            // Entity to normalize
-  options?: {
-    resolveCoreferences?: boolean;   // Replace pronouns with entity name (default: true)
-    anchorDates?: boolean;           // Convert relative dates to absolute (default: true)
-    extractKeywords?: boolean;       // Extract and score keywords (default: false)
-    referenceDate?: string;          // ISO 8601 date for temporal anchoring (default: now)
-  }
+  entityName?: string;               // Entity to normalize (default: all entities)
+  options?: {                        // The tool rejects any other key
+    resolveCoreferences?: boolean;   // Replace pronouns with the entity name (default: true)
+    anchorTimestamps?: boolean;      // Convert relative dates to absolute dates (default: true)
+    extractKeywords?: boolean;       // Extract keywords (default: false)
+  };
+  persist?: boolean;                 // Write the result to storage (default: false)
 }
 ```
 
@@ -421,7 +430,7 @@ Normalize observations for an entity by resolving coreferences and anchoring tem
   "entityName": "Alice",
   "options": {
     "resolveCoreferences": true,
-    "anchorDates": true,
+    "anchorTimestamps": true,
     "extractKeywords": true
   }
 }
@@ -660,8 +669,8 @@ Get search query suggestions based on existing content.
 **Parameters:**
 ```typescript
 {
-  query: string;              // Partial query
-  maxSuggestions?: number;    // Max suggestions (default: 10)
+  query: string;              // Partial query (1 to 1000 characters)
+  maxSuggestions?: number;    // Maximum suggestions (default: 5)
 }
 ```
 
@@ -689,10 +698,8 @@ Automatically select the best search strategy based on query analysis.
 **Parameters:**
 ```typescript
 {
-  query: string;              // Search query
-  tags?: string[];            // Filter by tags
-  minImportance?: number;     // Minimum importance
-  maxImportance?: number;     // Maximum importance
+  query: string;    // Search query (1 to 1000 characters)
+  limit?: number;   // Maximum results (default: 10; the tool accepts 1 to 200)
 }
 ```
 
@@ -706,17 +713,13 @@ Automatically select the best search strategy based on query analysis.
 }
 ```
 
-**Strategy Selection:**
-- Boolean operators detected → `boolean_search`
-- Short query with typos likely → `fuzzy_search`
-- Multi-word query → `search_nodes_ranked`
-- Simple query → `search_nodes`
+The tool picks one search method for the query. The query cost estimator of memoryjs makes the choice, and this reference does not repeat its rules.
 
 **Example:**
 ```json
 {
   "query": "engineer AND python",
-  "minImportance": 5
+  "limit": 5
 }
 ```
 
@@ -733,24 +736,30 @@ Multi-layer search combining semantic (vector similarity), lexical (TF-IDF/BM25)
 **Parameters:**
 ```typescript
 {
-  query: string;                    // Natural language query
-  weights?: {
-    semantic?: number;              // Weight for semantic similarity (default: 0.4)
-    lexical?: number;               // Weight for lexical matching (default: 0.4)
-    symbolic?: number;              // Weight for metadata filtering (default: 0.2)
+  query: string;                    // Search query (1 to 1000 characters)
+  weights?: {                       // The search normalizes the weights to a sum of 1
+    semantic?: number;              // Semantic similarity (default: 0.5)
+    lexical?: number;               // Lexical matching (default: 0.3)
+    symbolic?: number;              // Metadata filters (default: 0.2)
   };
   filters?: {
-    entityTypes?: string[];         // Filter by entity types
-    tags?: string[];                // Filter by tags
-    minImportance?: number;         // Minimum importance
-    maxImportance?: number;         // Maximum importance
+    tags?: string[];
+    entityTypes?: string[];
     dateRange?: {
-      start?: string;               // ISO 8601 start date
-      end?: string;                 // ISO 8601 end date
+      start: string;                // ISO 8601 start date. Required when dateRange is present.
+      end: string;                  // ISO 8601 end date. Required when dateRange is present.
     };
+    minImportance?: number;
+    maxImportance?: number;
   };
-  limit?: number;                   // Max results (default: 20)
-  minScore?: number;                // Minimum combined score (0.0-1.0)
+  limit?: number;                   // Maximum results (default: 10; the tool accepts 1 to 200)
+  graphWeight?: number;             // Weight of the graph channel, 0 to 1 (default: 0, or the value of MEMORY_HYBRID_GRAPH_WEIGHT when the server sets it)
+  expandNeighbors?: {               // One-hop neighbor expansion
+    topK?: number;                  // Results to expand from (default: 10; the tool accepts 1 to 100)
+    damping?: number;               // Factor for the combined score of the parent result, 0 to 1 (default: 0.3)
+  };
+  explain?: boolean;                // Add evidence paths to each result
+  lookFor?: string;                 // Free-text description of the wanted connection; ranks the neighbors that the expansion adds
 }
 ```
 
@@ -794,7 +803,8 @@ Analyze a natural language query to extract entities, temporal references, and q
 **Parameters:**
 ```typescript
 {
-  query: string;                    // Natural language query to analyze
+  query: string;           // Query to analyze (at least 1 character)
+  includePlan?: boolean;   // Add an execution plan to the result (default: false; any other type returns an error)
 }
 ```
 
@@ -854,15 +864,11 @@ Orchestrates query analysis, planning, and reflection-based iterative refinement
 **Parameters:**
 ```typescript
 {
-  query: string;                    // Natural language query
-  maxIterations?: number;           // Max refinement iterations (default: 3)
-  targetAdequacy?: number;          // Target adequacy score 0.0-1.0 (default: 0.7)
-  filters?: {
-    entityTypes?: string[];
-    tags?: string[];
-    minImportance?: number;
-    maxImportance?: number;
-  };
+  query: string;                  // Search query (at least 1 character)
+  maxIterations?: number;         // Maximum reflection iterations (default: 3; the tool accepts 1 to 10)
+  adequacyThreshold?: number;     // Adequacy threshold, 0 to 1 (default: 0.7)
+  includePlan?: boolean;          // Add an execution plan to the result (default: true; any other type returns an error)
+  limit?: number;                 // Maximum results (default: 10; the tool accepts 1 to 200)
 }
 ```
 
@@ -893,7 +899,7 @@ Orchestrates query analysis, planning, and reflection-based iterative refinement
 {
   "query": "Find all people related to the machine learning initiative",
   "maxIterations": 3,
-  "targetAdequacy": 0.8
+  "adequacyThreshold": 0.8
 }
 ```
 
@@ -1029,17 +1035,17 @@ Save a search query for later reuse.
 **Parameters:**
 ```typescript
 {
-  name: string;               // Unique search name
-  query: string;              // Search query
-  searchType: 'basic' | 'ranked' | 'boolean' | 'fuzzy';
-  filters?: {
-    tags?: string[];
-    minImportance?: number;
-    maxImportance?: number;
-  };
-  description?: string;
+  name: string;             // Name of the saved search (1 to 200 characters)
+  query: string;            // Search query (1 to 1000 characters)
+  description?: string;     // Up to 1000 characters
+  tags?: string[];          // Tag filter
+  minImportance?: number;   // Integer, 0 to 10
+  maxImportance?: number;   // Integer, 0 to 10
+  entityType?: string;      // Stored with the saved search; not applied when the saved search runs
 }
 ```
+
+The inputSchema does not declare `entityType`. The handler accepts it, and the library stores it and returns it. A saved search does not apply it when it runs. `execute_saved_search` passes the query, the tags and the two importance limits to the search. `execute_saved_search` does not read `entityType`.
 
 **Returns:**
 ```typescript
@@ -1053,8 +1059,8 @@ Save a search query for later reuse.
 {
   "name": "active-engineers",
   "query": "engineer",
-  "searchType": "basic",
-  "filters": { "tags": ["active"], "minImportance": 5 }
+  "tags": ["active"],
+  "minImportance": 5
 }
 ```
 
@@ -1130,17 +1136,19 @@ Update an existing saved search.
 **Parameters:**
 ```typescript
 {
-  name: string;               // Existing search name
-  query?: string;             // New query
-  searchType?: 'basic' | 'ranked' | 'boolean' | 'fuzzy';
-  filters?: {
+  name: string;                // Name of the saved search
+  updates: {                   // Fields to change. The tool rejects any other key.
+    query?: string;
+    description?: string;
     tags?: string[];
-    minImportance?: number;
-    maxImportance?: number;
+    minImportance?: number;    // Integer, 0 to 10
+    maxImportance?: number;    // Integer, 0 to 10
+    entityType?: string;       // Stored with the saved search; not applied when the saved search runs
   };
-  description?: string;
 }
 ```
+
+The inputSchema of `updates` declares `query`, `description`, `tags`, `minImportance` and `maxImportance`. The handler also accepts `entityType`, as `save_search` does. The library stores it, and a saved search does not apply it when it runs.
 
 **Returns:**
 ```typescript
@@ -1292,13 +1300,14 @@ Replace a tag across all entities.
 
 ### merge_tags
 
-Merge two tags into one target tag.
+Merge two tags into one target tag. The tool compares tags in lower case.
 
 **Parameters:**
 ```typescript
 {
-  sourceTags: string[];  // Tags to merge
-  targetTag: string;     // Resulting tag
+  tag1: string;       // First tag to merge
+  tag2: string;       // Second tag to merge
+  targetTag: string;  // Resulting tag
 }
 ```
 
@@ -1312,7 +1321,8 @@ Merge two tags into one target tag.
 **Example:**
 ```json
 {
-  "sourceTags": ["dev", "developer"],
+  "tag1": "dev",
+  "tag2": "developer",
   "targetTag": "engineering"
 }
 ```
@@ -1950,17 +1960,15 @@ Find and merge all duplicates in one operation.
 
 ### archive_entities
 
-Archive old or low-importance entities.
+Archive entities. An entity moves to the archive when it meets at least one of three criteria. The criteria are: last modified before `olderThan`, importance below `importanceLessThan`, or at least one tag from `tags`.
 
 **Parameters:**
 ```typescript
 {
-  criteria: {
-    olderThan?: string;           // ISO date - archive entities older than this
-    importanceLessThan?: number;  // Archive entities below this importance
-    tags?: string[];              // Archive entities with these tags
-  };
-  dryRun?: boolean;               // Preview without changes (default: false)
+  olderThan?: string;            // ISO 8601 date-time; archive entities last modified before it
+  importanceLessThan?: number;   // 0 to 10; archive entities with a lower importance. An entity without importance counts as lower.
+  tags?: string[];               // Archive entities that have at least one of these tags
+  dryRun?: boolean;              // Report the entities without archiving them (default: false)
 }
 ```
 
@@ -1975,10 +1983,8 @@ Archive old or low-importance entities.
 **Example:**
 ```json
 {
-  "criteria": {
-    "olderThan": "2024-01-01T00:00:00Z",
-    "importanceLessThan": 3
-  },
+  "olderThan": "2024-01-01T00:00:00Z",
+  "importanceLessThan": 3,
   "dryRun": true
 }
 ```
@@ -1994,12 +2000,18 @@ Export the knowledge graph in specified format.
 **Parameters:**
 ```typescript
 {
-  format: 'json' | 'csv' | 'graphml' | 'gexf' | 'dot' | 'markdown' | 'mermaid';
-  filter?: {
+  format: 'json' | 'csv' | 'graphml' | 'gexf' | 'dot' | 'markdown' | 'mermaid' | 'turtle' | 'rdf-xml' | 'json-ld';
+  filter?: {                    // The tool rejects any other key
+    startDate?: string;         // ISO 8601 date-time
+    endDate?: string;           // ISO 8601 date-time
     entityType?: string;
     tags?: string[];
-    minImportance?: number;
   };
+  compress?: boolean;           // true: always compress. false: never compress. Omitted: compress an export larger than 100 KB.
+  compressionQuality?: number;  // Brotli quality, integer 0 to 11 (default: 6)
+  streaming?: boolean;          // Stream the export to outputPath. Without outputPath, the tool ignores this field.
+  outputPath?: string;          // File to write. With 5000 or more entities, the tool streams the export to this file.
+  redactPii?: boolean;          // Scrub PII from the observations before the export (default: false)
 }
 ```
 
@@ -2023,6 +2035,9 @@ Export the knowledge graph in specified format.
 | dot | Graphviz DOT language |
 | markdown | Human-readable markdown |
 | mermaid | Mermaid diagram syntax |
+| turtle | RDF 1.1 Turtle |
+| rdf-xml | RDF 1.1 XML |
+| json-ld | JSON-LD 1.1 |
 
 **Example:**
 ```json
@@ -2082,14 +2097,9 @@ Import entities and relations from external data.
 
 ### list_projects
 
-List all project IDs present in the graph, or filter entities by a specific project.
+List the distinct project IDs of the entities in the graph.
 
-**Parameters:**
-```typescript
-{
-  projectId?: string;  // Optional: filter entities belonging to this project
-}
-```
+**Parameters:** none
 
 **Returns:**
 ```typescript
@@ -2148,13 +2158,15 @@ Get the full version chain from root to latest for an entity.
 
 ### forget_memory
 
-Delete an entity by exact name. If no exact match is found, falls back to semantic similarity search (0.85 threshold) to locate and delete the closest matching entity.
+Delete a remembered fact. The tool looks for an observation with exactly the text of `content`, and deletes it from every entity that has it. If no observation matches exactly and semantic search is available, the tool deletes the most similar observation that reaches `threshold`. An entity with no observation left after the deletion is deleted too. With `dryRun` set to true, the tool reports the deletion and changes nothing.
 
 **Parameters:**
 ```typescript
 {
-  entityName: string;      // Name or description of entity to forget
-  auditReason?: string;    // Optional reason for audit log
+  content: string;     // Observation text to forget
+  threshold?: number;  // Similarity threshold for the semantic fallback, 0 to 1 (default: 0.85)
+  projectId?: string;  // Only entities of this project (default: all projects)
+  dryRun?: boolean;    // Report the deletion without deleting (default: false)
 }
 ```
 
@@ -2173,12 +2185,12 @@ Delete an entity by exact name. If no exact match is found, falls back to semant
 
 ### get_profile
 
-Retrieve a user or agent profile entity.
+Retrieve the static and dynamic facts of a profile. The profile is global, or belongs to one project.
 
 **Parameters:**
 ```typescript
 {
-  profileName: string;  // Name of the profile entity
+  projectId?: string;  // Project of the profile (default: the global profile)
 }
 ```
 
@@ -2193,15 +2205,14 @@ Retrieve a user or agent profile entity.
 
 ### update_profile
 
-Update observations and metadata on a profile entity.
+Add one fact to a profile. A fact is static or dynamic.
 
 **Parameters:**
 ```typescript
 {
-  profileName: string;
-  observations?: string[];    // New observations to add
-  importance?: number;        // Update importance (0-10)
-  tags?: string[];            // Update tags
+  content: string;                 // Text of the fact
+  type: 'static' | 'dynamic';      // Kind of fact
+  projectId?: string;              // Project of the profile (default: the global profile)
 }
 ```
 
@@ -2223,10 +2234,10 @@ Mark a relation as ended by setting its temporal validity end date.
 **Parameters:**
 ```typescript
 {
-  from: string;
-  to: string;
-  relationType: string;
-  endDate?: string;  // ISO 8601 date; defaults to now
+  from: string;          // Source entity name
+  relationType: string;  // Relation type
+  to: string;            // Target entity name
+  ended?: string;        // ISO 8601 date or date-time at which the relation ended (default: now). The tool stores the string as given.
 }
 ```
 
@@ -2246,8 +2257,9 @@ Retrieve all relations for an entity that were valid at a given point in time.
 **Parameters:**
 ```typescript
 {
-  entityName: string;
-  asOf: string;  // ISO 8601 date for the time-travel query
+  entityName: string;                            // Entity to query relations for
+  asOf: string;                                  // Point in time, as an ISO 8601 string
+  direction?: 'outgoing' | 'incoming' | 'both';  // Relations to include (default: both)
 }
 ```
 
@@ -2267,7 +2279,8 @@ Return a chronological list of relation events (created/invalidated) for an enti
 **Parameters:**
 ```typescript
 {
-  entityName: string;
+  entityName: string;                            // Entity to list the relations of
+  direction?: 'outgoing' | 'incoming' | 'both';  // Relations to include (default: both)
 }
 ```
 
@@ -2288,15 +2301,21 @@ Return a chronological list of relation events (created/invalidated) for an enti
 
 ### ingest
 
-Ingest a conversation, document, or free-form text into the knowledge graph using the format-agnostic `IOManager.ingest()` pipeline.
+Ingest a list of messages into the knowledge graph with the `IOManager.ingest()` pipeline of memoryjs. If `messages` is empty, the tool returns a text message and ingests nothing.
 
 **Parameters:**
 ```typescript
 {
-  input: string;           // Raw text, conversation, or document content
-  format?: string;         // Hint: 'conversation' | 'document' | 'auto'
-  projectId?: string;      // Assign ingested entities to a project
-  tags?: string[];         // Tags to apply to ingested entities
+  messages: Array<{
+    role: 'user' | 'assistant' | 'system';
+    content: string;
+    timestamp?: string;
+  }>;                              // At least one message
+  source?: string;                 // Name of the source of the messages
+  projectId?: string;              // Project of the ingested entities
+  tags?: string[];                 // Tags for the ingested entities. The tool also adds the tag "ingested".
+  chunkBy?: 'exchange' | 'paragraph' | 'fixed';  // Chunking mode (default: exchange)
+  dryRun?: boolean;                // Report without writing (default: false)
 }
 ```
 
@@ -2315,14 +2334,14 @@ Ingest a conversation, document, or free-form text into the knowledge graph usin
 
 ### diary_write
 
-Append an entry to the agent's persistent diary.
+Append an entry to the persistent diary of an agent. The tool stores the entry as an observation of the entity `diary-<agentId>`. The text of the observation starts with a timestamp and the optional topic.
 
 **Parameters:**
 ```typescript
 {
-  agentId: string;     // Agent identifier
+  agentId: string;     // Agent identifier: letters, digits, hyphen and underscore
   entry: string;       // Diary entry text
-  tags?: string[];     // Optional tags for the entry
+  topic?: string;      // Topic label for the entry
 }
 ```
 
@@ -2338,15 +2357,14 @@ Append an entry to the agent's persistent diary.
 
 ### diary_read
 
-Read diary entries for an agent, optionally filtered by date range.
+Read the newest diary entries of an agent, optionally filtered by topic.
 
 **Parameters:**
 ```typescript
 {
   agentId: string;
-  startDate?: string;   // ISO 8601 date (inclusive)
-  endDate?: string;     // ISO 8601 date (inclusive)
-  limit?: number;       // Max entries to return (default: 50)
+  lastN?: number;       // Number of entries to return (default: 10)
+  topic?: string;       // Only entries with this topic
 }
 ```
 
@@ -2547,19 +2565,23 @@ Falls back to `defaultRole=reader` for agents with no assignments.
   name: 'add_procedure',
   arguments: {
     id?: string;            // auto-generated if omitted
-    name?: string;
+    name?: string;          // echoed in this response; the stored procedure reports its id as its name
     description?: string;
     steps: Array<{
       order: number;        // 1-indexed
       action: string;
       parameters: Record<string, string>;
       timeout?: number;     // ms
-      fallback?: object;
+      fallback?: object;    // a step of the same shape
     }>;
     triggers?: string[];    // free-form match phrases
+    successRate?: number;   // 0 to 1; accepted, not declared in the inputSchema
+    executionCount?: number; // integer, 0 or more; accepted, not declared in the inputSchema
   }
 }
 ```
+
+The handler validates these arguments before it calls the library. A value of the wrong type returns `Invalid procedure data`. A key that is not listed is dropped. `successRate` and `executionCount` are for a restore: the library accepts them, and a new procedure normally starts with 0 for both.
 
 ### get_procedure
 
@@ -2621,17 +2643,19 @@ Load by 1-indexed `order`, OR get the step after `order` when `next: true`.
 
 ### adaptive_retrieve
 
-Iterative query rewriting: up to `maxRounds` of (search → score coverage → rewrite). Stops early when `coverage ≥ minCoverage` or no expansion tokens remain. Pure symbolic — no LLM provider required.
+Iterative query rewriting: up to 3 rounds of (search → score coverage → rewrite), with 10 results per round. Stops early when the coverage reaches 0.6 or no expansion tokens remain. Pure symbolic — no LLM provider required.
+
+The parameters `maxRounds`, `minCoverage`, `resultsPerRound` and `budgetTokens` are accepted and ignored. The library fixes these settings when it creates the controller, and the handler passes only the query. No token budget is checked. A `budgetTokens` that is not a positive integer returns an error.
 
 ```typescript
 {
   name: 'adaptive_retrieve',
   arguments: {
     query: string;
-    maxRounds?: number;       // default 3
-    minCoverage?: number;     // default 0.6
-    resultsPerRound?: number; // default 10
-    budgetTokens?: number;    // optional cost cap
+    maxRounds?: number;       // accepted and ignored; at most 3 rounds
+    minCoverage?: number;     // accepted and ignored; the stop value is 0.6
+    resultsPerRound?: number; // accepted and ignored; 10 results per round
+    budgetTokens?: number;    // accepted and ignored; no budget is checked
   }
 }
 
@@ -3318,9 +3342,11 @@ Start a new agent session via AgentMemoryManager. Tracks session lifecycle, enab
 {
   taskDescription?: string;
   parentSessionId?: string;
-  metadata?: {};
+  metadata?: {};            // accepted and ignored
 }
 ```
+
+The session record has no `metadata` field, so the tool stores nothing from `metadata`.
 
 ### session_end
 
@@ -3626,6 +3652,22 @@ Resolve a conflict between two agent memories using a specified strategy
   primaryMemory: string;
   conflictingMemory: string;
   strategy?: "most_recent" | "highest_confidence" | "most_confirmations" | "trusted_agent";
+}
+```
+
+### set_memory_visibility
+
+Set the visibility of a memory for an agent. If the entity is a plain entity, the handler turns the entity into an agent entity first. If no entity has the name, the tool returns an error. The section "Phase 15 enhancements to existing tools" describes `allowedRoles`, `visibleFrom` and `visibleUntil`.
+
+**Parameters:**
+```typescript
+{
+  memoryName: string;
+  agentId: string;
+  visibility: 'private' | 'team' | 'org' | 'shared' | 'public';
+  allowedRoles?: string[];
+  visibleFrom?: string;   // ISO 8601
+  visibleUntil?: string;  // ISO 8601
 }
 ```
 
