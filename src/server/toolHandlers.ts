@@ -247,6 +247,40 @@ async function withCompression(
   return result;
 }
 
+/** A step of `add_procedure`, with the shape that the inputSchema declares. A fallback is a step. */
+interface ProcedureStepInput {
+  order: number;
+  action: string;
+  parameters: Record<string, string>;
+  fallback?: ProcedureStepInput;
+  timeout?: number;
+}
+
+const ProcedureStepInputSchema: z.ZodType<ProcedureStepInput> = z.lazy(() =>
+  z.object({
+    order: z.number(),
+    action: z.string(),
+    parameters: z.record(z.string(), z.string()),
+    fallback: ProcedureStepInputSchema.optional(),
+    timeout: z.number().optional(),
+  }),
+);
+
+/**
+ * Arguments of `add_procedure`: the properties of its inputSchema, plus `successRate` and
+ * `executionCount`. The inputSchema does not declare those two, but the library accepts them and a
+ * restore can supply them. A key that is not listed is dropped, as before: the library never read it.
+ */
+const ProcedureInputSchema = z.object({
+  id: z.string().min(1).optional(),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  steps: z.array(ProcedureStepInputSchema),
+  triggers: z.array(z.string()).optional(),
+  successRate: z.number().min(0).max(1).optional(),
+  executionCount: z.number().int().min(0).optional(),
+});
+
 /**
  * Parse `find_duplicate_observations` / `find_jaccard_duplicate_observations`
  * filter args into the manager's `ObservationDedupFilter` shape. Validates each
@@ -2356,9 +2390,8 @@ export const toolHandlers: Record<string, ToolHandler> = {
 
   // ==================== 3B.4 PROCEDURAL MEMORY HANDLERS ====================
   add_procedure: async (ctx, args) => {
-    const procedure = await ctx.procedureManager.addProcedure(
-      args as Parameters<typeof ctx.procedureManager.addProcedure>[0],
-    );
+    const input = validateWithSchema(args, ProcedureInputSchema, 'Invalid procedure data');
+    const procedure = await ctx.procedureManager.addProcedure(input);
     return formatToolResponse(procedure);
   },
 

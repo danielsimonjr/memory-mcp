@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`add_procedure` validates its arguments.** The handler cast its arguments to the library type, and
+  the library checks only that `steps` is present. A step list given as a string, a step without
+  `action` or `parameters`, a step order or a name of the wrong type, `triggers` given as a string and a
+  `successRate` of 5 were all stored. The handler now validates the shape that the `inputSchema`
+  declares (`id`, `name`, `description`, `steps` with `order`, `action`, `parameters`, an optional
+  `fallback` and `timeout`, and `triggers`), plus `successRate` (0 to 1) and `executionCount` (an
+  integer, 0 or more), which the library accepts and a restore can supply. Any other value returns
+  `Invalid procedure data` and stores nothing. A key that is not listed is dropped, as before.
+  **A client that sent one of these malformed values used to receive a stored procedure and now
+  receives an error.** The new tests in `tests/e2e/tools/procedural-memory-tools.test.ts` fail on the
+  old handler (the 13 rejection cases) and pass on the new one.
+
 - **`analyze_query` and `smart_search` reject an `includePlan` that is not a boolean.** `analyze_query`
   read the flag with `args.includePlan === true` and `smart_search` with `args.includePlan !== false`. A
   string or a number therefore gave the opposite result and no error: `includePlan: "true"` returned no
