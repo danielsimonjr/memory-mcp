@@ -454,7 +454,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
           'Invalid options'
         )
       : {};
-    const persist = args.persist === true;
+    const persist = args.persist !== undefined ? validateWithSchema(args.persist, z.boolean(), 'Invalid persist value') : false;
 
     const normalizer = new ObservationNormalizer();
     // Use getGraphForMutation() to acquire the storage write lock — prevents
@@ -571,7 +571,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const content = validateWithSchema(args.content, z.string().min(1), 'Invalid content');
     const threshold = args.threshold !== undefined ? validateWithSchema(args.threshold, z.number().min(0).max(1), 'Invalid threshold') : undefined;
     const projectId = args.projectId !== undefined ? validateWithSchema(args.projectId, z.string(), 'Invalid projectId') : undefined;
-    const dryRun = args.dryRun === true;
+    const dryRun = args.dryRun !== undefined ? validateWithSchema(args.dryRun, z.boolean(), 'Invalid dryRun value') : false;
     const result = await ctx.semanticForget.forgetByContent(content, { threshold, projectId, dryRun });
     if (result.method === 'not_found') {
       return formatTextResponse(`No matching memory found for: "${content}". Try a different search term.`);
@@ -1064,7 +1064,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const chunkBy = args.chunkBy !== undefined
       ? validateWithSchema(args.chunkBy, z.enum(['exchange', 'paragraph', 'fixed']), 'Invalid chunkBy')
       : undefined;
-    const dryRun = args.dryRun === true;
+    const dryRun = args.dryRun !== undefined ? validateWithSchema(args.dryRun, z.boolean(), 'Invalid dryRun value') : false;
     const result = await ctx.ioManager.ingest(
       { messages, source },
       { projectId, tags, chunkBy, dryRun }

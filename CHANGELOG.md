@@ -76,6 +76,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`forget_memory`, `ingest` and `normalize_observations` reject a flag that is not a boolean.** The
+  handlers read `dryRun` (`forget_memory`, `ingest`) and `persist` (`normalize_observations`) with
+  `args.X === true`. A value that is not the boolean `true`, such as the string `"true"` or the number
+  `1`, counted as `false`. A client that sent `dryRun: "true"` to preview therefore got the action:
+  `forget_memory` deleted the observation and `ingest` wrote the entities and the manifest. With
+  `persist: "true"`, `normalize_observations` saved nothing. Each handler now validates the flag as a
+  boolean, in the way of the neighbouring handlers, and returns `Invalid dryRun value` or
+  `Invalid persist value` for any other type, before it reads or writes the graph. A request without
+  the flag, or with `false`, behaves as before. **A client that sent a string or a number for one of
+  these flags used to run the action for real (or, for `persist`, to save nothing) and now receives an
+  error.** The new tests in `tests/e2e/tools/boolean-flag-validation.test.ts` build a real graph; on the
+  unfixed code the 12 rejection cases fail and the 9 cases for `true`, `false` and an absent flag pass.
+
 - **`priority_dedup` honors `dryRun`.** The input schema of the tool declares `dryRun` ("report what
   would be deduplicated without making changes"), but the handler called `priorityDedup()` with no
   argument. A request with `dryRun: true` did not preview. It merged each group of duplicate
