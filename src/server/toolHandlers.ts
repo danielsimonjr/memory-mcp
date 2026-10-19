@@ -693,7 +693,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
   // Phase 11 Sprint 3: Query Analysis
   analyze_query: async (_ctx, args) => {
     const query = validateWithSchema(args.query, z.string().min(1), 'Invalid query');
-    const includePlan = args.includePlan === true;
+    const includePlan = args.includePlan !== undefined ? validateWithSchema(args.includePlan, z.boolean(), 'Invalid includePlan value') : false;
 
     const analyzer = new QueryAnalyzer();
     const analysis = analyzer.analyze(query);
@@ -720,7 +720,7 @@ export const toolHandlers: Record<string, ToolHandler> = {
     const adequacyThreshold = args.adequacyThreshold !== undefined
       ? validateWithSchema(args.adequacyThreshold, z.number().min(0).max(1), 'Invalid adequacyThreshold')
       : 0.7;
-    const includePlan = args.includePlan !== false;
+    const includePlan = args.includePlan !== undefined ? validateWithSchema(args.includePlan, z.boolean(), 'Invalid includePlan value') : true;
     const limit = args.limit !== undefined
       ? validateWithSchema(args.limit, z.number().int().positive().max(200), 'Invalid limit')
       : 10;

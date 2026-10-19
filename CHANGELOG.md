@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **`analyze_query` and `smart_search` reject an `includePlan` that is not a boolean.** `analyze_query`
+  read the flag with `args.includePlan === true` and `smart_search` with `args.includePlan !== false`. A
+  string or a number therefore gave the opposite result and no error: `includePlan: "true"` returned no
+  plan from `analyze_query`, and `includePlan: "false"` returned a plan from `smart_search`. Both
+  handlers now validate the flag as a boolean when it is present, in the way of the neighbouring
+  handlers, and return `Invalid includePlan value` for any other type. A request without the flag keeps
+  its meaning: `analyze_query` returns no plan and `smart_search` returns a plan. **A client that sent a
+  string, a number or `null` for this flag now receives an error.** The new cases in
+  `tests/e2e/tools/boolean-flag-validation.test.ts` fail on the old handlers (the 8 rejection cases) and
+  pass on the new ones.
+
 ## [12.9.1] - 2026-10-19
 
 ### Added

@@ -1,9 +1,10 @@
 /**
  * Boolean flag validation E2E tests
  *
- * `forget_memory` (dryRun), `ingest` (dryRun) and `normalize_observations` (persist)
- * must validate their boolean flag. A flag that is not a boolean returns an error and
- * changes nothing. An earlier form of these handlers read the flag with `args.X === true`,
+ * `forget_memory` (dryRun), `ingest` (dryRun), `normalize_observations` (persist),
+ * `analyze_query` (includePlan) and `smart_search` (includePlan) must validate their
+ * boolean flag. A flag that is not a boolean returns an error and changes nothing. An
+ * earlier form of these handlers read the flag with `args.X === true` (or `!== false`),
  * so the string "true" or the number 1 counted as false: `forget_memory` and `ingest`
  * then performed the action that the client had asked to preview.
  */
@@ -178,6 +179,40 @@ describe('Boolean flag validation E2E', () => {
       expect(result.isError).toBeUndefined();
       expect(parseResponse(result).persisted).toBe(false);
       expect(await readGraph()).toEqual(before);
+    });
+  });
+
+  // ==================== analyze_query and smart_search includePlan ====================
+  // The two tools differ on purpose when the flag is absent: analyze_query returns no plan,
+  // smart_search returns one. A flag that is not a boolean returns an error in both.
+  describe.each([
+    ['analyze_query', false],
+    ['smart_search', true],
+  ] as const)('%s includePlan', (tool, planWhenAbsent) => {
+    const base = { query: 'find all engineers' };
+
+    it.each(notBoolean)('rejects %s', async (_label, value) => {
+      const result = (await handleToolCall(tool, { ...base, includePlan: value }, manager)) as ToolResult;
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain('Invalid includePlan value');
+    });
+
+    it('returns a plan with includePlan true', async () => {
+      const result = (await handleToolCall(tool, { ...base, includePlan: true }, manager)) as ToolResult;
+      expect(result.isError).toBeUndefined();
+      expect(parseResponse(result).plan).toBeDefined();
+    });
+
+    it('returns no plan with includePlan false', async () => {
+      const result = (await handleToolCall(tool, { ...base, includePlan: false }, manager)) as ToolResult;
+      expect(result.isError).toBeUndefined();
+      expect(parseResponse(result).plan).toBeUndefined();
+    });
+
+    it(`${planWhenAbsent ? 'returns a plan' : 'returns no plan'} when includePlan is absent`, async () => {
+      const result = (await handleToolCall(tool, base, manager)) as ToolResult;
+      expect(result.isError).toBeUndefined();
+      expect(parseResponse(result).plan !== undefined).toBe(planWhenAbsent);
     });
   });
 });
