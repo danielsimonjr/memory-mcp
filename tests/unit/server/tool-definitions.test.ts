@@ -88,18 +88,12 @@ describe('toolDefinitions contract', () => {
     });
 
     describe('saved searches', () => {
-      const KEYS = ['description', 'entityType', 'maxImportance', 'minImportance', 'query', 'tags'];
-
-      it('save_search declares entityType and says that a running search does not apply it', () => {
-        expect(props('save_search').entityType.type).toBe('string');
-        expect(text(props('save_search').entityType.description)).toMatch(/not applied/);
-      });
-
-      it('update_saved_search declares the six keys that its validator accepts', () => {
+      // The handlers also accept `entityType` and store it, but a saved search does not apply it
+      // when it runs. It stays out of both declarations (see declared-parameters.test.ts), so a
+      // client has no reason to rely on it.
+      it('update_saved_search declares the five keys that a running search applies', () => {
         const updates = props('update_saved_search').updates as Schema;
-        expect(Object.keys(updates.properties ?? {}).sort()).toEqual(KEYS);
-        expect(updates.additionalProperties).toBe(false);
-        expect(text((updates.properties ?? {}).entityType.description)).toMatch(/not applied/);
+        expect(Object.keys(updates.properties ?? {}).sort()).toEqual(['description', 'maxImportance', 'minImportance', 'query', 'tags']);
       });
     });
 

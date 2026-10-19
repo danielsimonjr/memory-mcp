@@ -26,6 +26,7 @@
       "tests/unit/response-compressor.test.ts"
     ],
     "src/server/toolDefinitions.ts": [
+      "tests/e2e/tools/declared-parameters.test.ts",
       "tests/integration/mcp-2-protocol.test.ts",
       "tests/integration/server.test.ts",
       "tests/unit/server/handle-tool-call-unknown-names.test.ts",
@@ -95,7 +96,8 @@
       "src/server/toolHandlers.ts"
     ],
     "tests/e2e/tools/declared-parameters.test.ts": [
-      "src/server/toolHandlers.ts"
+      "src/server/toolHandlers.ts",
+      "src/server/toolDefinitions.ts"
     ],
     "tests/e2e/tools/dream-tools.test.ts": [
       "src/server/toolHandlers.ts"

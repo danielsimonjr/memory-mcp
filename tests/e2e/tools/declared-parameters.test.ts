@@ -10,8 +10,8 @@
  *   the query, so the four parameters have no effect. The case below fails when the library starts
  *   to honour one: the text in tools/list and in API.md must then change.
  * - `session_start` takes `metadata`. The session record has no such field.
- * - `save_search` and `update_saved_search` take `entityType`. The library stores it and the saved
- *   search does not apply it when it runs.
+ * - `save_search` and `update_saved_search` accept and store `entityType`. The saved search does not
+ *   apply it when it runs, so neither inputSchema declares it.
  * - `create_relations` stores `weight`, `confidence` and `metadata`. `delete_relations` matches on
  *   `from`, `to` and `relationType` only.
  */
@@ -19,6 +19,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ManagerContext as KnowledgeGraphManager } from '@danielsimonjr/memoryjs';
 import { handleToolCall } from '../../../src/server/toolHandlers.js';
+import { toolDefinitions } from '../../../src/server/toolDefinitions.js';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -150,8 +151,18 @@ describe('saved searches with entityType', () => {
 
   // The library stores entityType with the saved search. `executeSavedSearch` passes the query, the
   // tags and the two importance limits to the search and never reads entityType, so the filter has
-  // no effect when the search runs. These cases fail when the library starts to apply it: the text
-  // in tools/list and in API.md must then change.
+  // no effect when the search runs. A parameter that does nothing is not declared: a declaration
+  // invites a client to rely on it. The handlers keep accepting and storing it. These cases fail
+  // when the library starts to apply it: the declarations and API.md must then change.
+  it('neither save_search nor update_saved_search declares entityType in its inputSchema', () => {
+    const schema = (name: string) => toolDefinitions.find(t => t.name === name)?.inputSchema as { properties?: Record<string, { properties?: Record<string, unknown> }> };
+    const save = schema('save_search').properties;
+    const updates = schema('update_saved_search').properties?.updates?.properties;
+    expect(Object.keys(save ?? {})).not.toContain('entityType');
+    expect(updates).toBeDefined();
+    expect(Object.keys(updates ?? {})).not.toContain('entityType');
+  });
+
   it('control: execute_saved_search applies the query', async () => {
     await call('save_search', { name: 'holders', query: 'holds' });
     expect(names(parseResponse(await call('execute_saved_search', { name: 'holders' })))).toEqual(['Teapot']);
