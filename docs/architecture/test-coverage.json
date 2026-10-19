@@ -1,7 +1,7 @@
 {
   "metadata": {
     "totalSourceFiles": 5,
-    "totalTestFiles": 40,
+    "totalTestFiles": 41,
     "testedCount": 5,
     "untestedCount": 0,
     "coveragePercent": "100.0"
@@ -28,6 +28,7 @@
     "src/server/toolDefinitions.ts": [
       "tests/integration/mcp-2-protocol.test.ts",
       "tests/integration/server.test.ts",
+      "tests/unit/server/handle-tool-call-unknown-names.test.ts",
       "tests/unit/server/tool-definitions.test.ts"
     ],
     "src/server/toolHandlers.ts": [
@@ -63,6 +64,7 @@
       "tests/e2e/tools/tool-affordance-tools.test.ts",
       "tests/integration/mcp-2-protocol.test.ts",
       "tests/integration/server.test.ts",
+      "tests/unit/server/handle-tool-call-unknown-names.test.ts",
       "tests/unit/server/validate-fact-handler.test.ts",
       "tests/unit/storage-readonly-contract.test.ts"
     ]
@@ -176,6 +178,10 @@
     "tests/unit/create-dependency-graph-clause-items.test.ts": [],
     "tests/unit/response-compressor.test.ts": [
       "src/server/responseCompressor.ts"
+    ],
+    "tests/unit/server/handle-tool-call-unknown-names.test.ts": [
+      "src/server/toolHandlers.ts",
+      "src/server/toolDefinitions.ts"
     ],
     "tests/unit/server/tool-definitions.test.ts": [
       "src/server/toolDefinitions.ts"

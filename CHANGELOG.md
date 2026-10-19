@@ -61,9 +61,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   name the tool (for example `Cannot convert undefined or null to object` and `handler is not a
   function`). The lookup now tests for an own property with `Object.hasOwn`. The new test
   `tests/unit/server/handle-tool-call-unknown-names.test.ts` calls `handleToolCall` with 12 of these
-  names and with every own property name of `Object.prototype`. A search of `src/` found no other
-  lookup of a caller-supplied name on a plain object. The other objects that the handlers build have
-  fixed keys.
+  names and with every own property name of `Object.prototype`. A scan of the syntax trees of the 5
+  files in `src/` found 3 element accesses (`a[b]`). Two use a literal key, and one is
+  `toolHandlers[name]`, which takes its key from the client. The scan found no `in` operator, no
+  `for ... in` loop and no `Reflect` call.
 
 - **The dependency-graph tool no longer puts comment text into import and export names.**
   `tools/create-dependency-graph` reads the names between `{` and `}` of an import or export

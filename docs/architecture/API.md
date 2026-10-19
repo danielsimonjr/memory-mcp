@@ -4766,7 +4766,7 @@ come from `tools/create-dependency-graph`, which reads `src/` and the tests. The
 | Claim | Value | Source |
 |---|---|---|
 | totalExports | 49 | repo-tools map (whole repository) |
-| unusedExportsCount | 34 | repo-tools map (whole repository) |
+| unusedExportsCount | 33 | repo-tools map (whole repository) |
 
 **`unusedExportsCount` is not a deletion list.** The count covers exports that have no importer inside this repository.
 This package is an MCP server. Protocol dispatch calls the tool handlers, so an import-graph analysis reads them as unused.
