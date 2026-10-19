@@ -31,7 +31,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   No tool name or `required` list changes. 14 new cases in `tests/unit/server/tool-definitions.test.ts`
   fail on the old text. The new `tests/e2e/tools/declared-parameters.test.ts` pins the behaviour that the
   text describes (the four ignored parameters change nothing, with a control query and a control setting
-  that does change the result), and it fails when the library starts to honour one of them.
+  that does change the result), and it fails when the library starts to honour one of them. The control
+  setting runs the same fixture under a controller that is built with `maxRounds` 1, `resultsPerRound` 3
+  or `minCoverage` 0, and the output changes each time. A handler that passed those three settings to the
+  controller fails 4 of the cases.
 
 ### Fixed
 

@@ -71,6 +71,24 @@ describe('adaptive_retrieve parameters that have no effect', () => {
     expect(base.bestCoverage).toBeLessThan(0.6);
   });
 
+  // Without this control the "changes nothing" cases below could pass for a fixture on which no
+  // setting matters. The controller takes the three settings in its constructor, which this server
+  // never passes; here the same fixture runs under a controller that does get them.
+  it.each([
+    ['the fixed settings', {}, { rounds: 3, results: 10 }],
+    ['maxRounds 1', { maxRounds: 1 }, { rounds: 1, results: 10 }],
+    ['resultsPerRound 3', { resultsPerRound: 3 }, { rounds: 3, results: 3 }],
+    ['minCoverage 0', { minCoverage: 0 }, { rounds: 1, results: 10 }],
+  ])('control: the fixture does react to a constructor setting (%s)', async (_label, config, expected) => {
+    type Controller = new (
+      rankedSearch: unknown,
+      config: Record<string, unknown>,
+    ) => { adaptiveRetrieve(context: { query: string }): Promise<{ rounds: unknown[]; bestResults: unknown[] }> };
+    const ControllerClass = manager.activeRetrieval.constructor as unknown as Controller;
+    const result = await new ControllerClass(manager.rankedSearch, config).adaptiveRetrieve({ query: 'gadget' });
+    expect({ rounds: result.rounds.length, results: result.bestResults.length }).toEqual(expected);
+  });
+
   it('control: a different query gives a different result', async () => {
     const gadget = await retrieve({ query: 'gadget' });
     const sprocket = await retrieve({ query: 'sprocket' });
