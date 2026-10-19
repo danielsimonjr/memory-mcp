@@ -1,7 +1,7 @@
 {
   "metadata": {
     "totalSourceFiles": 5,
-    "totalTestFiles": 42,
+    "totalTestFiles": 44,
     "testedCount": 5,
     "untestedCount": 0,
     "coveragePercent": "100.0"
@@ -39,6 +39,7 @@
       "tests/e2e/tools/consolidation-tools.test.ts",
       "tests/e2e/tools/decay-salience-tools.test.ts",
       "tests/e2e/tools/decision-tools.test.ts",
+      "tests/e2e/tools/declared-parameters.test.ts",
       "tests/e2e/tools/dream-tools.test.ts",
       "tests/e2e/tools/engineering-tools.test.ts",
       "tests/e2e/tools/entity-tools.test.ts",
@@ -54,6 +55,7 @@
       "tests/e2e/tools/observability-tools.test.ts",
       "tests/e2e/tools/observation-dedup-tools.test.ts",
       "tests/e2e/tools/observation-tools.test.ts",
+      "tests/e2e/tools/procedural-memory-tools.test.ts",
       "tests/e2e/tools/project-context-tools.test.ts",
       "tests/e2e/tools/project-scope-tools.test.ts",
       "tests/e2e/tools/ref-index-tools.test.ts",
@@ -90,6 +92,9 @@
       "src/server/toolHandlers.ts"
     ],
     "tests/e2e/tools/decision-tools.test.ts": [
+      "src/server/toolHandlers.ts"
+    ],
+    "tests/e2e/tools/declared-parameters.test.ts": [
       "src/server/toolHandlers.ts"
     ],
     "tests/e2e/tools/dream-tools.test.ts": [
@@ -135,6 +140,9 @@
       "src/server/toolHandlers.ts"
     ],
     "tests/e2e/tools/observation-tools.test.ts": [
+      "src/server/toolHandlers.ts"
+    ],
+    "tests/e2e/tools/procedural-memory-tools.test.ts": [
       "src/server/toolHandlers.ts"
     ],
     "tests/e2e/tools/project-context-tools.test.ts": [
