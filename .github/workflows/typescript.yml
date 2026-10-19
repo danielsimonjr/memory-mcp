@@ -51,6 +51,10 @@ jobs:
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: '1.4.2'
+      # The plugin runs the committed bundle, not dist/. A bundle that nobody rebuilt keeps its old version.
+      # This step runs before the install, like the same step in publish.yml, so the bundle must start without node_modules.
+      - name: Committed bundle reports the version of package.json
+        run: bun run check:bundle
       - name: Install dependencies
         run: bun install --frozen-lockfile
       - name: Type check
@@ -58,12 +62,9 @@ jobs:
       - name: Build
         run: bun run build
       # The npm tarball must hold no build file without a source. `tsc` never deletes old output,
-      # and 150 such files shipped in every release from 12.8.2 to 12.9.0.
+      # and 150 such files shipped in every release from 12.7.0 to 12.9.0.
       - name: Pack list holds no file without a source
         run: bun run check:pack
-      # The plugin runs the committed bundle, not dist/. A bundle that nobody rebuilt keeps its old version.
-      - name: Committed bundle reports the version of package.json
-        run: bun run check:bundle
       - name: Node runtime smoke (the shipped artifact must load under Node)
         run: |
           node --input-type=module -e '

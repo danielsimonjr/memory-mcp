@@ -6,7 +6,7 @@
  * 12.9.0 shipped 150 such files: 168 packed files where a clean build gives 18.
  *
  * The check lists what `npm pack` would pack and compares the list with the
- * source folder:
+ * source folder. These rules apply:
  *   - A package file that npm adds on its own (package.json, README, LICENSE) is fine.
  *   - A file under the output folder needs a source file with the same path and
  *     a source extension. `dist/server/a.d.ts.map` needs `src/server/a.ts`.

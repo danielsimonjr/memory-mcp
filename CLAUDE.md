@@ -12,7 +12,7 @@ bun run typecheck     # Strict type checking (includes --noUnusedLocals --noUnus
 bun run watch         # Watch mode for development
 bun run clean         # Remove dist/ directory
 bun run check:pack    # Fail when the npm tarball holds a build file that has no source
-bun run check:bundle  # Fail when the committed bundle reports another version than package.json
+bun run check:bundle  # Fail when the committed bundle reports a version that differs from package.json
 
 # Run a single test file
 bunx vitest run tests/e2e/tools/entity-tools.test.ts
@@ -222,7 +222,7 @@ npm pack --ignore-scripts
 npm publish ./danielsimonjr-memory-mcp-X.Y.Z.tgz --ignore-scripts --access public
 ```
 
-Publish the legacy name `@danielsimonjr/enhanced-memory-mcp` the same way. Unpack the tarball in a scratch folder. Change only `name` with `npm pkg set name=@danielsimonjr/enhanced-memory-mcp`. Run `npm pack --ignore-scripts` there and publish that tarball. A local publish has no provenance attestation. Never publish from a working copy, because `dist/` can hold old output. Compare `dist.integrity` in the registry with the sha512 of the tarball that you published.
+Publish the legacy name `@danielsimonjr/enhanced-memory-mcp` the same way. Unpack the tarball in a scratch folder. Change only `name` with `npm pkg set name=@danielsimonjr/enhanced-memory-mcp`. Run `npm pack --ignore-scripts` there and publish that tarball. A local publish has no provenance attestation. Never publish from a working copy. The flag `--ignore-scripts` skips `prepare`, so `dist/` keeps old output, and the copy can hold uncommitted source. Compare `dist.integrity` in the registry with the sha512 of the tarball that you published.
 
 ## Gotchas
 

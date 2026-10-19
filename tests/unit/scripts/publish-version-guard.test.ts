@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { assertTagMatchesPackageVersion, versionFromTag } from '../../../scripts/publish-version-guard.mjs';
 
-// scripts/publish-version-guard.mjs stops a publish when the pushed tag names another version than package.json.
+// scripts/publish-version-guard.mjs stops a publish when the pushed tag names a version that differs from package.json.
 describe('versionFromTag', () => {
   it('reads the version from a short tag and from a full ref', () => {
     expect(versionFromTag('v12.9.1')).toBe('12.9.1');

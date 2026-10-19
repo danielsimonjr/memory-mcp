@@ -14,7 +14,7 @@ import {
 // scripts/check-bundle-version.mjs runs the bundle that `.mcp.json` starts and compares the version
 // that it reports with package.json and .claude-plugin/plugin.json. The plugin runs bundle/index.mjs,
 // not dist/. A committed bundle that nobody rebuilt keeps reporting an old version under a newer
-// release label: the bundle of 12.9.0 reported 12.8.2 and held none of the fixes of 12.9.0.
+// release label. The bundle of 12.9.0 reported 12.8.2 and held none of the fixes of 12.9.0.
 const script = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', 'scripts', 'check-bundle-version.mjs');
 
 // A stand-in server: it answers `initialize` with the version in STUB_VERSION and nothing else.

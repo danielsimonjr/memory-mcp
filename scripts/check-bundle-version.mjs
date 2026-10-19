@@ -1,5 +1,5 @@
 /**
- * Fail when the committed bundle reports another version than package.json.
+ * Fail when the committed bundle reports a version that differs from package.json.
  *
  * `.mcp.json` starts the bundle (`bundle/index.mjs`), so the plugin does not run
  * `dist/`. A bundle that nobody rebuilt keeps its old code and its old version
