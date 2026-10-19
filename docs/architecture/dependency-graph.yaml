@@ -242,7 +242,7 @@ dependencyGraph:
 statistics:
   totalTypeScriptFiles: 5
   totalModules: 2
-  totalLinesOfCode: 7738
+  totalLinesOfCode: 7739
   totalExports: 12
   totalClasses: 1
   totalInterfaces: 3
