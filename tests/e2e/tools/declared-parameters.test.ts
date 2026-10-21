@@ -47,8 +47,8 @@ const call = async (name: string, args: Record<string, unknown>) =>
   (await handleToolCall(name, args, manager)) as ToolResult;
 
 describe('adaptive_retrieve parameters that have no effect', () => {
-  // 15 entities; 12 contain "gadget" and 3 contain "sprocket". A term that is in every document has
-  // an IDF of 0 and the TF-IDF search returns nothing, so the term must be in some documents only.
+  // 15 entities; 12 contain "gadget" and 3 contain "sprocket". A term that is in every document has an
+  // IDF of 0 and the TF-IDF search returns nothing. The term must therefore be in some documents only.
   beforeEach(async () => {
     const entities = Array.from({ length: 15 }, (_, i) => ({
       name: `Widget${i}`,
@@ -73,8 +73,8 @@ describe('adaptive_retrieve parameters that have no effect', () => {
   });
 
   // Without this control the "changes nothing" cases below could pass for a fixture on which no
-  // setting matters. The controller takes the three settings in its constructor, which this server
-  // never passes; here the same fixture runs under a controller that does get them.
+  // setting matters. The controller takes the three settings in its constructor, and this server
+  // never passes them. Here the same fixture runs under a controller that does get them.
   it.each([
     ['the fixed settings', {}, { rounds: 3, results: 10 }],
     ['maxRounds 1', { maxRounds: 1 }, { rounds: 1, results: 10 }],
@@ -150,10 +150,10 @@ describe('saved searches with entityType', () => {
   };
 
   // The library stores entityType with the saved search. `executeSavedSearch` passes the query, the
-  // tags and the two importance limits to the search and never reads entityType, so the filter has
-  // no effect when the search runs. A parameter that does nothing is not declared: a declaration
-  // invites a client to rely on it. The handlers keep accepting and storing it. These cases fail
-  // when the library starts to apply it: the declarations and API.md must then change.
+  // tags and the two importance limits to the search, and never reads entityType. The filter
+  // therefore has no effect when the search runs. A parameter that does nothing is not declared: a
+  // declaration invites a client to rely on it. The handlers keep accepting and storing it. These
+  // cases fail when the library starts to apply it: the declarations and API.md must then change.
   it('neither save_search nor update_saved_search declares entityType in its inputSchema', () => {
     const schema = (name: string) => toolDefinitions.find(t => t.name === name)?.inputSchema as { properties?: Record<string, { properties?: Record<string, unknown> }> };
     const save = schema('save_search').properties;

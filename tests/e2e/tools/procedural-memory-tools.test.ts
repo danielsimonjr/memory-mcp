@@ -1,11 +1,11 @@
 /**
  * Procedural memory E2E tests: add_procedure argument validation
  *
- * `add_procedure` used to cast its arguments to the library type and pass them on. The library
- * checks only that `steps` is present, so a step list given as a string, a step without an
- * `action`, a step order given as a string, a name that is a number and similar input were
- * stored. The handler now validates the arguments with the shape that the inputSchema declares
- * (plus `successRate` and `executionCount`, which the library accepts and a restore can supply).
+ * `add_procedure` used to cast its arguments to the library type and pass them on. The library checks
+ * only that `steps` is present. The library therefore stored a step list or a step order given as a
+ * string, and a step without an `action`. The library also stored a name that is a number and similar
+ * input. The handler validates the arguments with the shape that the inputSchema declares (plus
+ * `successRate` and `executionCount`, which the library accepts and a restore can supply).
  *
  * The library does not store `name`: `get_procedure` returns the id as the name. These tests do
  * not assert the name of a stored procedure.

@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   whole contract for a client. Five tools change:
   - `adaptive_retrieve`: `budgetTokens`, `maxRounds`, `minCoverage` and `resultsPerRound` are accepted
     and ignored. The library fixes the settings at 3 rounds, 10 results per round and a coverage of 0.6,
-    and the handler passes only the query. The text now says so. The sentence "rejects retrieval if cost
+    and the library reads only the query. The text now says so. The sentence "rejects retrieval if cost
     exceeds budget" is removed, because no budget is checked. The three `default` annotations are removed,
     because they described the fixed settings, not parameters that a client can set. All four parameters
     stay in the schema. A `budgetTokens` that is not a positive integer is still rejected.
@@ -23,39 +23,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     procedure reports its id as its name.
   - `update_saved_search`: `updates` now declares the five keys that a running saved search applies
     (`description`, `query`, `tags`, `minImportance`, `maxImportance`). `entityType` is declared on
-    neither this tool nor `save_search`. The handlers accept and store it, and a saved search does not
+    neither this tool nor `save_search`. The handlers accept and store it. A saved search does not
     apply it when it runs, so a declaration would invite a client to rely on it.
   - `create_relations`: `weight` and `confidence` (numbers from 0 to 1) and `metadata` (an object) are
     declared. The handler already stored them. `delete_relations` is unchanged: the storage layer matches a
     relation on `from`, `to` and `relationType` only.
   No tool name or `required` list changes. 13 new cases in `tests/unit/server/tool-definitions.test.ts`
   fail on the old text. The new `tests/e2e/tools/declared-parameters.test.ts` pins the behaviour that the
-  text describes (the four ignored parameters change nothing, with a control query and a control setting
-  that does change the result), and it fails when the library starts to honour one of them. The control
+  text describes. The four ignored parameters change nothing, with a control query and a control setting
+  that does change the result. The test fails when the library starts to honour one of them. The control
   setting runs the same fixture under a controller that is built with `maxRounds` 1, `resultsPerRound` 3
-  or `minCoverage` 0, and the output changes each time. A handler that passed those three settings to the
-  controller fails 4 of the cases.
+  or `minCoverage` 0. The output changes for each of the three settings. A handler that passed those
+  three settings to the controller fails 4 of the cases.
 
 ### Fixed
 
 - **`add_procedure` validates its arguments.** The handler cast its arguments to the library type, and
-  the library checks only that `steps` is present. A step list given as a string, a step without
-  `action` or `parameters`, a step order or a name of the wrong type, `triggers` given as a string and a
-  `successRate` of 5 were all stored. The handler now validates the shape that the `inputSchema`
-  declares (`id`, `name`, `description`, `steps` with `order`, `action`, `parameters`, an optional
-  `fallback` and `timeout`, and `triggers`), plus `successRate` (0 to 1) and `executionCount` (an
-  integer, 0 or more), which the library accepts and a restore can supply. Any other value returns
-  `Invalid procedure data` and stores nothing. A key that is not listed is dropped, as before.
+  the library checks only that `steps` is present. The library stored a step list given as a string.
+  The library also stored a step without `action` or `parameters`, and a step order or a name of the
+  wrong type. The library stored `triggers` given as a string and a `successRate` of 5 as well. The
+  handler now validates the shape that the `inputSchema` declares: `id`, `name`, `description`, `steps`
+  and `triggers`. Each step has `order`, `action`, `parameters`, and an optional `fallback` and
+  `timeout`. The handler also validates `successRate` (0 to 1) and `executionCount` (an integer, 0 or
+  more). The `inputSchema` does not declare these two keys. The library accepts them, and a restore can
+  supply them. Any other value returns `Invalid procedure data` and stores nothing. A key that is not
+  listed is dropped, as before.
   **A client that sent one of these malformed values used to receive a stored procedure and now
   receives an error.** The new tests in `tests/e2e/tools/procedural-memory-tools.test.ts` fail on the
   old handler (the 13 rejection cases) and pass on the new one.
 
 - **`analyze_query` and `smart_search` reject an `includePlan` that is not a boolean.** `analyze_query`
   read the flag with `args.includePlan === true` and `smart_search` with `args.includePlan !== false`. A
-  string or a number therefore gave the opposite result and no error: `includePlan: "true"` returned no
+  string or a number therefore gave the opposite result and no error. `includePlan: "true"` returned no
   plan from `analyze_query`, and `includePlan: "false"` returned a plan from `smart_search`. Both
-  handlers now validate the flag as a boolean when it is present, in the way of the neighbouring
-  handlers, and return `Invalid includePlan value` for any other type. A request without the flag keeps
+  handlers now validate the flag as a boolean when the flag is present, in the way of the neighbouring
+  handlers. Any other type returns `Invalid includePlan value`. A request without the flag keeps
   its meaning: `analyze_query` returns no plan and `smart_search` returns a plan. **A client that sent a
   string, a number or `null` for this flag now receives an error.** The new cases in
   `tests/e2e/tools/boolean-flag-validation.test.ts` fail on the old handlers (the 8 rejection cases) and

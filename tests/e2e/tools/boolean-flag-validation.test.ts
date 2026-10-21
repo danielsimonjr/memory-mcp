@@ -1,12 +1,12 @@
 /**
  * Boolean flag validation E2E tests
  *
- * `forget_memory` (dryRun), `ingest` (dryRun), `normalize_observations` (persist),
- * `analyze_query` (includePlan) and `smart_search` (includePlan) must validate their
- * boolean flag. A flag that is not a boolean returns an error and changes nothing. An
- * earlier form of these handlers read the flag with `args.X === true` (or `!== false`),
- * so the string "true" or the number 1 counted as false: `forget_memory` and `ingest`
- * then performed the action that the client had asked to preview.
+ * `forget_memory` (dryRun), `ingest` (dryRun), `normalize_observations` (persist), `analyze_query`
+ * (includePlan) and `smart_search` (includePlan) must validate their boolean flag. A flag that is
+ * not a boolean returns an error and changes nothing. An earlier form of these handlers read the
+ * flag with `args.X === true` (or `!== false`). The string "true" or the number 1 therefore counted
+ * as false. `forget_memory` and `ingest` then performed the action that the client had asked to
+ * preview.
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
