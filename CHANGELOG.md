@@ -46,6 +46,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   from a small graph. The lead sentence of `get_entity_versions` says that the tool returns the
   latest version.
 
+- **`docs/architecture/API.md` gets a "Response Format" section.** The section describes the forms of
+  a response: JSON text, plain text and the compression envelope. Seven tools wrap their response:
+  `read_graph`, `open_nodes`, `search_nodes`, `get_subtree`, `synthesize_collaborative_context`,
+  `search_cross_agent` and `get_visible_memories`. A response larger than 262,144 bytes arrives as
+  an envelope with the fields `compressed`, `compressionFormat`, `encoding`, `originalSize`,
+  `compressedSize` and `data`. A smaller response arrives unchanged. The section also says how to
+  decode `data`.
+
 ## [12.10.0] - 2026-10-21
 
 ### Added
