@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `@danielsimonjr/memoryjs` 4.2.0, the version that `bun.lock` resolves. The document gets the base
   section of `set_memory_visibility` in "Multi-Agent (Phase 14)" and a rewritten introduction. The
   document loses its "Strategy Selection" list for `search_auto`, because no source states those
-  rules. The Returns blocks are not changed. The document also says in plain words what a tool
+  rules. Another entry below describes the Returns blocks. The document also says in plain words what a tool
   accepts and its `inputSchema` does not declare. The document says the same for what a tool accepts
   and ignores: the four `adaptive_retrieve` parameters, `metadata` of `session_start`, and
   `entityType` of the saved-search tools. A saved search stores `entityType`. The saved search does
