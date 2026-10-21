@@ -362,8 +362,8 @@ come from `tools/create-dependency-graph`, which reads `src/` and the tests. The
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 58 | repo-tools map (whole repository) |
-| totalExports | 49 | repo-tools map (whole repository) |
+| totalSourceFiles | 63 | repo-tools map (whole repository) |
+| totalExports | 57 | repo-tools map (whole repository) |
 | reachableFiles | 5 | repo-tools map (whole repository) |
 | orphanedFiles | 0 | repo-tools map (whole repository) |
 | noImporterFileCount | 0 | repo-tools map (whole repository) |

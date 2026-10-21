@@ -11,7 +11,7 @@
 | Metric | Count |
 |--------|-------|
 | Total Source Files | 5 |
-| Total Test Files | 44 |
+| Total Test Files | 47 |
 | Source Files with Tests | 5 |
 | Source Files without Tests | 0 |
 | Coverage | 100.0% |
@@ -78,6 +78,9 @@
 | `tests/knowledge-graph.test.ts` | 1 files |
 | `unit/create-dependency-graph-clause-items.test.ts` | 0 files |
 | `unit/response-compressor.test.ts` | 1 files |
+| `scripts/check-bundle-version.test.ts` | 0 files |
+| `scripts/check-pack-list.test.ts` | 0 files |
+| `scripts/publish-version-guard.test.ts` | 0 files |
 | `server/handle-tool-call-unknown-names.test.ts` | 2 files |
 | `server/tool-definitions.test.ts` | 1 files |
 | `server/validate-fact-handler.test.ts` | 1 files |

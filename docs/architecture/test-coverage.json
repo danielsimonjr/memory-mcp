@@ -1,7 +1,7 @@
 {
   "metadata": {
     "totalSourceFiles": 5,
-    "totalTestFiles": 44,
+    "totalTestFiles": 47,
     "testedCount": 5,
     "untestedCount": 0,
     "coveragePercent": "100.0"
@@ -193,6 +193,9 @@
     "tests/unit/response-compressor.test.ts": [
       "src/server/responseCompressor.ts"
     ],
+    "tests/unit/scripts/check-bundle-version.test.ts": [],
+    "tests/unit/scripts/check-pack-list.test.ts": [],
+    "tests/unit/scripts/publish-version-guard.test.ts": [],
     "tests/unit/server/handle-tool-call-unknown-names.test.ts": [
       "src/server/toolHandlers.ts",
       "src/server/toolDefinitions.ts"
