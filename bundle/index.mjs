@@ -98955,6 +98955,12 @@ var toolDefinitions = [
               relationType: {
                 type: "string",
                 description: "The type of the relation in active voice (e.g., 'works_at', 'knows')"
+              },
+              weight: { type: "number", minimum: 0, maximum: 1, description: "Optional strength of the relation, from 0 to 1" },
+              confidence: { type: "number", minimum: 0, maximum: 1, description: "Optional confidence in the relation, from 0 to 1" },
+              metadata: {
+                type: "object",
+                description: "Optional free-form data to store with the relation"
               }
             },
             required: ["from", "to", "relationType"],
@@ -99437,7 +99443,17 @@ var toolDefinitions = [
       type: "object",
       properties: {
         name: { type: "string", description: "Name of the saved search" },
-        updates: { type: "object", description: "Fields to update" }
+        updates: {
+          type: "object",
+          description: "Fields to update. The name cannot change",
+          properties: {
+            description: { type: "string", description: "Description of the search" },
+            query: { type: "string", description: "Search query" },
+            tags: { type: "array", items: { type: "string" }, description: "Tags filter" },
+            minImportance: { type: "number", description: "Minimum importance" },
+            maxImportance: { type: "number", description: "Maximum importance" }
+          }
+        }
       },
       required: ["name", "updates"],
       additionalProperties: false
@@ -100664,13 +100680,13 @@ var toolDefinitions = [
   // ==================== SESSION & WORKING MEMORY TOOLS ====================
   {
     name: "session_start",
-    description: "Start a new agent session via AgentMemoryManager. Tracks session lifecycle, enables working memory, and supports session chaining. Returns a SessionEntity with id and timestamps.",
+    description: "Start a new agent session via AgentMemoryManager. Tracks session lifecycle, enables working memory, and supports session chaining. Returns a SessionEntity with id and timestamps. The metadata parameter is accepted and ignored.",
     inputSchema: {
       type: "object",
       properties: {
         taskDescription: { type: "string", description: "Description of the task for this session" },
         parentSessionId: { type: "string", description: "ID of a parent session to chain from" },
-        metadata: { type: "object", description: "Arbitrary metadata to attach to the session" }
+        metadata: { type: "object", description: "Accepted and ignored: the session record has no metadata field, so nothing is stored" }
       },
       additionalProperties: false
     }
@@ -101230,7 +101246,7 @@ var toolDefinitions = [
       type: "object",
       properties: {
         id: { type: "string", description: "Optional stable id; auto-generated if omitted" },
-        name: { type: "string", description: "Human-readable name" },
+        name: { type: "string", description: "Accepted and echoed in this response; the stored procedure reports its id as its name" },
         description: { type: "string" },
         steps: {
           type: "array",
@@ -101309,15 +101325,15 @@ var toolDefinitions = [
   // ==================== 3B.5 ACTIVE RETRIEVAL TOOL ====================
   {
     name: "adaptive_retrieve",
-    description: "Run iterative query-rewriting retrieval. Up to maxRounds of (search \u2192 score coverage \u2192 rewrite). Stops early when coverage \u2265 minCoverage or no expansion tokens. Pure symbolic \u2014 no LLM provider required.",
+    description: "Run iterative query-rewriting retrieval. Up to 3 rounds of (search \u2192 score coverage \u2192 rewrite), 10 results per round. Stops early when coverage reaches 0.6 or no expansion tokens remain. Pure symbolic \u2014 no LLM provider required. The parameters budgetTokens, maxRounds, minCoverage and resultsPerRound are accepted and ignored: the settings above are fixed.",
     inputSchema: {
       type: "object",
       properties: {
         query: { type: "string" },
-        budgetTokens: { type: "number", description: "Optional token budget; rejects retrieval if cost exceeds budget" },
-        maxRounds: { type: "number", default: 3 },
-        minCoverage: { type: "number", minimum: 0, maximum: 1, default: 0.6 },
-        resultsPerRound: { type: "number", default: 10 }
+        budgetTokens: { type: "number", description: "Accepted and ignored: no token budget is checked. A value that is not a positive integer is rejected" },
+        maxRounds: { type: "number", description: "Accepted and ignored: the retrieval always runs at most 3 rounds" },
+        minCoverage: { type: "number", minimum: 0, maximum: 1, description: "Accepted and ignored: the retrieval always stops at a coverage of 0.6" },
+        resultsPerRound: { type: "number", description: "Accepted and ignored: each round always returns 10 results" }
       },
       required: ["query"],
       additionalProperties: false
@@ -102489,6 +102505,24 @@ async function withCompression(handler) {
   }
   return result;
 }
+var ProcedureStepInputSchema = external_exports.lazy(
+  () => external_exports.object({
+    order: external_exports.number(),
+    action: external_exports.string(),
+    parameters: external_exports.record(external_exports.string(), external_exports.string()),
+    fallback: ProcedureStepInputSchema.optional(),
+    timeout: external_exports.number().optional()
+  })
+);
+var ProcedureInputSchema = external_exports.object({
+  id: external_exports.string().min(1).optional(),
+  name: external_exports.string().optional(),
+  description: external_exports.string().optional(),
+  steps: external_exports.array(ProcedureStepInputSchema),
+  triggers: external_exports.array(external_exports.string()).optional(),
+  successRate: external_exports.number().min(0).max(1).optional(),
+  executionCount: external_exports.number().int().min(0).optional()
+});
 function parseObservationDedupFilter(args) {
   const out = {};
   if (typeof args.entityType === "string") {
@@ -102824,7 +102858,7 @@ var toolHandlers = {
   // Phase 11 Sprint 3: Query Analysis
   analyze_query: async (_ctx, args) => {
     const query = validateWithSchema(args.query, external_exports.string().min(1), "Invalid query");
-    const includePlan = args.includePlan === true;
+    const includePlan = args.includePlan !== void 0 ? validateWithSchema(args.includePlan, external_exports.boolean(), "Invalid includePlan value") : false;
     const analyzer = new QueryAnalyzer();
     const analysis = analyzer.analyze(query);
     let plan = void 0;
@@ -102843,7 +102877,7 @@ var toolHandlers = {
     const query = validateWithSchema(args.query, external_exports.string().min(1), "Invalid query");
     const maxIterations = args.maxIterations !== void 0 ? validateWithSchema(args.maxIterations, external_exports.number().int().positive().max(10), "Invalid maxIterations") : 3;
     const adequacyThreshold = args.adequacyThreshold !== void 0 ? validateWithSchema(args.adequacyThreshold, external_exports.number().min(0).max(1), "Invalid adequacyThreshold") : 0.7;
-    const includePlan = args.includePlan !== false;
+    const includePlan = args.includePlan !== void 0 ? validateWithSchema(args.includePlan, external_exports.boolean(), "Invalid includePlan value") : true;
     const limit = args.limit !== void 0 ? validateWithSchema(args.limit, external_exports.number().int().positive().max(200), "Invalid limit") : 10;
     const analyzer = new QueryAnalyzer();
     const analysis = analyzer.analyze(query);
@@ -104149,9 +104183,8 @@ var toolHandlers = {
   },
   // ==================== 3B.4 PROCEDURAL MEMORY HANDLERS ====================
   add_procedure: async (ctx, args) => {
-    const procedure = await ctx.procedureManager.addProcedure(
-      args
-    );
+    const input2 = validateWithSchema(args, ProcedureInputSchema, "Invalid procedure data");
+    const procedure = await ctx.procedureManager.addProcedure(input2);
     return formatToolResponse(procedure);
   },
   get_procedure: async (ctx, args) => {
@@ -105211,7 +105244,7 @@ async function handleToolCall(name, args, ctx) {
 
 // src/server/MCPServer.ts
 var require2 = createRequire4(import.meta.url);
-var version2 = true ? "12.9.1" : require2("../../package.json").version;
+var version2 = true ? "12.10.0" : require2("../../package.json").version;
 var MCPServer = class {
   ctx;
   stdioHandle = null;

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [12.10.0] - 2026-10-21
+
 ### Added
 
 - **Two checks run in CI and before every publish.** `bun run check:pack` lists the files that `npm pack` would put in the tarball. The check fails when a file is not package metadata and has no source file. `bun run check:bundle` starts the bundle that `.mcp.json` runs and reads the version in its `initialize` answer. The check fails when that version differs from `package.json` or `.claude-plugin/plugin.json`. Both scripts take their folders and settings from flags or environment variables. The defaults sit in one place in each script.
