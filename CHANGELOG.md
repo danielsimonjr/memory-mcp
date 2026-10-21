@@ -11,19 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`docs/architecture/API.md` states the parameters that the handlers read.** The Parameters block
   of 20 tools named fields that the handler does not read, or left out fields that the handler
-  reads. Examples: `forget_memory` (the document said that the tool deletes an entity by name, but
-  the handler deletes the observation with the given text), `ingest` (the field is `messages`, not
-  `input`), `archive_entities` (the three criteria are top-level fields) and `merge_tags` (the
-  fields are `tag1` and `tag2`). Four defaults were wrong: `limit` of `hybrid_search` (10, not 20),
-  its semantic and lexical weights (0.5 and 0.3), and `maxSuggestions` of `get_search_suggestions`
-  (5, not 10). Every name and default comes from `src/server/toolHandlers.ts` and from
+  reads. Four examples. `forget_memory`: the document said that the tool deletes an entity by name,
+  but the handler deletes the observation with the given text. `ingest`: the field is `messages`,
+  not `input`. `archive_entities`: the three criteria are top-level fields. `merge_tags`: the fields
+  are `tag1` and `tag2`. Four defaults were wrong: `limit` of `hybrid_search` (10, not 20), its
+  semantic and lexical weights (0.5 and 0.3), and `maxSuggestions` of `get_search_suggestions` (5,
+  not 10). Every name and default comes from `src/server/toolHandlers.ts` and from
   `@danielsimonjr/memoryjs` 4.2.0, the version that `bun.lock` resolves. The document gets the base
-  section of `set_memory_visibility` in "Multi-Agent (Phase 14)", a rewritten introduction, and no
-  "Strategy Selection" list for `search_auto`, because no source states those rules. The Returns
-  blocks are not changed. The document also says in plain words what a tool accepts and its
-  `inputSchema` does not declare, and what it accepts and ignores: the four `adaptive_retrieve`
-  parameters, `metadata` of `session_start`, and `entityType` of the saved-search tools (a saved
-  search stores it and does not apply it when it runs). `create_entities` lists the ten keys that the
+  section of `set_memory_visibility` in "Multi-Agent (Phase 14)" and a rewritten introduction. The
+  document loses its "Strategy Selection" list for `search_auto`, because no source states those
+  rules. The Returns blocks are not changed. The document also says in plain words what a tool
+  accepts and its `inputSchema` does not declare. The document says the same for what a tool accepts
+  and ignores: the four `adaptive_retrieve` parameters, `metadata` of `session_start`, and
+  `entityType` of the saved-search tools. A saved search stores `entityType`. The saved search does
+  not apply `entityType` when the search runs. `create_entities` lists the ten keys that the
   validator accepts and stores as sent. `create_relations` gains `weight`, `confidence` and
   `metadata`, with a note on the three keys that it accepts and does not declare. `delete_relations`
   says that only `from`, `to` and `relationType` match a relation. `add_procedure` says that
