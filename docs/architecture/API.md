@@ -2645,7 +2645,7 @@ Load by 1-indexed `order`, OR get the step after `order` when `next: true`.
 
 Iterative query rewriting: up to 3 rounds of (search → score coverage → rewrite), with 10 results per round. Stops early when the coverage reaches 0.6 or no expansion tokens remain. Pure symbolic — no LLM provider required.
 
-The parameters `maxRounds`, `minCoverage`, `resultsPerRound` and `budgetTokens` are accepted and ignored. The library fixes these settings when it creates the controller, and the handler passes only the query. No token budget is checked. A `budgetTokens` that is not a positive integer returns an error.
+The parameters `maxRounds`, `minCoverage`, `resultsPerRound` and `budgetTokens` are accepted and ignored. The library fixes these settings when it creates the controller, and the library reads only the query. No token budget is checked. A `budgetTokens` that is not a positive integer returns an error.
 
 ```typescript
 {
