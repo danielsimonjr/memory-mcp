@@ -99,9 +99,7 @@ Create one or more entities in the knowledge graph.
 
 **Returns:**
 ```typescript
-{
-  entities: Entity[];  // Array of created entities with timestamps
-}
+Entity[]
 ```
 
 **Example:**
@@ -145,9 +143,7 @@ Delete one or more entities from the knowledge graph.
 
 **Returns:**
 ```typescript
-{
-  deletedCount: number;  // Number of entities deleted
-}
+string  // Deleted <count> entities
 ```
 
 **Notes:**
@@ -240,9 +236,7 @@ Create one or more relations between entities.
 
 **Returns:**
 ```typescript
-{
-  relations: Relation[];  // Created relations with timestamps
-}
+Relation[]
 ```
 
 **Notes:**
@@ -281,9 +275,7 @@ Delete one or more relations from the knowledge graph.
 
 **Returns:**
 ```typescript
-{
-  deletedCount: number;
-}
+string  // Deleted <count> relations
 ```
 
 **Notes:**
@@ -320,12 +312,16 @@ Add observations to existing entities.
 
 **Returns:**
 ```typescript
-{
-  results: Array<{
-    entityName: string;
-    addedObservations: string[];
-  }>
-}
+Array<{
+  entityName: string;
+  addedObservations: string[];
+  superseded?: boolean;
+  autoLinkResults?: Array<{
+    sourceEntity: string;         // Name of the entity whose observations were scanned
+    mentionedEntities: string[];  // Names of entities that were mentioned in observations
+    relationsCreated: number;     // Number of new relations created (excludes duplicates)
+  }>;
+}>
 ```
 
 **Notes:**
@@ -363,12 +359,7 @@ Remove specific observations from entities.
 
 **Returns:**
 ```typescript
-{
-  results: Array<{
-    entityName: string;
-    deletedObservations: string[];
-  }>
-}
+string  // Observations deleted successfully
 ```
 
 **Example:**
@@ -405,19 +396,22 @@ Normalize the observations of one entity, or of all entities, by resolving coref
 **Returns:**
 ```typescript
 {
-  entityName: string;
-  originalCount: number;
-  normalizedCount: number;
-  observations: Array<{
-    original: string;
-    normalized: string;
-    keywords?: Array<{
-      keyword: string;
-      score: number;
-    }>;
-  }>;
+  entitiesProcessed: number;  // Number of entities that the tool checked
+  persisted: boolean;         // true when the call stored the result
+  results: Array<{
+    entityName: string;
+    changes: Array<{
+      original: string;
+      normalized: string;
+      changes: string[];
+      keywords?: string[];
+    }>;  // Only the observations that changed
+    normalized: string[];  // All observations of the entity after normalization
+  }>;  // Only the entities that have a change
 }
 ```
+
+When `entityName` names no entity, the tool returns the text `Entity "<entityName>" not found`.
 
 **Features:**
 - **Coreference Resolution**: Replaces pronouns (he, she, they, it, etc.) with the entity name
@@ -437,16 +431,36 @@ Normalize the observations of one entity, or of all entities, by resolving coref
 ```
 
 **Example Response:**
+
+Alice has the observations `She joined the team yesterday` and `Leads the machine learning initiative`. A call without `persist` changes nothing in storage.
+
 ```json
 {
-  "entityName": "Alice",
-  "originalCount": 2,
-  "normalizedCount": 2,
-  "observations": [
+  "entitiesProcessed": 1,
+  "persisted": false,
+  "results": [
     {
-      "original": "She joined the team yesterday",
-      "normalized": "Alice joined the team on 2026-01-08",
-      "keywords": [{ "keyword": "joined", "score": 0.85 }, { "keyword": "team", "score": 0.72 }]
+      "entityName": "Alice",
+      "changes": [
+        {
+          "original": "She joined the team yesterday",
+          "normalized": "Alice joined the team 2026-10-20",
+          "changes": [
+            "Resolved pronouns to 'Alice'",
+            "'yesterday' -> '2026-10-20'"
+          ],
+          "keywords": [
+            "alice",
+            "joined",
+            "team",
+            "20261020"
+          ]
+        }
+      ],
+      "normalized": [
+        "Alice joined the team 2026-10-20",
+        "Leads the machine learning initiative"
+      ]
     }
   ]
 }
@@ -550,13 +564,15 @@ TF-IDF ranked search with relevance scoring.
 
 **Returns:**
 ```typescript
-{
-  results: Array<{
-    entity: Entity;
-    score: number;             // TF-IDF relevance score
-    matchedFields: string[];   // Fields that matched
-  }>
-}
+Array<{
+  entity: Entity;  // The entity that matched the search
+  score: number;   // Relevance score (0.0 to 1.0, higher is more relevant)
+  matchedFields: {
+    name?: boolean;           // True if entity name matched
+    entityType?: boolean;     // True if entity type matched
+    observations?: string[];  // Array of observations that matched the query
+  };  // Details about which fields matched the search query
+}>
 ```
 
 **Features:**
@@ -676,9 +692,7 @@ Get search query suggestions based on existing content.
 
 **Returns:**
 ```typescript
-{
-  suggestions: string[];
-}
+string[]
 ```
 
 **Example:**
@@ -706,10 +720,26 @@ Automatically select the best search strategy based on query analysis.
 **Returns:**
 ```typescript
 {
-  entities: Entity[];
-  relations: Relation[];
-  searchMethod: string;       // Method that was used (basic, ranked, boolean, fuzzy)
-  cost: number;               // Estimated query cost
+  selectedMethod: 'boolean' | 'semantic' | 'ranked' | 'basic' | 'fuzzy';  // The search method that was selected
+  selectionReason: string;  // Why this method was selected
+  estimates: Array<{
+    method: 'boolean' | 'semantic' | 'ranked' | 'basic' | 'fuzzy';  // The search method being estimated
+    estimatedTimeMs: number;                // Estimated execution time in milliseconds
+    complexity: 'medium' | 'low' | 'high';  // Query complexity level
+    entityCount: number;                    // Number of entities in the graph
+    recommendation: string;                 // Human-readable recommendation
+    isRecommended: boolean;                 // Whether this method is recommended for the query
+  }>;  // Cost estimates for all considered methods
+  results: Array<{
+    entity: Entity;  // The entity that matched the search
+    score: number;   // Relevance score (0.0 to 1.0, higher is more relevant)
+    matchedFields: {
+      name?: boolean;           // True if entity name matched
+      entityType?: boolean;     // True if entity type matched
+      observations?: string[];  // Array of observations that matched the query
+    };  // Details about which fields matched the search query
+  }>;  // The actual search results
+  executionTimeMs: number;  // Actual execution time in milliseconds
 }
 ```
 
@@ -766,21 +796,40 @@ Multi-layer search combining semantic (vector similarity), lexical (TF-IDF/BM25)
 **Returns:**
 ```typescript
 {
-  results: Array<{
-    entity: Entity;
-    scores: {
-      semantic: number;             // Vector similarity score
-      lexical: number;              // TF-IDF/BM25 score
-      symbolic: number;             // Metadata match score
-      combined: number;             // Weighted combined score
-    };
-    matchedFields: string[];        // Fields that matched
-  }>;
-  queryAnalysis: {
-    extractedEntities: string[];    // Entities mentioned in query
-    temporalReferences: string[];   // Time expressions found
-    questionType: string;           // Type of question (who, what, when, etc.)
+  query: string;
+  weights: {
+    graph?: number;
+    semantic: number;
+    lexical: number;
+    symbolic: number;
   };
+  resultCount: number;
+  results: Array<{
+    name: string;
+    entityType: string;
+    scores: {
+      semantic: number;
+      lexical: number;
+      symbolic: number;
+      combined: number;  // Weighted combined score
+      graph?: number;    // Normalized graph-connectivity score. Present when the graph layer ran
+    };
+    matchedLayers: Array<'semantic' | 'lexical' | 'symbolic' | 'graph'>;
+    observations: string[];
+    tags?: string[];
+    evidencePaths?: Array<{
+      nodes: string[];  // Entity names along the path, anchor first, result last
+      relations: Array<{
+        from: string;          // Source entity name (as stored on the relation)
+        to: string;            // Target entity name (as stored on the relation)
+        relationType: string;  // Relation type
+      }>;  // Relation hops connecting consecutive nodes
+      anchor: string;                                           // The anchor entity (direct query match) this path starts from
+      viaLayer: 'semantic' | 'lexical' | 'symbolic' | 'graph';  // Search layer through which the anchor matched the query
+    }>;
+    evidenceTruncated?: boolean;
+    lookForScore?: number;
+  }>;
 }
 ```
 
@@ -811,21 +860,53 @@ Analyze a natural language query to extract entities, temporal references, and q
 **Returns:**
 ```typescript
 {
-  query: string;                    // Original query
+  query: string;
   analysis: {
-    extractedEntities: Array<{
-      text: string;                 // Entity mention
-      type: string;                 // Inferred entity type
-      confidence: number;           // Confidence score
+    query: string;  // Original query text
+    entities: Array<{
+      name: string;
+      type: 'unknown' | 'person' | 'location' | 'organization';
+    }>;  // Extracted entities (combined persons, locations, organizations)
+    persons: string[];        // Extracted person names
+    locations: string[];      // Extracted location names
+    organizations: string[];  // Extracted organization names
+    temporalRange: {
+      start?: string;
+      end?: string;
+      relative?: string;
+    } | null;  // Temporal range if detected
+    questionType: 'factual' | 'temporal' | 'comparative' | 'aggregation' | 'multi-hop' | 'conceptual';  // Type of question
+    complexity: 'medium' | 'low' | 'high';  // Query complexity level
+    confidence: number;                     // Confidence in the analysis (0-1)
+    requiredInfoTypes: string[];            // Types of information being requested
+    subQueries?: string[];                  // Decomposed sub-queries for multi-hop
+  };
+  plan?: {
+    originalQuery: string;
+    subQueries: Array<{
+      id: string;
+      query: string;
+      targetLayer: 'semantic' | 'lexical' | 'symbolic' | 'hybrid';
+      priority: number;
+      filters?: {
+        tags?: string[];
+        entityTypes?: string[];
+        dateRange?: {
+          start: string;
+          end: string;
+        };
+        importance?: {
+          min?: number;
+          max?: number;
+        };
+        parentId?: string;
+        hasObservations?: boolean;
+      };
+      dependsOn?: string[];
     }>;
-    temporalReferences: Array<{
-      text: string;                 // Time expression (e.g., "last week")
-      resolved: string;             // ISO 8601 date or range
-      type: string;                 // absolute, relative, range
-    }>;
-    questionType: string;           // who, what, when, where, why, how, boolean, list
-    complexity: string;             // simple, moderate, complex
-    suggestedSearchMethods: string[]; // Recommended search approaches
+    executionStrategy: 'parallel' | 'sequential' | 'iterative';
+    mergeStrategy: 'union' | 'intersection' | 'weighted';
+    estimatedComplexity: number;
   };
 }
 ```
@@ -842,15 +923,25 @@ Analyze a natural language query to extract entities, temporal references, and q
 {
   "query": "Who are the senior engineers who joined after January 2025?",
   "analysis": {
-    "extractedEntities": [
-      { "text": "senior engineers", "type": "person", "confidence": 0.9 }
+    "query": "Who are the senior engineers who joined after January 2025?",
+    "entities": [
+      {
+        "name": "January",
+        "type": "person"
+      }
     ],
-    "temporalReferences": [
-      { "text": "after January 2025", "resolved": "2025-01-01T00:00:00Z", "type": "relative" }
+    "persons": [
+      "January"
     ],
-    "questionType": "who",
-    "complexity": "moderate",
-    "suggestedSearchMethods": ["hybrid_search", "search_by_date_range"]
+    "locations": [],
+    "organizations": [],
+    "temporalRange": null,
+    "questionType": "factual",
+    "complexity": "low",
+    "confidence": 0.9,
+    "requiredInfoTypes": [
+      "person"
+    ]
   }
 }
 ```
@@ -875,22 +966,63 @@ Orchestrates query analysis, planning, and reflection-based iterative refinement
 **Returns:**
 ```typescript
 {
-  results: Array<{
-    entity: Entity;
-    score: number;
-    relevanceExplanation: string;   // Why this result is relevant
-  }>;
-  searchProcess: {
-    iterations: number;             // Number of refinement iterations
-    finalAdequacy: number;          // Final adequacy score achieved
-    queryRefinements: string[];     // How the query was refined
-    searchMethodsUsed: string[];    // Methods used during search
-  };
+  query: string;
   analysis: {
-    questionType: string;
-    complexity: string;
-    extractedEntities: string[];
+    questionType: 'factual' | 'temporal' | 'comparative' | 'aggregation' | 'multi-hop' | 'conceptual';
+    complexity: 'medium' | 'low' | 'high';
+    persons: string[];
+    temporalRange: {
+      start?: string;
+      end?: string;
+      relative?: string;
+    } | null;
   };
+  plan?: {
+    originalQuery: string;
+    subQueries: Array<{
+      id: string;
+      query: string;
+      targetLayer: 'semantic' | 'lexical' | 'symbolic' | 'hybrid';
+      priority: number;
+      filters?: {
+        tags?: string[];
+        entityTypes?: string[];
+        dateRange?: {
+          start: string;
+          end: string;
+        };
+        importance?: {
+          min?: number;
+          max?: number;
+        };
+        parentId?: string;
+        hasObservations?: boolean;
+      };
+      dependsOn?: string[];
+    }>;
+    executionStrategy: 'parallel' | 'sequential' | 'iterative';
+    mergeStrategy: 'union' | 'intersection' | 'weighted';
+    estimatedComplexity: number;
+  };
+  reflection: {
+    iterations: number;  // Number of refinement iterations
+    adequate: boolean;
+    adequacyScore: number;
+    refinements: string[];
+  };
+  resultCount: number;
+  results: Array<{
+    name: string;
+    entityType: string;
+    scores: {
+      semantic: number;
+      lexical: number;
+      symbolic: number;
+      combined: number;
+    };
+    matchedLayers: Array<'semantic' | 'lexical' | 'symbolic' | 'graph'>;
+    observations: string[];
+  }>;
 }
 ```
 
@@ -904,23 +1036,58 @@ Orchestrates query analysis, planning, and reflection-based iterative refinement
 ```
 
 **Example Response:**
+
+The graph has the entities Alice, Bob and Machine Learning Initiative. The response shows the first result only.
+
 ```json
 {
-  "results": [...],
-  "searchProcess": {
-    "iterations": 2,
-    "finalAdequacy": 0.85,
-    "queryRefinements": [
-      "Added entity type filter: person",
-      "Expanded query to include 'AI' and 'ML' synonyms"
-    ],
-    "searchMethodsUsed": ["analyze_query", "hybrid_search", "fuzzy_search"]
-  },
+  "query": "Find all people related to the machine learning initiative",
   "analysis": {
-    "questionType": "list",
-    "complexity": "moderate",
-    "extractedEntities": ["machine learning initiative"]
-  }
+    "questionType": "multi-hop",
+    "complexity": "low",
+    "persons": [],
+    "temporalRange": null
+  },
+  "plan": {
+    "originalQuery": "Find all people related to the machine learning initiative",
+    "subQueries": [
+      {
+        "id": "sq_0",
+        "query": "Find all people related to the machine learning initiative",
+        "targetLayer": "hybrid",
+        "priority": 1
+      }
+    ],
+    "executionStrategy": "iterative",
+    "mergeStrategy": "weighted",
+    "estimatedComplexity": 1
+  },
+  "reflection": {
+    "iterations": 1,
+    "adequate": false,
+    "adequacyScore": 0.6138533911936956,
+    "refinements": []
+  },
+  "resultCount": 3,
+  "results": [
+    {
+      "name": "Machine Learning Initiative",
+      "entityType": "project",
+      "scores": {
+        "semantic": 0,
+        "lexical": 0.22525839339342466,
+        "symbolic": 0,
+        "combined": 0.06757751801802739
+      },
+      "matchedLayers": [
+        "lexical"
+      ],
+      "observations": [
+        "A project about machine learning"
+      ]
+    },
+    ...
+  ]
 }
 ```
 
@@ -944,12 +1111,16 @@ Search using semantic similarity with embeddings.
 **Returns:**
 ```typescript
 {
+  query: string;
   results: Array<{
     entity: Entity;
     similarity: number;
-  }>
+  }>;
+  count: number;
 }
 ```
+
+When the server has no semantic search because no embedding provider is set, the tool returns the text `Semantic search is not available. Set MEMORY_EMBEDDING_PROVIDER environment variable to "openai", "local", or "llamacpp".`
 
 **Notes:**
 - Requires embedding provider configuration via `MEMORY_EMBEDDING_PROVIDER`
@@ -983,12 +1154,16 @@ Find entities similar to a given entity.
 **Returns:**
 ```typescript
 {
-  results: Array<{
+  entityName: string;
+  similarEntities: Array<{
     entity: Entity;
     similarity: number;
-  }>
+  }>;
+  count: number;
 }
 ```
+
+When the server has no semantic search because no embedding provider is set, the tool returns the text `Semantic search is not available. Set MEMORY_EMBEDDING_PROVIDER environment variable to "openai", "local", or "llamacpp".`
 
 **Example:**
 ```json
@@ -1014,10 +1189,21 @@ Index all entities for semantic search.
 **Returns:**
 ```typescript
 {
-  indexed: number;            // Number of entities indexed
-  skipped: number;            // Number already indexed (if not forcing)
+  totalEntities: number;
+  stats: {
+    indexed: boolean;
+    indexedCount: number;
+    provider: string;
+    model: string;
+    dimensions: number;
+  };
+  indexed: number;
+  skipped: number;  // Number already indexed (if not forcing)
+  errors: number;
 }
 ```
+
+When the server has no semantic search because no embedding provider is set, the tool returns the text `Semantic search is not available. Set MEMORY_EMBEDDING_PROVIDER environment variable to "openai", "local", or "llamacpp".`
 
 **Notes:**
 - Call after adding entities to enable semantic search
@@ -1050,7 +1236,16 @@ The inputSchema does not declare `entityType`. The handler accepts it, and the l
 **Returns:**
 ```typescript
 {
-  savedSearch: SavedSearch;
+  name: string;            // Unique name for the saved search
+  description?: string;    // Optional description of what this search does
+  query: string;           // The search query string
+  tags?: string[];         // Optional tags to filter by
+  minImportance?: number;  // Optional minimum importance level (0-10)
+  maxImportance?: number;  // Optional maximum importance level (0-10)
+  entityType?: string;     // Optional entity type to filter by
+  createdAt: string;       // ISO 8601 timestamp when search was created
+  lastUsed?: string;       // ISO 8601 timestamp when search was last executed
+  useCount: number;        // Number of times this search has been executed
 }
 ```
 
@@ -1102,9 +1297,18 @@ List all saved searches.
 
 **Returns:**
 ```typescript
-{
-  savedSearches: SavedSearch[];
-}
+Array<{
+  name: string;            // Unique name for the saved search
+  description?: string;    // Optional description of what this search does
+  query: string;           // The search query string
+  tags?: string[];         // Optional tags to filter by
+  minImportance?: number;  // Optional minimum importance level (0-10)
+  maxImportance?: number;  // Optional maximum importance level (0-10)
+  entityType?: string;     // Optional entity type to filter by
+  createdAt: string;       // ISO 8601 timestamp when search was created
+  lastUsed?: string;       // ISO 8601 timestamp when search was last executed
+  useCount: number;        // Number of times this search has been executed
+}>
 ```
 
 ---
@@ -1122,10 +1326,10 @@ Delete a saved search.
 
 **Returns:**
 ```typescript
-{
-  deleted: boolean;
-}
+string  // Saved search "<name>" deleted successfully
 ```
+
+When no saved search has that name, the text is `Saved search "<name>" not found`.
 
 ---
 
@@ -1153,7 +1357,16 @@ The inputSchema of `updates` declares `query`, `description`, `tags`, `minImport
 **Returns:**
 ```typescript
 {
-  savedSearch: SavedSearch;
+  name: string;            // Unique name for the saved search
+  description?: string;    // Optional description of what this search does
+  query: string;           // The search query string
+  tags?: string[];         // Optional tags to filter by
+  minImportance?: number;  // Optional minimum importance level (0-10)
+  maxImportance?: number;  // Optional maximum importance level (0-10)
+  entityType?: string;     // Optional entity type to filter by
+  createdAt: string;       // ISO 8601 timestamp when search was created
+  lastUsed?: string;       // ISO 8601 timestamp when search was last executed
+  useCount: number;        // Number of times this search has been executed
 }
 ```
 
@@ -1176,7 +1389,8 @@ Add tags to a single entity.
 **Returns:**
 ```typescript
 {
-  entity: Entity;
+  entityName: string;
+  addedTags: string[];
 }
 ```
 
@@ -1205,7 +1419,8 @@ Remove tags from a single entity.
 **Returns:**
 ```typescript
 {
-  entity: Entity;
+  entityName: string;
+  removedTags: string[];
 }
 ```
 
@@ -1226,7 +1441,8 @@ Set the importance score for an entity.
 **Returns:**
 ```typescript
 {
-  entity: Entity;
+  entityName: string;
+  importance: number;
 }
 ```
 
@@ -1254,9 +1470,10 @@ Add tags to multiple entities at once.
 
 **Returns:**
 ```typescript
-{
-  entities: Entity[];
-}
+Array<{
+  entityName: string;
+  addedTags: string[];
+}>
 ```
 
 **Example:**
@@ -1284,7 +1501,8 @@ Replace a tag across all entities.
 **Returns:**
 ```typescript
 {
-  entitiesUpdated: number;
+  affectedEntities: string[];
+  count: number;
 }
 ```
 
@@ -1314,7 +1532,8 @@ Merge two tags into one target tag. The tool compares tags in lower case.
 **Returns:**
 ```typescript
 {
-  entitiesUpdated: number;
+  affectedEntities: string[];
+  count: number;
 }
 ```
 
@@ -1347,7 +1566,10 @@ Create a tag alias for normalization.
 **Returns:**
 ```typescript
 {
-  tagAlias: TagAlias;
+  alias: string;         // The alias (synonym) tag name
+  canonical: string;     // The canonical (official) tag name this maps to
+  description?: string;  // Optional description of the alias relationship
+  createdAt: string;     // ISO 8601 timestamp when alias was created
 }
 ```
 
@@ -1370,9 +1592,12 @@ List all tag aliases.
 
 **Returns:**
 ```typescript
-{
-  aliases: TagAlias[];
-}
+Array<{
+  alias: string;         // The alias (synonym) tag name
+  canonical: string;     // The canonical (official) tag name this maps to
+  description?: string;  // Optional description of the alias relationship
+  createdAt: string;     // ISO 8601 timestamp when alias was created
+}>
 ```
 
 ---
@@ -1390,10 +1615,10 @@ Remove a tag alias.
 
 **Returns:**
 ```typescript
-{
-  removed: boolean;
-}
+string  // Tag alias "<alias>" removed successfully
 ```
+
+When the alias does not exist, the text is `Tag alias "<alias>" not found`.
 
 ---
 
@@ -1410,9 +1635,7 @@ Get all aliases that map to a canonical tag.
 
 **Returns:**
 ```typescript
-{
-  aliases: string[];
-}
+string[]
 ```
 
 ---
@@ -1431,8 +1654,8 @@ Resolve a tag alias to its canonical form.
 **Returns:**
 ```typescript
 {
-  resolvedTag: string;
-  wasAlias: boolean;
+  tag: string;
+  resolved: string;
 }
 ```
 
@@ -1462,9 +1685,7 @@ Set the parent entity for hierarchical organization.
 
 **Returns:**
 ```typescript
-{
-  entity: Entity;
-}
+Entity
 ```
 
 **Notes:**
@@ -1494,9 +1715,7 @@ Get all direct children of an entity.
 
 **Returns:**
 ```typescript
-{
-  children: Entity[];
-}
+Entity[]
 ```
 
 ---
@@ -1514,9 +1733,7 @@ Get the parent of an entity.
 
 **Returns:**
 ```typescript
-{
-  parent: Entity | null;
-}
+Entity | null
 ```
 
 ---
@@ -1534,9 +1751,7 @@ Get all ancestors of an entity (parent, grandparent, etc.).
 
 **Returns:**
 ```typescript
-{
-  ancestors: Entity[];  // Ordered from immediate parent to root
-}
+Entity[]
 ```
 
 ---
@@ -1554,9 +1769,7 @@ Get all descendants of an entity (children, grandchildren, etc.).
 
 **Returns:**
 ```typescript
-{
-  descendants: Entity[];
-}
+Entity[]
 ```
 
 ---
@@ -1590,9 +1803,7 @@ Get all entities with no parent (root level).
 
 **Returns:**
 ```typescript
-{
-  roots: Entity[];
-}
+Entity[]
 ```
 
 ---
@@ -1611,6 +1822,7 @@ Get the depth of an entity in the hierarchy.
 **Returns:**
 ```typescript
 {
+  entityName: string;
   depth: number;  // 0 for root entities
 }
 ```
@@ -1631,9 +1843,7 @@ Move an entity to a new parent.
 
 **Returns:**
 ```typescript
-{
-  entity: Entity;
-}
+Entity
 ```
 
 **Notes:**
@@ -1697,10 +1907,11 @@ Find all paths between two entities up to a maximum depth.
 ```typescript
 {
   paths: Array<{
-    path: string[];
-    relations: Relation[];
-    length: number;
-  }>
+    path: string[];         // Path from source to target as array of node names
+    length: number;         // Total length of the path (number of hops or weighted distance)
+    relations: Relation[];  // Relations along the path
+  }>;
+  count: number;
 }
 ```
 
@@ -1724,12 +1935,9 @@ Find all connected components in the graph.
 **Returns:**
 ```typescript
 {
-  components: Array<{
-    entities: string[];
-    size: number;
-  }>;
-  componentCount: number;
-  largestComponentSize: number;
+  components: string[][];        // Array of components, each containing array of entity names
+  count: number;                 // Number of components found
+  largestComponentSize: number;  // Size of the largest component
 }
 ```
 
@@ -1758,11 +1966,13 @@ Calculate centrality metrics for entities.
 **Returns:**
 ```typescript
 {
-  centrality: Array<{
-    entityName: string;
+  approximate?: true;  // Present when the algorithm is betweenness and the call set approximate
+  algorithm: 'degree' | 'betweenness' | 'pagerank';
+  topEntities: Array<{
+    name: string;
     score: number;
   }>;
-  algorithm: string;
+  totalEntities: number;  // Number of entities that have a score
 }
 ```
 
@@ -1793,23 +2003,91 @@ Get comprehensive knowledge graph statistics.
 **Returns:**
 ```typescript
 {
-  entityCount: number;
-  relationCount: number;
-  entityTypes: { [type: string]: number };
-  relationTypes: { [type: string]: number };
-  tagCounts: { [tag: string]: number };
-  avgObservationsPerEntity: number;
-  importanceDistribution: { [importance: number]: number };
+  totalEntities: number;                           // Total number of entities in the graph
+  totalRelations: number;                          // Total number of relations in the graph
+  entityTypesCounts: { [key: string]: number };    // Count of entities by type
+  relationTypesCounts: { [key: string]: number };  // Count of relations by type
+  oldestEntity?: {
+    name: string;
+    date: string;
+  };  // Information about the oldest entity (by createdAt)
+  newestEntity?: {
+    name: string;
+    date: string;
+  };  // Information about the newest entity (by createdAt)
+  oldestRelation?: {
+    from: string;
+    to: string;
+    relationType: string;
+    date: string;
+  };  // Information about the oldest relation (by createdAt)
+  newestRelation?: {
+    from: string;
+    to: string;
+    relationType: string;
+    date: string;
+  };  // Information about the newest relation (by createdAt)
+  entityDateRange?: {
+    earliest: string;
+    latest: string;
+  };  // Date range of all entities
+  relationDateRange?: {
+    earliest: string;
+    latest: string;
+  };  // Date range of all relations
+  cacheStats?: {
+    totalEntries: number;          // Total number of entries in the cache
+    compressedEntries: number;     // Number of compressed entries
+    uncompressedEntries: number;   // Number of uncompressed (hot) entries
+    estimatedMemorySaved: number;  // Estimated memory saved by compression in bytes
+  };
 }
 ```
 
 **Example Response:**
+
+The graph has the entities Alice, Bob and Machine Learning Initiative, and two relations.
+
 ```json
 {
-  "entityCount": 150,
-  "relationCount": 320,
-  "entityTypes": { "person": 50, "project": 30, "document": 70 },
-  "avgObservationsPerEntity": 3.2
+  "totalEntities": 3,
+  "totalRelations": 2,
+  "entityTypesCounts": {
+    "person": 2,
+    "project": 1
+  },
+  "relationTypesCounts": {
+    "leads": 1,
+    "works_on": 1
+  },
+  "oldestEntity": {
+    "name": "Alice",
+    "date": "2026-10-21T22:00:19.425Z"
+  },
+  "newestEntity": {
+    "name": "Alice",
+    "date": "2026-10-21T22:00:19.425Z"
+  },
+  "oldestRelation": {
+    "from": "Alice",
+    "to": "Machine Learning Initiative",
+    "relationType": "leads",
+    "date": "2026-10-21T22:00:19.435Z"
+  },
+  "newestRelation": {
+    "from": "Alice",
+    "to": "Machine Learning Initiative",
+    "relationType": "leads",
+    "date": "2026-10-21T22:00:19.435Z"
+  },
+  "entityDateRange": {
+    "earliest": "2026-10-21T22:00:19.425Z",
+    "latest": "2026-10-21T22:00:19.425Z"
+  },
+  "relationDateRange": {
+    "earliest": "2026-10-21T22:00:19.435Z",
+    "latest": "2026-10-21T22:00:19.435Z"
+  }
 }
 ```
 
@@ -1824,17 +2102,23 @@ Validate graph integrity and return issues.
 **Returns:**
 ```typescript
 {
-  valid: boolean;
-  errors: Array<{
-    type: string;
-    message: string;
-    entities?: string[];
-  }>;
+  isValid: boolean;  // True if graph has no issues (warnings are acceptable)
+  issues: Array<{
+    type: 'orphaned_relation' | 'duplicate_entity' | 'invalid_data';  // Type of issue
+    message: string;                       // Human-readable issue message
+    details?: { [key: string]: unknown };  // Additional details about the issue
+  }>;  // Array of critical issues found
   warnings: Array<{
-    type: string;
-    message: string;
-    entities?: string[];
-  }>;
+    type: 'isolated_entity' | 'empty_observations' | 'missing_metadata';  // Type of warning
+    message: string;                       // Human-readable warning message
+    details?: { [key: string]: unknown };  // Additional details about the warning
+  }>;  // Array of warnings (non-critical issues)
+  summary: {
+    totalErrors: number;
+    totalWarnings: number;
+    orphanedRelationsCount: number;
+    entitiesWithoutRelationsCount: number;
+  };  // Summary statistics of validation results
 }
 ```
 
@@ -1862,9 +2146,7 @@ Find potential duplicate entities using similarity scoring.
 
 **Returns:**
 ```typescript
-{
-  duplicateGroups: string[][];  // Arrays of similar entity names
-}
+string[][]
 ```
 
 **Similarity Algorithm:**
@@ -1875,13 +2157,20 @@ Find potential duplicate entities using similarity scoring.
 **Performance:** <1500ms for 500 entities
 
 **Example Response:**
+
+The graph has the entities Alice Smith and Alice_Smith (with the same observations), Project Alpha and Project_Alpha (with the same observations), and Bob.
+
 ```json
-{
-  "duplicateGroups": [
-    ["Alice Smith", "Alice_Smith", "A. Smith"],
-    ["Project Alpha", "Project_Alpha"]
+[
+  [
+    "Alice Smith",
+    "Alice_Smith"
+  ],
+  [
+    "Project Alpha",
+    "Project_Alpha"
   ]
-}
+]
 ```
 
 ---
@@ -1900,11 +2189,7 @@ Merge multiple entities into one, combining observations and relations.
 
 **Returns:**
 ```typescript
-{
-  mergedEntity: Entity;
-  entitiesMerged: number;
-  observationsMerged: number;
-}
+Entity
 ```
 
 **Merge Logic:**
@@ -1939,10 +2224,15 @@ Find and merge all duplicates in one operation.
 **Returns:**
 ```typescript
 {
-  entitiesMerged: number;
-  observationsMerged: number;
-  relationsUpdated: number;
-  duplicateGroupsFound: number;
+  duplicatesFound: number;         // Number of duplicate entities found
+  entitiesMerged: number;          // Number of entities merged into others
+  observationsCompressed: number;  // Number of observations compressed
+  relationsConsolidated: number;   // Number of relations consolidated
+  spaceFreed: number;              // Approximate character count saved
+  mergedEntities: Array<{
+    kept: string;
+    merged: string[];
+  }>;  // Details of which entities were merged
 }
 ```
 
@@ -1975,8 +2265,12 @@ Archive entities. An entity moves to the archive when it meets at least one of t
 **Returns:**
 ```typescript
 {
-  archivedCount: number;
-  archivedEntities: string[];
+  archived: number;           // Number of entities archived
+  entityNames: string[];      // Names of archived entities
+  archivePath?: string;       // Path to the archive file (if created)
+  originalSize?: number;      // Original size of archive data in bytes
+  compressedSize?: number;    // Compressed size in bytes
+  compressionRatio?: number;  // Compression ratio (compressedSize / originalSize). Lower is better
 }
 ```
 
@@ -2018,12 +2312,22 @@ Export the knowledge graph in specified format.
 **Returns:**
 ```typescript
 {
-  data: string;  // Formatted export data
   format: string;
   entityCount: number;
   relationCount: number;
+  compressed: boolean;
+  encoding: 'utf-8' | 'base64';  // 'base64' in the compressed form
+  originalSize: number;          // Size of the export in bytes, before compression
+  compressedSize: number;
+  compressionRatio: string;      // compressedSize divided by originalSize, as a percent, for example '24.4%'
+  data?: string;                 // Compressed form only: the export, compressed with brotli and encoded as base64
+  streamed?: true;               // Streamed form only
+  outputPath?: string;           // Streamed form only: the file that holds the export
+  message?: string;              // Streamed form only: 'Streamed to <outputPath>'
 }
 ```
+
+The response has one of three forms. Without compression and without streaming, the response is the export as plain text, in the chosen `format`. In the compressed form, `compressed` is true and `data` holds the export. In the streamed form, `streamed` is true. The tool writes the export to `outputPath`, and the response holds no export text.
 
 **Supported Formats:**
 | Format | Description |
@@ -2066,12 +2370,12 @@ Import entities and relations from external data.
 **Returns:**
 ```typescript
 {
-  entitiesCreated: number;
-  entitiesUpdated: number;
-  entitiesSkipped: number;
-  relationsCreated: number;
-  relationsSkipped: number;
-  errors: string[];
+  entitiesAdded: number;     // Number of new entities added
+  entitiesSkipped: number;   // Number of entities skipped (duplicates or invalid)
+  entitiesUpdated: number;   // Number of existing entities updated
+  relationsAdded: number;    // Number of new relations added
+  relationsSkipped: number;  // Number of relations skipped (duplicates or invalid)
+  errors: string[];          // Array of error messages encountered during import
 }
 ```
 
@@ -2104,8 +2408,8 @@ List the distinct project IDs of the entities in the graph.
 **Returns:**
 ```typescript
 {
-  projects: string[];      // All distinct projectId values (when no filter)
-  entities?: Entity[];     // Entities matching projectId (when filter provided)
+  projects: string[];  // All distinct projectId values
+  count: number;
 }
 ```
 
@@ -2115,7 +2419,7 @@ List the distinct project IDs of the entities in the graph.
 
 ### get_entity_versions
 
-Retrieve all versions of a versioned entity by its root name.
+Get the latest version of an entity. When newer versions superseded the entity, the tool returns the most recent version.
 
 **Parameters:**
 ```typescript
@@ -2126,9 +2430,7 @@ Retrieve all versions of a versioned entity by its root name.
 
 **Returns:**
 ```typescript
-{
-  versions: Entity[];  // All versions ordered by version number
-}
+Entity
 ```
 
 ---
@@ -2147,8 +2449,15 @@ Get the full version chain from root to latest for an entity.
 **Returns:**
 ```typescript
 {
-  chain: Entity[];   // Version chain from root to latest
-  latest: Entity;    // The current latest version
+  rootEntity: string;
+  latestEntity: string | null;
+  versions: Array<{
+    name: string;
+    version: number;
+    isLatest: boolean;
+    observations: string[];
+  }>;
+  count: number;
 }
 ```
 
@@ -2173,11 +2482,17 @@ Delete a remembered fact. The tool looks for an observation with exactly the tex
 **Returns:**
 ```typescript
 {
-  deleted: boolean;
   method: 'exact' | 'semantic';
-  entityName: string;      // Actual name of deleted entity
+  deletedObservations: Array<{
+    entityName: string;
+    observation: string;
+  }>;
+  deletedEntities: string[];
+  similarity?: number;
 }
 ```
+
+When no memory matches, the tool returns the text `No matching memory found for: "<content>". Try a different search term.`
 
 ---
 
@@ -2197,7 +2512,9 @@ Retrieve the static and dynamic facts of a profile. The profile is global, or be
 **Returns:**
 ```typescript
 {
-  profile: Entity;  // Profile entity with observations and metadata
+  static: string[];    // Long-lived stable facts (parsed from [static] observations)
+  dynamic: string[];   // Recent session-derived context (parsed from [dynamic] observations)
+  entityName: string;  // The backing Entity name
 }
 ```
 
@@ -2218,9 +2535,7 @@ Add one fact to a profile. A fact is static or dynamic.
 
 **Returns:**
 ```typescript
-{
-  profile: Entity;  // Updated profile entity
-}
+string  // Added <type> profile fact: "<content>"
 ```
 
 ---
@@ -2243,10 +2558,10 @@ Mark a relation as ended by setting its temporal validity end date.
 
 **Returns:**
 ```typescript
-{
-  relation: Relation;  // Updated relation with validity end date
-}
+string  // Invalidated: <from> -[<relationType>]-> <to> (ended: <ended>)
 ```
+
+The text shows `now` in place of `<ended>` when the call gives no `ended` value.
 
 ---
 
@@ -2266,7 +2581,10 @@ Retrieve all relations for an entity that were valid at a given point in time.
 **Returns:**
 ```typescript
 {
+  entity: string;
+  asOf: string;
   relations: Relation[];  // Relations valid at the specified date
+  count: number;
 }
 ```
 
@@ -2287,11 +2605,16 @@ Return a chronological list of relation events (created/invalidated) for an enti
 **Returns:**
 ```typescript
 {
-  events: Array<{
-    date: string;
-    event: 'created' | 'invalidated';
-    relation: Relation;
+  entity: string;
+  timeline: Array<{
+    from: string;
+    relationType: string;
+    to: string;
+    validFrom: string | null;
+    validUntil: string | null;
+    current: boolean;
   }>;
+  count: number;
 }
 ```
 
@@ -2323,8 +2646,21 @@ Ingest a list of messages into the knowledge graph with the `IOManager.ingest()`
 ```typescript
 {
   entitiesCreated: number;
-  relationsCreated: number;
   observationsAdded: number;
+  skippedDuplicates: number;
+  entityNames: string[];
+  ingestId: string;  // stable id of this ingest run (8 hex chars)
+  manifestEntity: string;
+  chunkCount: number;
+  tokenUsage?: {
+    input: number;
+    output: number;
+    approximate: boolean;  // True when any component was estimated via the chars/4 heuristic
+  };  // summed LLM token usage; present only when the LLM was invoked
+  validation?: {
+    valid: boolean;
+    issues?: string[];
+  };  // feedback returned by the accurate-mode validator, when invoked
 }
 ```
 
@@ -2347,10 +2683,7 @@ Append an entry to the persistent diary of an agent. The tool stores the entry a
 
 **Returns:**
 ```typescript
-{
-  entryId: string;
-  timestamp: string;
-}
+string  // Diary entry written for agent '<agentId>'
 ```
 
 ---
@@ -2371,12 +2704,9 @@ Read the newest diary entries of an agent, optionally filtered by topic.
 **Returns:**
 ```typescript
 {
-  entries: Array<{
-    entryId: string;
-    timestamp: string;
-    entry: string;
-    tags?: string[];
-  }>;
+  agentId: string;
+  entries: string[];
+  count: number;
 }
 ```
 

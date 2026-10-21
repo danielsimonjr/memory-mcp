@@ -31,6 +31,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `successRate` and `executionCount` are accepted and not declared. The `adaptive_retrieve` row of
   the README states the fixed values: up to 3 rounds, and a stop at a coverage of 0.6.
 
+- **`docs/architecture/API.md` states what the handlers return.** The Returns block of 62 of the 71
+  tools that have one did not match the handler. Examples: `delete_entities` returns the text
+  `Deleted <count> entities`, not `{ deletedCount }`. `get_entity_versions` returns one `Entity`, the
+  latest version, not a list of versions. `ingest` has no `relationsCreated` field. `find_duplicates`
+  returns an array of name groups, not an object with `duplicateGroups`. `get_centrality` returns
+  `topEntities`, not `centrality`. The other 9 blocks matched and stay. Each new block comes from the
+  TypeScript type of the value that the handler returns, read with the TypeScript 6.0.3 compiler
+  API. A run of 83 handler calls on a temporary graph confirmed the forms. The run did not reach the
+  JSON forms of the three tools that need an embedding provider. `export_graph` gets its three forms:
+  plain text, a compressed object and a streamed object. Where a handler also returns a text message,
+  a sentence after the block gives the message. The example responses of `normalize_observations`,
+  `analyze_query`, `smart_search`, `get_graph_stats` and `find_duplicates` are now real responses
+  from a small graph. The lead sentence of `get_entity_versions` says that the tool returns the
+  latest version.
+
 ## [12.10.0] - 2026-10-21
 
 ### Added
