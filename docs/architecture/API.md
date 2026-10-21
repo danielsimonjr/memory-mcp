@@ -7,6 +7,8 @@ Complete reference for all 241 MCP tools of the Memory MCP server. Each tool has
 
 ## Table of Contents
 
+The section [Response Format](#response-format) comes before the categories. The section describes the response forms and the compression envelope that all tools share.
+
 1. [Entity Operations](#entity-operations) (4 tools)
 2. [Relation Operations](#relation-operations) (2 tools)
 3. [Observation Management](#observation-management) (3 tools)
@@ -74,6 +76,57 @@ Additional categories (Phase 12 → v12.7.0), documented after the sections abov
 - [Relation Consolidation (v12.7.0 / memoryjs v3.0.0)](#relation-consolidation-v1270-memoryjs-v300) (2 tools)
 - [Agent Reflection (v12.7.0 / memoryjs v3.0.0)](#agent-reflection-v1270-memoryjs-v300) (4 tools)
 - [Reconstructive Memory Persistence (v12.7.0 / memoryjs v3.0.0)](#reconstructive-memory-persistence-v1270-memoryjs-v300) (2 tools)
+
+---
+
+## Response Format
+
+Every tool returns one content item of type `text`. The text has one of the forms below. The Returns block of a tool shows the form that the tool uses. A tool that fails returns an error. See [Error Handling](#error-handling).
+
+### JSON text
+
+Most tools return JSON. The server writes the JSON with 2-space indentation. The Returns block shows the JSON value.
+
+`Entity` and `Relation` are types of the memoryjs library. A Returns block writes each name and does not expand it. [OVERVIEW.md](OVERVIEW.md#data-model) shows the main fields of both types. Both types have more fields than that file shows.
+
+### Plain text
+
+Some tools return a message and no JSON. The Returns block of such a tool shows `string`. A comment gives the message. A name in angle brackets, for example `<count>`, stands for a value that the tool inserts. When a tool has a second message, a sentence after the block gives the second message.
+
+### Compressed response
+
+A wrapped tool can return a large response. When the JSON text is larger than 262,144 bytes, the server compresses the text. The size is the UTF-8 length of the text. These tools are wrapped:
+
+- `read_graph`
+- `open_nodes`
+- `search_nodes`
+- `get_subtree`
+- `synthesize_collaborative_context`
+- `search_cross_agent`
+- `get_visible_memories`
+
+For a large response, the server returns this envelope in place of the JSON text:
+
+```typescript
+{
+  compressed: true;
+  compressionFormat: 'brotli';
+  encoding: 'base64';
+  originalSize: number;    // Size of the JSON text in bytes, before compression
+  compressedSize: number;  // Size of the compressed data in bytes
+  data: string;            // The JSON text, compressed with brotli and encoded as base64
+}
+```
+
+A response of 262,144 bytes or less comes back unchanged. A client never receives `compressed: false` from these tools. The Returns block of a wrapped tool shows the JSON text before compression.
+
+To decode an envelope, follow these steps:
+
+1. Decode `data` from base64.
+2. Decompress the bytes with brotli.
+3. Read the result as UTF-8. The result is the JSON text that the Returns block shows.
+
+`export_graph` has its own `compress` parameter. Its response does not use this envelope. See [export_graph](#export_graph).
 
 ---
 
