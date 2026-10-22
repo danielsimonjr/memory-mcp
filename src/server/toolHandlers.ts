@@ -213,7 +213,7 @@ export type ToolHandler = (
  *
  * Responses exceeding 256KB are automatically compressed with brotli
  * and base64-encoded for transport. The compressed response includes
- * metadata about the compression (original size, compressed size, ratio).
+ * metadata about the compression (original size and compressed size, in bytes).
  *
  * @param handler - The original handler function
  * @returns A wrapped handler that may compress the response

@@ -57,6 +57,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   from a small graph. The lead sentence of `get_entity_versions` says that the tool returns the
   latest version.
 
+- **`CLAUDE.md` and the `withCompression` docstring state what the code does.** `CLAUDE.md` named
+  four tools that `withCompression` wraps. The code wraps seven: `read_graph`, `search_nodes`,
+  `get_subtree`, `open_nodes`, `synthesize_collaborative_context`, `search_cross_agent` and
+  `get_visible_memories`. The docstring said that the compressed response carries the original size,
+  the compressed size and a ratio. The response has `originalSize` and `compressedSize`. The response
+  has no ratio field. Both texts now say what the code does. The code does not change.
 - **`docs/architecture/API.md` gets a "Response Format" section.** The section describes the forms of
   a response: JSON text, plain text and the compression envelope. Seven tools wrap their response:
   `read_graph`, `open_nodes`, `search_nodes`, `get_subtree`, `synthesize_collaborative_context`,
