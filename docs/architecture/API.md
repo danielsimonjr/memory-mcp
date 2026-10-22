@@ -126,7 +126,7 @@ To decode an envelope, follow these steps:
 2. Decompress the bytes with brotli.
 3. Read the result as UTF-8. The result is the JSON text that the Returns block shows.
 
-`export_graph` has its own `compress` parameter. Its response does not use this envelope. See [export_graph](#export_graph).
+`export_graph` has its own `compress` parameter. The `export_graph` response does not use this envelope. See [export_graph](#export_graph).
 
 ---
 
@@ -2472,7 +2472,7 @@ List the distinct project IDs of the entities in the graph.
 
 ### get_entity_versions
 
-Get the latest version of an entity. When newer versions superseded the entity, the tool returns the most recent version.
+Get the latest version of an entity. When newer versions supersede the entity, the tool returns the most recent version.
 
 **Parameters:**
 ```typescript
