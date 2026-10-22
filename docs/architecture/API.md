@@ -5128,7 +5128,9 @@ Restore the Cue–Tag–Content reconstructive graph from the <basename>-reconst
 
 ## Error Handling
 
-All tools return errors in this format:
+A failed call returns one text item and `isError: true`. The text has one of two shapes. A client must test `isError`, not the text, because only the first shape has the `Error:` prefix.
+
+**Shape 1: `Error: <message>`.** The function `handleToolCall` catches each error that a handler throws. The function then returns this shape. The message is the message of the error. The response does not carry the name of the error class.
 
 ```typescript
 {
@@ -5140,13 +5142,27 @@ All tools return errors in this format:
 }
 ```
 
-**Common Error Types:**
-- `ValidationError`: Invalid input parameters
-- `EntityNotFoundError`: Entity doesn't exist
-- `DuplicateError`: Entity already exists
-- `CycleDetectedError`: Hierarchy would create a cycle
-- `SecurityError`: Path traversal or injection attempt
+| Cause | Example text |
+|---|---|
+| The name is not a tool | `Error: Unknown tool: no_such_tool` |
+| An argument fails validation | `Error: Invalid entities data` |
+| An entity does not exist | `Error: Entity "Missing" not found` |
+| A change would create a hierarchy cycle | `Error: Setting parent "A" for entity "B" would create a cycle` |
 
+**Shape 2: `<message>` with no prefix.** Eight handlers return their own text with `isError: true`. The text has no `Error:` prefix.
+
+| Tool | Text |
+|---|---|
+| `get_entity_versions` | `Entity '<name>' not found` |
+| `get_version_chain` | `Entity '<name>' not found` |
+| `invalidate_relation` | The message of the error, for example `Relation "<from>" --[<type>]--> "<to>" not found` or `Invalid from`. The handler catches every error, so an invalid argument also has no prefix. |
+| `detect_contradictions` | `Entity '<name>' not found` |
+| `score_salience` | `Entity '<name>' not found` |
+| `set_memory_visibility` | `Entity '<name>' not found — cannot set visibility` |
+| `get_procedure` | `Procedure '<id>' not found` |
+| `get_procedure_step` | `Step <order> not found in procedure '<id>'` |
+
+An existing name is not an error. The tool `create_entities` skips an entity whose name exists, and it leaves that entity out of the result.
 ---
 
 ## Performance Guidelines

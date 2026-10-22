@@ -42,6 +42,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `successRate` and `executionCount` are accepted and not declared. The `adaptive_retrieve` row of
   the README states the fixed values: up to 3 rounds, and a stop at a coverage of 0.6.
 
+- **The "Error Handling" section of `docs/architecture/API.md` states the two forms of an error.** The
+  section said that every tool returns `Error: <message>`. Eight handlers return their own text with
+  `isError: true` and no `Error:` prefix: `get_entity_versions`, `get_version_chain`,
+  `invalidate_relation`, `detect_contradictions`, `score_salience`, `set_memory_visibility`,
+  `get_procedure` and `get_procedure_step`. The section now states both forms, and it gives the text
+  that each of the eight handlers returns. The section also listed five error types. Two of them,
+  `DuplicateError` and `SecurityError`, are not classes of `@danielsimonjr/memoryjs` 4.2.0. A call
+  that creates an entity that exists is not an error, because `create_entities` skips that entity. A
+  response never carries the name of an error class, so the section no longer lists the names.
 - **`docs/architecture/API.md` states what the handlers return.** The Returns block of 62 of the 71
   tools that have one did not match the handler. Examples: `delete_entities` returns the text
   `Deleted <count> entities`, not `{ deletedCount }`. `get_entity_versions` returns one `Entity`, the
