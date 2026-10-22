@@ -179,7 +179,7 @@ cd memory-mcp
 bun install
 bun run build
 
-# Run tests (794 tests, ~85% statement coverage)
+# Run tests
 bun run test
 
 # Type check
@@ -785,7 +785,7 @@ node dist/migrate-from-jsonl-to-sqlite.js --from memory.db --to memory.jsonl
 ```bash
 bun install           # Install dependencies
 bun run build         # Build TypeScript
-bun run test          # Run tests (794 tests across 37 files; ~85% coverage)
+bun run test          # Run tests
 bun run typecheck     # Strict type checking
 bun run watch         # Development watch mode
 bun run clean         # Remove dist/ directory
@@ -829,7 +829,7 @@ memory-mcp/
 │       ├── toolDefinitions.ts              # 241 tool schemas (name, description, inputSchema)
 │       ├── toolHandlers.ts                 # Handler registry: validate args → call manager → format response
 │       └── responseCompressor.ts           # Brotli + base64 wrapper for >256KB payloads
-├── tests/                                  # Test suite (47 files, 967 tests, ~85% statement coverage)
+├── tests/                                  # Test suite
 │   ├── unit/                               # Unit tests (response compressor, tool defs, validate-fact handler)
 │   ├── integration/                        # MCP server lifecycle
 │   ├── e2e/tools/                          # Per-category tool tests + handler-smoke broad coverage
@@ -937,7 +937,7 @@ Enhanced fork of [Model Context Protocol memory server](https://github.com/model
 - Multi-format import/export with merge strategies
 - SQLite backend with better-sqlite3 (3-10x faster)
 - Transaction support with ACID guarantees
-- Comprehensive test suite (967 tests, 47 test files in this wrapper repo; full-coverage core graph tests live in `@danielsimonjr/memoryjs`)
+- Comprehensive test suite (this wrapper repo has its own tests; full-coverage core graph tests live in `@danielsimonjr/memoryjs`)
 
 ---
 
