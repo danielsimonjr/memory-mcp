@@ -1,11 +1,9 @@
 # Memory MCP Server
 
-[![Version](https://img.shields.io/badge/version-12.7.2-blue.svg)](https://github.com/danielsimonjr/memory-mcp)
 [![NPM](https://img.shields.io/npm/v/@danielsimonjr/memory-mcp.svg)](https://www.npmjs.com/package/@danielsimonjr/memory-mcp)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![MCP](https://img.shields.io/badge/MCP-1.0-purple.svg)](https://modelcontextprotocol.io)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org/)
-[![Coverage](https://img.shields.io/badge/coverage-84.8%25-yellowgreen.svg)](docs/architecture/TEST_COVERAGE.md)
+[![TypeScript](https://img.shields.io/github/package-json/dependency-version/danielsimonjr/memory-mcp/dev/typescript?label=TypeScript&color=blue)](https://www.typescriptlang.org/)
 
 An **enhanced fork** of the official [Model Context Protocol](https://modelcontextprotocol.io) memory server. The fork adds **hierarchical nesting**, **intelligent compression**, **semantic search**, **graph algorithms**, **archiving**, **advanced search**, and **multi-format import/export**.
 

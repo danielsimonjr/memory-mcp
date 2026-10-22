@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The badges at the top of `README.md` no longer hold a number that goes stale.** The static Version badge said
+  12.7.2, and `package.json` says 12.10.0. The NPM badge below it already shows the published version, so the
+  static badge is removed. The static TypeScript badge said 5.6, and `package.json` has `^7.0.2`. The badge now
+  reads the range from `package.json`. The static Coverage badge said 84.8%, and a coverage run of 2026-10-21
+  gave 85.76% of statements. No file in the repository and no CI job keeps a statement-coverage figure. The
+  page that the badge linked to, `docs/architecture/TEST_COVERAGE.md`, gives the share of source files that
+  have a test. That is a different measure. The badge is removed.
 - **The Tool Categories section of `docs/architecture/OVERVIEW.md` points to API.md.** The section was a table
   of 35 categories. Its heading said 106 tools, and its cells named 103 tools. The server has 241 tools, and the
   Key Capabilities table of the same file said 241. API.md lists every category with its number of tools and
