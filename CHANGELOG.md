@@ -81,6 +81,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `get_visible_memories`. The docstring said that the compressed response carries the original size,
   the compressed size and a ratio. The response has `originalSize` and `compressedSize`. The response
   has no ratio field. Both texts now say what the code does. The code does not change.
+- **`docs/README.md` links to files that exist, and its API Reference list holds no version or phase
+  tag.** The "Getting Started" list linked `./API.md` and `./ARCHITECTURE.md`, and both files are in
+  `./architecture/`. The "User Guides" list named 5 of the 6 guides in `docs/guides` and left out
+  `TASKSCHEDULER_INTEGRATION.md`. The "API Reference" list carried 8 tags such as `η.4.4`, `3B.4`,
+  `v12.5.0` and `memoryjs v3.0.0`. A tag says when a feature arrived. A tag does not say what the feature
+  is. All 31 relative links of the file now resolve. The guide `docs/guides/TASKSCHEDULER_INTEGRATION.md`
+  linked three targets that this repository does not hold: a section of `COMPONENTS.md`, and the files
+  `src/types/types.ts` and `src/utils/operationUtils.ts`. The files belong to MemoryJS. The three links now
+  point to the MemoryJS repository.
 - **`docs/architecture/API.md` gets a "Response Format" section.** The section describes the forms of
   a response: JSON text, plain text and the compression envelope. Seven tools wrap their response:
   `read_graph`, `open_nodes`, `search_nodes`, `get_subtree`, `synthesize_collaborative_context`,

@@ -309,6 +309,6 @@ try {
 
 ## Related Documentation
 
-- [TaskScheduler API](../architecture/COMPONENTS.md#task-scheduler)
-- [Types Reference](../../src/types/types.ts)
-- [Operation Utilities](../../src/utils/operationUtils.ts)
+- [TaskScheduler API](https://github.com/danielsimonjr/MemoryJS/blob/master/docs/architecture/COMPONENTS.md) (section `taskScheduler`, in the MemoryJS repository)
+- [Types Reference](https://github.com/danielsimonjr/MemoryJS/blob/master/src/types/types.ts) (in the MemoryJS repository)
+- [Operation Utilities](https://github.com/danielsimonjr/MemoryJS/blob/master/src/utils/operationUtils.ts) (in the MemoryJS repository)

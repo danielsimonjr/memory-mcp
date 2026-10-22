@@ -27,14 +27,14 @@ Complete API documentation for all 241 tools provided by the Enhanced Memory MCP
 - Hierarchy management
 - Compression and archiving
 - Import/export (JSON / CSV / GraphML / GEXF / DOT / Markdown / Mermaid + W3C Turtle / RDF/XML / JSON-LD; PII redaction)
-- Bitemporal validity and time-travel queries (η.4.4)
-- Optimistic concurrency control (η.5.5.c)
-- RBAC (η.6.1)
-- Procedural memory (3B.4)
-- Causal reasoning and world model (3B.6 / 3B.7)
-- Tool affordance, heuristic guidelines, project context, decision rationale, exclusions, observation dedup, spell correction (Phase 16 / memoryjs v2.1.0)
-- Engineering / diagnostics (v12.5.0)
-- Event memory, reconstructive memory + snapshot persistence, relation consolidation, agent reflection (v12.7.0 / memoryjs v3.0.0)
+- Bitemporal validity and time-travel queries
+- Optimistic concurrency control
+- RBAC
+- Procedural memory
+- Causal reasoning and world model
+- Tool affordance, heuristic guidelines, project context, decision rationale, exclusions, observation dedup, spell correction
+- Engineering / diagnostics
+- Event memory, reconstructive memory + snapshot persistence, relation consolidation, agent reflection
 - Analytics and validation
 
 ### [Architecture Details](./architecture/ARCHITECTURE.md)
@@ -71,6 +71,7 @@ The `guides/` directory contains feature-specific user guides:
 - **[Hierarchy Guide](./guides/HIERARCHY.md)** - Parent-child relationships and tree navigation
 - **[Migration Guide](./guides/MIGRATION.md)** - Migrating data and upgrading between versions
 - **[Query Language](./guides/QUERY_LANGUAGE.md)** - Boolean search syntax and advanced queries
+- **[TaskScheduler Integration](./guides/TASKSCHEDULER_INTEGRATION.md)** - Progress reporting and cancellation for long-running operations
 
 ## Development Documentation
 
@@ -93,10 +94,10 @@ The `reports/` directory contains progress summaries and sprint reports:
 
 ## Getting Started
 
-1. **New Users**: Start with the [main README](../README.md) and [API Reference](./API.md)
+1. **New Users**: Start with the [main README](../README.md) and [API Reference](./architecture/API.md)
 2. **Feature Usage**: Check the relevant guide in [guides/](./guides/)
 3. **Contributing**: See [CONTRIBUTING.md](../CONTRIBUTING.md) and [development/](./development/)
-4. **Architecture**: Read [ARCHITECTURE.md](./ARCHITECTURE.md) for system design details
+4. **Architecture**: Read [ARCHITECTURE.md](./architecture/ARCHITECTURE.md) for system design details
 
 ## Additional Resources
 
