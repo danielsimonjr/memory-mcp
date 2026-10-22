@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The Tool Categories section of `docs/architecture/OVERVIEW.md` points to API.md.** The section was a table
+  of 35 categories. Its heading said 106 tools, and its cells named 103 tools. The server has 241 tools, and the
+  Key Capabilities table of the same file said 241. API.md lists every category with its number of tools and
+  has one section for each of the 241 tools (checked against `toolDefinitions`). The section now says so and
+  gives no list of its own. The Getting Started block said "2800+ tests". The suite that `npm test` runs has
+  971 tests in 47 files, so the block now gives no count.
 - **The Directory Structure section of `docs/architecture/OVERVIEW.md` shows the real `src/` tree.**
   The section showed a `src/` tree of 77 files with `core/`, `search/`, `features/`, `types/`,
   `utils/` and `workers/`. This repository holds 5 files in `src/`: `index.ts` and four files in

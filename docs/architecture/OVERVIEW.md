@@ -109,45 +109,9 @@ The other top-level folders hold no engine code:
 | `.github/` | The CI and release workflows, the Dependabot settings and the review policies |
 | `docs/` | The architecture documents and the guides |
 
-## Tool Categories (106 Total)
+## Tool Categories
 
-| Category | Tools | Description |
-|----------|-------|-------------|
-| **Entity** | 4 | create_entities, delete_entities, read_graph, open_nodes |
-| **Relation** | 2 | create_relations, delete_relations |
-| **Observation** | 3 | add_observations, delete_observations, normalize_observations |
-| **Search** | 7 | search_nodes, search_by_date_range, search_nodes_ranked, boolean_search, fuzzy_search, get_search_suggestions, search_auto |
-| **Intelligent Search** | 3 | hybrid_search, analyze_query, smart_search |
-| **Semantic Search** | 3 | semantic_search, find_similar_entities, index_embeddings |
-| **Saved Search** | 5 | save_search, execute_saved_search, list_saved_searches, delete_saved_search, update_saved_search |
-| **Tag** | 6 | add_tags, remove_tags, set_importance, add_tags_to_multiple_entities, replace_tag, merge_tags |
-| **Tag Alias** | 5 | add_tag_alias, list_tag_aliases, remove_tag_alias, get_aliases_for_tag, resolve_tag |
-| **Hierarchy** | 9 | set_entity_parent, get_children, get_parent, get_ancestors, get_descendants, get_subtree, get_root_entities, get_entity_depth, move_entity |
-| **Graph Algorithms** | 4 | find_shortest_path, find_all_paths, get_connected_components, get_centrality |
-| **Analytics** | 2 | get_graph_stats, validate_graph |
-| **Compression** | 4 | find_duplicates, merge_entities, compress_graph, archive_entities |
-| **Import/Export** | 2 | export_graph (7 formats), import_graph (3 formats) |
-| **Ref Index** | 4 | register_ref, resolve_ref, deregister_ref, list_refs |
-| **Artifacts** | 3 | create_artifact, get_artifact, list_artifacts |
-| **Temporal Search** | 1 | search_by_time |
-| **Distillation** | 1 | configure_distillation |
-| **Freshness** | 5 | check_freshness, get_stale_entities, get_expired_entities, refresh_entity, freshness_report |
-| **LLM Query** | 1 | query_natural_language |
-| **Governance** | 4 | governance_transaction, audit_query, audit_history, rollback_operation |
-| **Role Profiles** | 2 | set_agent_role, list_role_profiles |
-| **Entropy** | 2 | enable_entropy_filter, compute_entropy |
-| **Consolidation** | 3 | start_consolidation, stop_consolidation, run_consolidation_now |
-| **Formatter** | 1 | format_with_salience_budget |
-| **Collaborative** | 1 | synthesize_collaborative_context |
-| **Failure Handling** | 2 | distill_failure, end_session |
-| **Cognitive Load** | 2 | analyze_cognitive_load, adaptive_reduce_memories |
-| **Project Scoping** | 1 | list_projects |
-| **Memory Versioning** | 2 | get_entity_versions, get_version_chain |
-| **Semantic Forget** | 1 | forget_memory |
-| **Profiles** | 2 | get_profile, update_profile |
-| **Temporal KG** | 3 | invalidate_relation, query_as_of, timeline |
-| **Ingestion** | 1 | ingest |
-| **Agent Diary** | 2 | diary_write, diary_read |
+The server has 241 tools. [API.md](./API.md) groups the tools into categories. The Table of Contents of API.md gives the number of tools in each category. API.md has one section for each tool.
 
 ## Key Design Principles
 
@@ -184,7 +148,7 @@ npm install
 # Build
 npm run build
 
-# Run tests (2800+ tests)
+# Run tests
 npm test
 
 # Run server
