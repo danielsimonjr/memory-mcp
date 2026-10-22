@@ -1,7 +1,7 @@
 # Memory MCP - API Reference
 
 
-Complete reference for all 241 MCP tools of the Memory MCP server. Each tool has one section, in the order of the table of contents. A section states the Parameters of the tool. Many sections also show a Returns block and an Example. Three tools have an extended section in "Phase 15 enhancements to existing tools": `export_graph`, `create_entities` and `set_memory_visibility`.
+Complete reference for all 241 MCP tools of the Memory MCP server. Each tool has one section, in the order of the table of contents. A section states the Parameters of the tool. Many sections also show a Returns block and an Example. Three tools have an extended section in "Extended Tools": `export_graph`, `create_entities` and `set_memory_visibility`.
 
 ---
 
@@ -23,59 +23,59 @@ The section [Response Format](#response-format) comes before the categories. The
 12. [Analytics](#analytics) (2 tools)
 13. [Compression & Deduplication](#compression--deduplication) (4 tools)
 14. [Import/Export Operations](#importexport-operations) (2 tools)
-15. [Project Scoping](#project-scoping) (1 tool) — v1.8.0
-16. [Memory Versioning](#memory-versioning) (2 tools) — v1.8.0
-17. [Semantic Forget](#semantic-forget) (1 tool) — v1.8.0
-18. [Profiles](#profiles) (2 tools) — v1.8.0
-19. [Temporal KG](#temporal-kg) (3 tools) — v1.9.0
-20. [Ingestion](#ingestion) (1 tool) — v1.9.0
-21. [Agent Diary](#agent-diary) (2 tools) — v1.9.0
-22. [Entity Bitemporal Validity](#entity-bitemporal-validity-phase-15--memoryjs-η44) (5 tools) — Phase 15 / memoryjs η.4.4
-23. [Optimistic Concurrency Control](#optimistic-concurrency-control-phase-15--memoryjs-η55c) (1 tool) — Phase 15 / memoryjs η.5.5.c
-24. [RBAC](#rbac-phase-15--memoryjs-η61) (4 tools) — Phase 15 / memoryjs η.6.1
-25. [Procedural Memory](#procedural-memory-phase-15--memoryjs-3b4) (5 tools) — Phase 15 / memoryjs 3B.4
-26. [Active Retrieval](#active-retrieval-phase-15--memoryjs-3b5) (1 tool) — Phase 15 / memoryjs 3B.5
-27. [Causal Reasoning](#causal-reasoning-phase-15--memoryjs-3b6) (4 tools) — Phase 15 / memoryjs 3B.6
-28. [World Model](#world-model-phase-15--memoryjs-3b7) (3 tools) — Phase 15 / memoryjs 3B.7
-29. [Phase 15 enhancements to existing tools](#phase-15-enhancements-to-existing-tools) — `export_graph`, `create_entities`, `set_memory_visibility`
+15. [Project Scoping](#project-scoping) (1 tool)
+16. [Memory Versioning](#memory-versioning) (2 tools)
+17. [Semantic Forget](#semantic-forget) (1 tool)
+18. [Profiles](#profiles) (2 tools)
+19. [Temporal KG](#temporal-kg) (3 tools)
+20. [Ingestion](#ingestion) (1 tool)
+21. [Agent Diary](#agent-diary) (2 tools)
+22. [Entity Bitemporal Validity](#entity-bitemporal-validity) (5 tools)
+23. [Optimistic Concurrency Control](#optimistic-concurrency-control) (1 tool)
+24. [RBAC](#rbac) (4 tools)
+25. [Procedural Memory](#procedural-memory) (5 tools)
+26. [Active Retrieval](#active-retrieval) (1 tool)
+27. [Causal Reasoning](#causal-reasoning) (4 tools)
+28. [World Model](#world-model) (3 tools)
+29. [Extended Tools](#extended-tools) — `export_graph`, `create_entities`, `set_memory_visibility`
 
-Additional categories (Phase 12 → v12.7.0), documented after the sections above:
+Additional categories, documented after the sections above:
 
-- [Ref Index (Phase 12)](#ref-index-phase-12) (4 tools)
-- [Artifacts (Phase 12)](#artifacts-phase-12) (3 tools)
-- [Temporal Search (Phase 12)](#temporal-search-phase-12) (1 tool)
-- [Distillation (Phase 12)](#distillation-phase-12) (1 tool)
-- [Freshness (Phase 12)](#freshness-phase-12) (5 tools)
-- [LLM Query (Phase 12)](#llm-query-phase-12) (1 tool)
-- [Governance (Phase 12)](#governance-phase-12) (4 tools)
-- [Role Profiles (Phase 12)](#role-profiles-phase-12) (2 tools)
-- [Entropy (Phase 12)](#entropy-phase-12) (2 tools)
-- [Consolidation (Phase 12)](#consolidation-phase-12) (3 tools)
-- [Formatter (Phase 12)](#formatter-phase-12) (1 tool)
-- [Collaborative Synthesis (Phase 12)](#collaborative-synthesis-phase-12) (1 tool)
-- [Failure Handling (Phase 12)](#failure-handling-phase-12) (2 tools)
-- [Cognitive Load (Phase 12)](#cognitive-load-phase-12) (2 tools)
-- [Dream Engine (v12.0.0)](#dream-engine-v1200) (3 tools)
-- [Active Project Scope (v12.3.2)](#active-project-scope-v1232) (2 tools)
-- [Session & Working Memory (Phase 14)](#session-working-memory-phase-14) (9 tools)
-- [Auto-Enhancement (Phase 14)](#auto-enhancement-phase-14) (7 tools)
-- [Context Compression (Phase 14)](#context-compression-phase-14) (1 tool)
-- [Decay & Salience (Phase 14)](#decay-salience-phase-14) (5 tools)
-- [Multi-Agent (Phase 14)](#multi-agent-phase-14) (5 tools)
-- [Observability (Phase 14)](#observability-phase-14) (4 tools)
-- [Tool Affordance (Phase 16 / memoryjs v2.1.0)](#tool-affordance-phase-16-memoryjs-v210) (11 tools)
-- [Heuristic Guidelines (Phase 16 / memoryjs v2.1.0)](#heuristic-guidelines-phase-16-memoryjs-v210) (10 tools)
-- [Project Context (Phase 16 / memoryjs v2.1.0)](#project-context-phase-16-memoryjs-v210) (12 tools)
-- [Decision Rationale (Phase 16 / memoryjs v2.1.0)](#decision-rationale-phase-16-memoryjs-v210) (10 tools)
-- [Exclusion / do_not_remember (Phase 16 / memoryjs v2.1.0)](#exclusion-donotremember-phase-16-memoryjs-v210) (5 tools)
-- [Observation Dedup (Phase 16 / memoryjs v2.1.0)](#observation-dedup-phase-16-memoryjs-v210) (2 tools)
-- [Spell Correction (Phase 16 / memoryjs v2.1.0)](#spell-correction-phase-16-memoryjs-v210) (3 tools)
-- [Engineering / Diagnostics (v12.5.0)](#engineering-diagnostics-v1250) (10 tools)
-- [Event Memory (v12.7.0 / memoryjs v3.0.0)](#event-memory-v1270-memoryjs-v300) (5 tools)
-- [Reconstructive Memory (v12.7.0 / memoryjs v3.0.0)](#reconstructive-memory-v1270-memoryjs-v300) (3 tools)
-- [Relation Consolidation (v12.7.0 / memoryjs v3.0.0)](#relation-consolidation-v1270-memoryjs-v300) (2 tools)
-- [Agent Reflection (v12.7.0 / memoryjs v3.0.0)](#agent-reflection-v1270-memoryjs-v300) (4 tools)
-- [Reconstructive Memory Persistence (v12.7.0 / memoryjs v3.0.0)](#reconstructive-memory-persistence-v1270-memoryjs-v300) (2 tools)
+- [Ref Index](#ref-index) (4 tools)
+- [Artifacts](#artifacts) (3 tools)
+- [Temporal Search](#temporal-search) (1 tool)
+- [Distillation](#distillation) (1 tool)
+- [Freshness](#freshness) (5 tools)
+- [LLM Query](#llm-query) (1 tool)
+- [Governance](#governance) (4 tools)
+- [Role Profiles](#role-profiles) (2 tools)
+- [Entropy](#entropy) (2 tools)
+- [Consolidation](#consolidation) (3 tools)
+- [Formatter](#formatter) (1 tool)
+- [Collaborative Synthesis](#collaborative-synthesis) (1 tool)
+- [Failure Handling](#failure-handling) (2 tools)
+- [Cognitive Load](#cognitive-load) (2 tools)
+- [Dream Engine](#dream-engine) (3 tools)
+- [Active Project Scope](#active-project-scope) (2 tools)
+- [Session & Working Memory](#session--working-memory) (9 tools)
+- [Auto-Enhancement](#auto-enhancement) (7 tools)
+- [Context Compression](#context-compression) (1 tool)
+- [Decay & Salience](#decay--salience) (5 tools)
+- [Multi-Agent](#multi-agent) (5 tools)
+- [Observability](#observability) (4 tools)
+- [Tool Affordance](#tool-affordance) (11 tools)
+- [Heuristic Guidelines](#heuristic-guidelines) (10 tools)
+- [Project Context](#project-context) (12 tools)
+- [Decision Rationale](#decision-rationale) (10 tools)
+- [Exclusion / do_not_remember](#exclusion--do_not_remember) (5 tools)
+- [Observation Dedup](#observation-dedup) (2 tools)
+- [Spell Correction](#spell-correction) (3 tools)
+- [Engineering / Diagnostics](#engineering--diagnostics) (10 tools)
+- [Event Memory](#event-memory) (5 tools)
+- [Reconstructive Memory](#reconstructive-memory) (3 tools)
+- [Relation Consolidation](#relation-consolidation) (2 tools)
+- [Agent Reflection](#agent-reflection) (4 tools)
+- [Reconstructive Memory Persistence](#reconstructive-memory-persistence) (2 tools)
 
 ---
 
@@ -2765,9 +2765,9 @@ Read the newest diary entries of an agent, optionally filtered by topic.
 
 ---
 
-## Entity Bitemporal Validity (Phase 15 / memoryjs η.4.4)
+## Entity Bitemporal Validity
 
-5 tools for time-travel queries over entities and observations. Distinct from v1.8 supersession (which models content edits over time): bitemporal validity models when a fact was true in the world. Entities and observations remain queryable for past timestamps after invalidation; only future-asOf queries return null.
+5 tools for time-travel queries over entities and observations. Distinct from supersession in Memory Versioning (which models content edits over time): bitemporal validity models when a fact was true in the world. Entities and observations remain queryable for past timestamps after invalidation; only future-asOf queries return null.
 
 ### invalidate_entity
 
@@ -2801,7 +2801,7 @@ Time-travel query: returns the entity at a given point in time. An entity is val
 
 ### entity_timeline
 
-All temporal versions of an entity in chronological order (by `validFrom` ascending; unbounded entities last). Integrates the v1.8 supersession chain when one exists.
+All temporal versions of an entity in chronological order (by `validFrom` ascending; unbounded entities last). Integrates the supersession chain of Memory Versioning when one exists.
 
 ```typescript
 {
@@ -2845,7 +2845,7 @@ Get observations valid at a given point in time. Observations with no `observati
 
 ---
 
-## Optimistic Concurrency Control (Phase 15 / memoryjs η.5.5.c)
+## Optimistic Concurrency Control
 
 ### update_entity
 
@@ -2867,7 +2867,7 @@ Update an entity with optional optimistic concurrency control. Pass `expectedVer
 
 ---
 
-## RBAC (Phase 15 / memoryjs η.6.1)
+## RBAC
 
 4 tools for role-based access control. Roles: `reader` (read-only), `writer` (read+write), `admin` (read+write+delete), `owner` (all four). Optional `resourceType` narrows to one type; optional `scope` narrows to a name prefix; optional `validUntil` expires the grant.
 
@@ -2937,7 +2937,7 @@ Falls back to `defaultRole=reader` for agents with no assignments.
 
 ---
 
-## Procedural Memory (Phase 15 / memoryjs 3B.4)
+## Procedural Memory
 
 5 tools for executable how-to sequences distinct from semantic facts and episodic events. Steps are 1-indexed with optional fallback chains. Auto-generates id when omitted.
 
@@ -3022,7 +3022,7 @@ Load by 1-indexed `order`, OR get the step after `order` when `next: true`.
 
 ---
 
-## Active Retrieval (Phase 15 / memoryjs 3B.5)
+## Active Retrieval
 
 ### adaptive_retrieve
 
@@ -3051,7 +3051,7 @@ The parameters `maxRounds`, `minCoverage`, `resultsPerRound` and `budgetTokens` 
 
 ---
 
-## Causal Reasoning (Phase 15 / memoryjs 3B.6)
+## Causal Reasoning
 
 4 tools that walk causal relation types: `causes`, `enables`, `prevents`, `precedes`, `correlates`. Chains are scored by product of per-edge `causalStrength`.
 
@@ -3120,7 +3120,7 @@ Symmetric counterpart starting at the named cause.
 
 ---
 
-## World Model (Phase 15 / memoryjs 3B.7)
+## World Model
 
 3 tools: snapshot the live graph, validate proposed observations against it, predict downstream effects of actions.
 
@@ -3175,35 +3175,35 @@ Predict downstream effects of an action by walking the causal subgraph. Delegate
 
 ---
 
-## Phase 15 enhancements to existing tools
+## Extended Tools
 
 ### export_graph (extended)
 
-Phase 15 (memoryjs η.5.4 / η.6.3) added three W3C Linked Data export formats and PII redaction:
+`export_graph` also accepts three W3C Linked Data export formats and a PII redaction option:
 
 | Field | Type | Notes |
 |---|---|---|
 | `format: 'turtle'` | RDF 1.1 Turtle | `@prefix rdf:`, `@prefix rdfs:`, `@prefix dcterms:` headers |
 | `format: 'rdf-xml'` | RDF 1.1 XML | Statement reification for non-NCName predicates |
 | `format: 'json-ld'` | JSON-LD 1.1 | `@context` mapping to RDFS + DCTerms |
-| `redactPii?: boolean` | Default `false` | Scrubs email / SSN / credit-card / phone / IPv4 from observations using the η.6.3 `PiiRedactor` default pattern bank |
+| `redactPii?: boolean` | Default `false` | Scrubs email / SSN / credit-card / phone / IPv4 from observations using the default pattern bank of `PiiRedactor` |
 
 ### create_entities (extended)
 
-Phase 15 (memoryjs v1.6 freshness, v1.8 project scoping, η.4.4 bitemporal) added per-entity fields:
+`create_entities` also accepts these per-entity fields for freshness, project scoping and bitemporal validity:
 
 | Field | Type | Notes |
 |---|---|---|
-| `ttl?: number` | seconds | v1.6 freshness — seconds until entity is considered stale |
-| `confidence?: number` | 0–1 | v1.6 freshness — belief strength |
-| `projectId?: string` | string | v1.8 project scope identifier |
-| `validFrom?: string` | ISO 8601 | η.4.4 — entity is valid from this instant |
-| `validUntil?: string` | ISO 8601 | η.4.4 — entity is valid until this instant |
-| `observationMeta?: Array<{...}>` | array | η.4.4 — per-observation temporal metadata indexed by content match |
+| `ttl?: number` | seconds | Freshness: seconds until the entity is considered stale |
+| `confidence?: number` | 0–1 | Freshness: belief strength |
+| `projectId?: string` | string | Project scope identifier |
+| `validFrom?: string` | ISO 8601 | Bitemporal validity: the entity is valid from this instant |
+| `validUntil?: string` | ISO 8601 | Bitemporal validity: the entity is valid until this instant |
+| `observationMeta?: Array<{...}>` | array | Bitemporal validity: per-observation temporal metadata indexed by content match |
 
 ### set_memory_visibility (extended)
 
-Phase 15 (memoryjs η.5.5.b) added time-window and role gates, plus auto-promotion of plain entities to `AgentEntity` (was previously a silent `null` failure):
+`set_memory_visibility` also accepts a time window and a role gate:
 
 | Field | Type | Notes |
 |---|---|---|
@@ -3215,7 +3215,7 @@ The handler promotes a plain `Entity` that is not yet an `AgentEntity`. During t
 
 ---
 
-## Ref Index (Phase 12)
+## Ref Index
 
 ### register_ref
 
@@ -3265,7 +3265,7 @@ List all registered refs in the RefIndex, optionally filtered by entity name
 
 ---
 
-## Artifacts (Phase 12)
+## Artifacts
 
 ### create_artifact
 
@@ -3308,7 +3308,7 @@ List all artifact entities, with optional filtering by tool name, type, or date
 
 ---
 
-## Temporal Search (Phase 12)
+## Temporal Search
 
 ### search_by_time
 
@@ -3325,7 +3325,7 @@ Search entities using a natural language time expression (e.g. "last week", "yes
 
 ---
 
-## Distillation (Phase 12)
+## Distillation
 
 ### configure_distillation
 
@@ -3340,7 +3340,7 @@ Configure the distillation pipeline policy (default, noop, or none) that filters
 
 ---
 
-## Freshness (Phase 12)
+## Freshness
 
 ### check_freshness
 
@@ -3394,7 +3394,7 @@ Generate a freshness report across all entities showing fresh, stale, and expire
 
 ---
 
-## LLM Query (Phase 12)
+## LLM Query
 
 ### query_natural_language
 
@@ -3409,7 +3409,7 @@ Decompose a natural language query into a structured search plan and return matc
 
 ---
 
-## Governance (Phase 12)
+## Governance
 
 ### set_governance_policy
 
@@ -3464,7 +3464,7 @@ Reverse a specific committed operation using its audit entry ID (restores entity
 
 ---
 
-## Role Profiles (Phase 12)
+## Role Profiles
 
 ### set_agent_role
 
@@ -3485,7 +3485,7 @@ List all built-in role profiles with their salience weight and context budget co
 
 ---
 
-## Entropy (Phase 12)
+## Entropy
 
 ### enable_entropy_filter
 
@@ -3514,7 +3514,7 @@ Compute the Shannon entropy of a text string (in bits per character)
 
 ---
 
-## Consolidation (Phase 12)
+## Consolidation
 
 ### start_consolidation
 
@@ -3542,7 +3542,7 @@ Run a consolidation cycle on demand, independently of the scheduled interval
 
 ---
 
-## Formatter (Phase 12)
+## Formatter
 
 ### format_with_salience_budget
 
@@ -3561,7 +3561,7 @@ Format memories for LLM prompt consumption with proportional token allocation ba
 
 ---
 
-## Collaborative Synthesis (Phase 12)
+## Collaborative Synthesis
 
 ### synthesize_collaborative_context
 
@@ -3581,7 +3581,7 @@ Synthesize context by traversing the graph neighbourhood from a seed entity and 
 
 ---
 
-## Failure Handling (Phase 12)
+## Failure Handling
 
 ### distill_failure
 
@@ -3611,7 +3611,7 @@ End a session and trigger failure distillation if the session outcome was a fail
 
 ---
 
-## Cognitive Load (Phase 12)
+## Cognitive Load
 
 ### analyze_cognitive_load
 
@@ -3640,7 +3640,7 @@ Adaptively reduce a set of memories until their cognitive load falls below the c
 
 ---
 
-## Dream Engine (v12.0.0)
+## Dream Engine
 
 ### dream_start
 
@@ -3693,7 +3693,7 @@ Run a single dream cycle immediately. Returns detailed per-phase results.
 
 ---
 
-## Active Project Scope (v12.3.2)
+## Active Project Scope
 
 ### set_project_scope
 
@@ -3714,7 +3714,7 @@ Returns the active project scope for this server session (set via set_project_sc
 
 ---
 
-## Session & Working Memory (Phase 14)
+## Session & Working Memory
 
 ### session_start
 
@@ -3824,7 +3824,7 @@ Initialize a 4-layer memory stack context (~600 tokens). L0 loads profile identi
 
 ---
 
-## Auto-Enhancement (Phase 14)
+## Auto-Enhancement
 
 ### auto_link_observations
 
@@ -3908,7 +3908,7 @@ Smart priority-based deduplication that keeps the highest-scored entity per dupl
 
 ---
 
-## Context Compression (Phase 14)
+## Context Compression
 
 ### compress_context
 
@@ -3924,7 +3924,7 @@ Compress text using n-gram abbreviation with a legend for token-efficient contex
 
 ---
 
-## Decay & Salience (Phase 14)
+## Decay & Salience
 
 ### run_decay_cycle
 
@@ -3985,7 +3985,7 @@ Calculate 5-component relevance score for an entity: baseImportance, recencyBoos
 
 ---
 
-## Multi-Agent (Phase 14)
+## Multi-Agent
 
 ### register_agent
 
@@ -4040,7 +4040,7 @@ Resolve a conflict between two agent memories using a specified strategy
 
 ### set_memory_visibility
 
-Set the visibility of a memory for an agent. If the entity is a plain entity, the handler turns the entity into an agent entity first. If no entity has the name, the tool returns an error. The section "Phase 15 enhancements to existing tools" describes `allowedRoles`, `visibleFrom` and `visibleUntil`.
+Set the visibility of a memory for an agent. If the entity is a plain entity, the handler turns the entity into an agent entity first. If no entity has the name, the tool returns an error. The section "Extended Tools" describes `allowedRoles`, `visibleFrom` and `visibleUntil`.
 
 **Parameters:**
 ```typescript
@@ -4056,7 +4056,7 @@ Set the visibility of a memory for an agent. If the entity is a plain entity, th
 
 ---
 
-## Observability (Phase 14)
+## Observability
 
 ### visualize_graph
 
@@ -4105,11 +4105,11 @@ Get a `ContextWindowManager` profile configuration (salience weights, retrieval 
 
 ---
 
-## Tool Affordance (Phase 16 / memoryjs v2.1.0)
+## Tool Affordance
 
 ### record_tool_outcome
 
-v2.1.0 — Record a single tool-call outcome directly via ToolAffordanceManager (bypasses ToolCallObserver). Creates the record on first call; appends to rolling window on subsequent. Throws "conflict" on concurrent writer mismatch.
+Record a single tool-call outcome directly via ToolAffordanceManager (bypasses ToolCallObserver). Creates the record on first call; appends to rolling window on subsequent. Throws "conflict" on concurrent writer mismatch.
 
 **Parameters:**
 ```typescript
@@ -4123,7 +4123,7 @@ v2.1.0 — Record a single tool-call outcome directly via ToolAffordanceManager 
 
 ### get_tool_affordance_stats
 
-v2.1.0 — Flat rolling stats for a tool: success_rate, total_calls, common_failure_modes, avg_duration_ms.
+Flat rolling stats for a tool: success_rate, total_calls, common_failure_modes, avg_duration_ms.
 
 **Parameters:**
 ```typescript
@@ -4134,7 +4134,7 @@ v2.1.0 — Flat rolling stats for a tool: success_rate, total_calls, common_fail
 
 ### suggest_tool
 
-v2.1.0 — Suggest tools matching a task hint, ranked by successRate × recency factor (1.0 at ≤1d, linearly decays to 0.1 at ≥30d).
+Suggest tools matching a task hint, ranked by successRate × recency factor (1.0 at ≤1d, linearly decays to 0.1 at ≥30d).
 
 **Parameters:**
 ```typescript
@@ -4147,13 +4147,13 @@ v2.1.0 — Suggest tools matching a task hint, ranked by successRate × recency 
 
 ### list_tool_affordances
 
-v2.1.0 — All recorded ToolAffordanceRecords.
+All recorded ToolAffordanceRecords.
 
 **Parameters:** none
 
 ### remove_tool_affordance
 
-v2.1.0 — Drop a tool-affordance record by toolName.
+Drop a tool-affordance record by toolName.
 
 **Parameters:**
 ```typescript
@@ -4164,7 +4164,7 @@ v2.1.0 — Drop a tool-affordance record by toolName.
 
 ### observe_tool_start
 
-v2.1.0 — Begin observing a tool call. Returns a callId the caller threads through observe_tool_complete / observe_tool_error / observe_tool_partial / observe_tool_cancel. Emits toolCall:start on the observer EventEmitter.
+Begin observing a tool call. Returns a callId the caller threads through observe_tool_complete / observe_tool_error / observe_tool_partial / observe_tool_cancel. Emits toolCall:start on the observer EventEmitter.
 
 **Parameters:**
 ```typescript
@@ -4176,7 +4176,7 @@ v2.1.0 — Begin observing a tool call. Returns a callId the caller threads thro
 
 ### observe_tool_complete
 
-v2.1.0 — Record successful completion. Computes durationMs from observe_tool_start. No-op on unknown callId.
+Record successful completion. Computes durationMs from observe_tool_start. No-op on unknown callId.
 
 **Parameters:**
 ```typescript
@@ -4188,7 +4188,7 @@ v2.1.0 — Record successful completion. Computes durationMs from observe_tool_s
 
 ### observe_tool_error
 
-v2.1.0 — Record failure with an error message. No-op on unknown callId.
+Record failure with an error message. No-op on unknown callId.
 
 **Parameters:**
 ```typescript
@@ -4200,7 +4200,7 @@ v2.1.0 — Record failure with an error message. No-op on unknown callId.
 
 ### observe_tool_partial
 
-v2.1.0 — Record a partial result (tool returned a usable but incomplete result). No-op on unknown callId.
+Record a partial result (tool returned a usable but incomplete result). No-op on unknown callId.
 
 **Parameters:**
 ```typescript
@@ -4212,7 +4212,7 @@ v2.1.0 — Record a partial result (tool returned a usable but incomplete result
 
 ### observe_tool_cancel
 
-v2.1.0 — Drop an in-flight observation without recording (e.g. user cancelled). No-op on unknown callId.
+Drop an in-flight observation without recording (e.g. user cancelled). No-op on unknown callId.
 
 **Parameters:**
 ```typescript
@@ -4223,17 +4223,17 @@ v2.1.0 — Drop an in-flight observation without recording (e.g. user cancelled)
 
 ### tool_observer_in_flight_count
 
-v2.1.0 — Diagnostic: number of in-flight (started but not yet completed) tool-call observations.
+Diagnostic: number of in-flight (started but not yet completed) tool-call observations.
 
 **Parameters:** none
 
 ---
 
-## Heuristic Guidelines (Phase 16 / memoryjs v2.1.0)
+## Heuristic Guidelines
 
 ### add_heuristic
 
-v2.1.0 — Register a new condition→action heuristic. Storage-backed; default confidence 0.5. Pass an explicit content-addressed id (e.g. h_<sha256(condition|action)>) for caller-managed idempotency.
+Register a new condition→action heuristic. Storage-backed; default confidence 0.5. Pass an explicit content-addressed id (e.g. h_<sha256(condition|action)>) for caller-managed idempotency.
 
 **Parameters:**
 ```typescript
@@ -4250,7 +4250,7 @@ v2.1.0 — Register a new condition→action heuristic. Storage-backed; default 
 
 ### get_heuristic
 
-v2.1.0 — Sync lookup by HeuristicId.
+Sync lookup by HeuristicId.
 
 **Parameters:**
 ```typescript
@@ -4261,19 +4261,19 @@ v2.1.0 — Sync lookup by HeuristicId.
 
 ### list_heuristics
 
-v2.1.0 — All registered heuristics.
+All registered heuristics.
 
 **Parameters:** none
 
 ### heuristic_count
 
-v2.1.0 — Count of stored heuristics.
+Count of stored heuristics.
 
 **Parameters:** none
 
 ### match_heuristics
 
-v2.1.0 — Find heuristics whose condition matches input via Jaccard token-overlap × confidence; sorted descending, then by priority.
+Find heuristics whose condition matches input via Jaccard token-overlap × confidence; sorted descending, then by priority.
 
 **Parameters:**
 ```typescript
@@ -4286,7 +4286,7 @@ v2.1.0 — Find heuristics whose condition matches input via Jaccard token-overl
 
 ### reinforce_heuristic
 
-v2.1.0 — Record a successful application: bumps support; raises confidence asymptotically (new = old + (1-old)*0.1). OCC-protected — surfaces "conflict" when concurrent writer collides.
+Record a successful application: bumps support; raises confidence asymptotically (new = old + (1-old)*0.1). OCC-protected — surfaces "conflict" when concurrent writer collides.
 
 **Parameters:**
 ```typescript
@@ -4297,7 +4297,7 @@ v2.1.0 — Record a successful application: bumps support; raises confidence asy
 
 ### record_heuristic_contradiction
 
-v2.1.0 — Record a counter-example: bumps contradictions; lowers confidence (new = old - old*0.2). OCC-protected.
+Record a counter-example: bumps contradictions; lowers confidence (new = old - old*0.2). OCC-protected.
 
 **Parameters:**
 ```typescript
@@ -4308,13 +4308,13 @@ v2.1.0 — Record a counter-example: bumps contradictions; lowers confidence (ne
 
 ### detect_heuristic_conflicts
 
-v2.1.0 — Pair-wise overlap/contradiction detection across stored heuristics. Surfaces overlap (same condition tokens, different actions) and contradiction (opposing actions on overlapping conditions; negation prefixes such as "do not" / "never" / "avoid").
+Pair-wise overlap/contradiction detection across stored heuristics. Surfaces overlap (same condition tokens, different actions) and contradiction (opposing actions on overlapping conditions; negation prefixes such as "do not" / "never" / "avoid").
 
 **Parameters:** none
 
 ### remove_heuristic
 
-v2.1.0 — Drop a heuristic by id.
+Drop a heuristic by id.
 
 **Parameters:**
 ```typescript
@@ -4325,17 +4325,17 @@ v2.1.0 — Drop a heuristic by id.
 
 ### clear_heuristics
 
-v2.1.0 — Drop every heuristic (across all entities of type "heuristic").
+Drop every heuristic (across all entities of type "heuristic").
 
 **Parameters:** none
 
 ---
 
-## Project Context (Phase 16 / memoryjs v2.1.0)
+## Project Context
 
 ### upsert_project_context
 
-v2.1.0 — Merge structured project knowledge into the ProjectContextRecord for `projectId`. Array fields (facts/conventions/commands/glossary) append + dedup; scalars overwrite. One record per projectId.
+Merge structured project knowledge into the ProjectContextRecord for `projectId`. Array fields (facts/conventions/commands/glossary) append + dedup; scalars overwrite. One record per projectId.
 
 **Parameters:**
 ```typescript
@@ -4357,7 +4357,7 @@ v2.1.0 — Merge structured project knowledge into the ProjectContextRecord for 
 
 ### get_project_context
 
-v2.1.0 — Sync lookup of the ProjectContextRecord for projectId.
+Sync lookup of the ProjectContextRecord for projectId.
 
 **Parameters:**
 ```typescript
@@ -4368,7 +4368,7 @@ v2.1.0 — Sync lookup of the ProjectContextRecord for projectId.
 
 ### append_project_fact
 
-v2.1.0 — Append one fact to a project context (auto-creates the record on first call; dedups).
+Append one fact to a project context (auto-creates the record on first call; dedups).
 
 **Parameters:**
 ```typescript
@@ -4380,7 +4380,7 @@ v2.1.0 — Append one fact to a project context (auto-creates the record on firs
 
 ### append_project_convention
 
-v2.1.0 — Append one convention to a project context (auto-creates; dedups).
+Append one convention to a project context (auto-creates; dedups).
 
 **Parameters:**
 ```typescript
@@ -4392,7 +4392,7 @@ v2.1.0 — Append one convention to a project context (auto-creates; dedups).
 
 ### append_project_command
 
-v2.1.0 — Append a documented project command (dedup by name).
+Append a documented project command (dedup by name).
 
 **Parameters:**
 ```typescript
@@ -4406,7 +4406,7 @@ v2.1.0 — Append a documented project command (dedup by name).
 
 ### append_project_glossary_term
 
-v2.1.0 — Append a glossary term (dedup by term).
+Append a glossary term (dedup by term).
 
 **Parameters:**
 ```typescript
@@ -4419,7 +4419,7 @@ v2.1.0 — Append a glossary term (dedup by term).
 
 ### remove_project_fact
 
-v2.1.0 — Remove a single fact. Returns true if found.
+Remove a single fact. Returns true if found.
 
 **Parameters:**
 ```typescript
@@ -4431,7 +4431,7 @@ v2.1.0 — Remove a single fact. Returns true if found.
 
 ### remove_project_convention
 
-v2.1.0 — Remove a single convention. Returns true if found.
+Remove a single convention. Returns true if found.
 
 **Parameters:**
 ```typescript
@@ -4443,7 +4443,7 @@ v2.1.0 — Remove a single convention. Returns true if found.
 
 ### remove_project_command
 
-v2.1.0 — Remove a command by name. Returns true if found.
+Remove a command by name. Returns true if found.
 
 **Parameters:**
 ```typescript
@@ -4455,7 +4455,7 @@ v2.1.0 — Remove a command by name. Returns true if found.
 
 ### remove_project_glossary_term
 
-v2.1.0 — Remove a glossary entry by term. Returns true if found.
+Remove a glossary entry by term. Returns true if found.
 
 **Parameters:**
 ```typescript
@@ -4467,7 +4467,7 @@ v2.1.0 — Remove a glossary entry by term. Returns true if found.
 
 ### clear_project_context
 
-v2.1.0 — Wipe the four arrays (facts/conventions/commands/glossary) for projectId; keeps the entity.
+Wipe the four arrays (facts/conventions/commands/glossary) for projectId; keeps the entity.
 
 **Parameters:**
 ```typescript
@@ -4478,7 +4478,7 @@ v2.1.0 — Wipe the four arrays (facts/conventions/commands/glossary) for projec
 
 ### format_project_context_for_llm
 
-v2.1.0 — Render the ProjectContextRecord as a prose summary suitable for the wakeUp L0 layer or a system prompt. Honors budgetChars with ellipsis truncation.
+Render the ProjectContextRecord as a prose summary suitable for the wakeUp L0 layer or a system prompt. Honors budgetChars with ellipsis truncation.
 
 **Parameters:**
 ```typescript
@@ -4490,11 +4490,11 @@ v2.1.0 — Render the ProjectContextRecord as a prose summary suitable for the w
 
 ---
 
-## Decision Rationale (Phase 16 / memoryjs v2.1.0)
+## Decision Rationale
 
 ### propose_decision
 
-v2.1.0 — Propose a new architecture-decision-record (ADR-equivalent). Creates a "proposed" DecisionRecord. Default importance 8.
+Propose a new architecture-decision-record (ADR-equivalent). Creates a "proposed" DecisionRecord. Default importance 8.
 
 **Parameters:**
 ```typescript
@@ -4514,7 +4514,7 @@ v2.1.0 — Propose a new architecture-decision-record (ADR-equivalent). Creates 
 
 ### accept_decision
 
-v2.1.0 — Transition a proposed decision to accepted. Returns one of: accepted | already-accepted | not-found | illegal-transition | conflict | vanished-mid-update.
+Transition a proposed decision to accepted. Returns one of: accepted | already-accepted | not-found | illegal-transition | conflict | vanished-mid-update.
 
 **Parameters:**
 ```typescript
@@ -4525,7 +4525,7 @@ v2.1.0 — Transition a proposed decision to accepted. Returns one of: accepted 
 
 ### reject_decision
 
-v2.1.0 — Transition a proposed decision to rejected with a reason. Returns rejected | already-rejected | not-found | illegal-transition | conflict | vanished-mid-update.
+Transition a proposed decision to rejected with a reason. Returns rejected | already-rejected | not-found | illegal-transition | conflict | vanished-mid-update.
 
 **Parameters:**
 ```typescript
@@ -4537,7 +4537,7 @@ v2.1.0 — Transition a proposed decision to rejected with a reason. Returns rej
 
 ### supersede_decision
 
-v2.1.0 — Mark an accepted decision as superseded by another. illegal-transition when target is not accepted. not-found when target or replacement is missing.
+Mark an accepted decision as superseded by another. illegal-transition when target is not accepted. not-found when target or replacement is missing.
 
 **Parameters:**
 ```typescript
@@ -4549,7 +4549,7 @@ v2.1.0 — Mark an accepted decision as superseded by another. illegal-transitio
 
 ### find_decisions_by_context
 
-v2.1.0 — Substring search across context, decision, and consequences fields.
+Substring search across context, decision, and consequences fields.
 
 **Parameters:**
 ```typescript
@@ -4560,7 +4560,7 @@ v2.1.0 — Substring search across context, decision, and consequences fields.
 
 ### get_decision_chain
 
-v2.1.0 — Walk the supersedes link backward from the supplied id to the original proposal. Returns chain oldest-first; cycle-protected.
+Walk the supersedes link backward from the supplied id to the original proposal. Returns chain oldest-first; cycle-protected.
 
 **Parameters:**
 ```typescript
@@ -4571,7 +4571,7 @@ v2.1.0 — Walk the supersedes link backward from the supplied id to the origina
 
 ### list_decisions
 
-v2.1.0 — List decisions, optionally filtered by status / sourceSessionId / sourceProjectId.
+List decisions, optionally filtered by status / sourceSessionId / sourceProjectId.
 
 **Parameters:**
 ```typescript
@@ -4585,7 +4585,7 @@ v2.1.0 — List decisions, optionally filtered by status / sourceSessionId / sou
 
 ### get_decision
 
-v2.1.0 — Sync lookup by DecisionId.
+Sync lookup by DecisionId.
 
 **Parameters:**
 ```typescript
@@ -4596,7 +4596,7 @@ v2.1.0 — Sync lookup by DecisionId.
 
 ### export_decision_as_adr_markdown
 
-v2.1.0 — Render a stored decision as ADR-format markdown (# title, Status, Context, Decision, Consequences bullet list, Alternatives bullet list, optional Supersedes link).
+Render a stored decision as ADR-format markdown (# title, Status, Context, Decision, Consequences bullet list, Alternatives bullet list, optional Supersedes link).
 
 **Parameters:**
 ```typescript
@@ -4607,7 +4607,7 @@ v2.1.0 — Render a stored decision as ADR-format markdown (# title, Status, Con
 
 ### parse_adr_markdown
 
-v2.1.0 — Parse a hand-written or previously-exported ADR markdown into a DecisionInput shape (static; no persistence). Returns null when required Context or Decision sections are missing.
+Parse a hand-written or previously-exported ADR markdown into a DecisionInput shape (static; no persistence). Returns null when required Context or Decision sections are missing.
 
 **Parameters:**
 ```typescript
@@ -4618,11 +4618,11 @@ v2.1.0 — Parse a hand-written or previously-exported ADR markdown into a Decis
 
 ---
 
-## Exclusion / do_not_remember (Phase 16 / memoryjs v2.1.0)
+## Exclusion / do_not_remember
 
 ### add_exclusion_rule
 
-v2.1.0 — Add a content-pattern exclusion rule (do_not_remember). Hard-deletes existing matches (per `scope`) and write-blocks future ones when consulted by upstream callers. v1 substring-only.
+Add a content-pattern exclusion rule (do_not_remember). Hard-deletes existing matches (per `scope`) and write-blocks future ones when consulted by upstream callers. Substring matching only.
 
 **Parameters:**
 ```typescript
@@ -4636,13 +4636,13 @@ v2.1.0 — Add a content-pattern exclusion rule (do_not_remember). Hard-deletes 
 
 ### list_exclusion_rules
 
-v2.1.0 — Return every registered ExclusionRule.
+Return every registered ExclusionRule.
 
 **Parameters:** none
 
 ### remove_exclusion_rule
 
-v2.1.0 — Drop an exclusion rule by id. Does NOT restore previously deleted memories — the contract is "user said forget".
+Drop an exclusion rule by id. Does NOT restore previously deleted memories — the contract is "user said forget".
 
 **Parameters:**
 ```typescript
@@ -4653,7 +4653,7 @@ v2.1.0 — Drop an exclusion rule by id. Does NOT restore previously deleted mem
 
 ### check_exclusion
 
-v2.1.0 — Check whether content would be blocked by any active forward-blocking rule. Returns {blocked, ruleId?, reason?}. Past-only rules are skipped.
+Check whether content would be blocked by any active forward-blocking rule. Returns {blocked, ruleId?, reason?}. Past-only rules are skipped.
 
 **Parameters:**
 ```typescript
@@ -4665,7 +4665,7 @@ v2.1.0 — Check whether content would be blocked by any active forward-blocking
 
 ### find_matching_memories_for_rule
 
-v2.1.0 — Dry-run preview: return entities whose observations would match the candidate exclusion pattern. Does NOT persist the rule.
+Dry-run preview: return entities whose observations would match the candidate exclusion pattern. Does NOT persist the rule.
 
 **Parameters:**
 ```typescript
@@ -4677,11 +4677,11 @@ v2.1.0 — Dry-run preview: return entities whose observations would match the c
 
 ---
 
-## Observation Dedup (Phase 16 / memoryjs v2.1.0)
+## Observation Dedup
 
 ### find_duplicate_observations
 
-v2.1.0 — Find verbatim duplicate observation strings across distinct entities (SHA-256 exact tier). Complementary to MemoryEngine.checkDuplicate (turn-level) and CompressionManager.findDuplicates (whole-entity). Report-only.
+Find verbatim duplicate observation strings across distinct entities (SHA-256 exact tier). Complementary to MemoryEngine.checkDuplicate (turn-level) and CompressionManager.findDuplicates (whole-entity). Report-only.
 
 **Parameters:**
 ```typescript
@@ -4696,7 +4696,7 @@ v2.1.0 — Find verbatim duplicate observation strings across distinct entities 
 
 ### find_jaccard_duplicate_observations
 
-v2.1.0 — Find near-duplicate observation strings across distinct entities via token-Jaccard similarity with union-find grouping. More expensive than the exact tier (O(o²)); opt-in for higher recall.
+Find near-duplicate observation strings across distinct entities via token-Jaccard similarity with union-find grouping. More expensive than the exact tier (O(o²)); opt-in for higher recall.
 
 **Parameters:**
 ```typescript
@@ -4711,11 +4711,11 @@ v2.1.0 — Find near-duplicate observation strings across distinct entities via 
 
 ---
 
-## Spell Correction (Phase 16 / memoryjs v2.1.0)
+## Spell Correction
 
 ### spell_suggest
 
-v2.1.0 — Suggest close matches for a (potentially misspelled) query over the vocabulary of entity names + tag values. Two-stage: bigram-Jaccard pre-filter (NGramIndex) + Levenshtein re-rank.
+Suggest close matches for a (potentially misspelled) query over the vocabulary of entity names + tag values. Two-stage: bigram-Jaccard pre-filter (NGramIndex) + Levenshtein re-rank.
 
 **Parameters:**
 ```typescript
@@ -4729,35 +4729,35 @@ v2.1.0 — Suggest close matches for a (potentially misspelled) query over the v
 
 ### spell_rebuild_vocabulary
 
-v2.1.0 — Force a rebuild of the SpellChecker vocabulary + n-gram index. Call after bulk entity churn; the lazy cache is otherwise correct for low-churn graphs.
+Force a rebuild of the SpellChecker vocabulary + n-gram index. Call after bulk entity churn; the lazy cache is otherwise correct for low-churn graphs.
 
 **Parameters:** none
 
 ### spell_vocabulary_size
 
-v2.1.0 — Return the count of unique terms in the SpellChecker vocabulary (entity names + tag values by default). Mostly diagnostic.
+Return the count of unique terms in the SpellChecker vocabulary (entity names + tag values by default). Mostly diagnostic.
 
 **Parameters:** none
 
 ---
 
-## Engineering / Diagnostics (v12.5.0)
+## Engineering / Diagnostics
 
 ### diag
 
-v12.5.0 — Runtime + storage diagnostic snapshot: node version, platform, storage path/type/size, entity + relation counts, ISO timestamp. Good first call when something feels off.
+Runtime + storage diagnostic snapshot: node version, platform, storage path/type/size, entity + relation counts, ISO timestamp. Good first call when something feels off.
 
 **Parameters:** none
 
 ### health
 
-v12.5.0 — Fast integrity checks: storage:loadGraph, entities:distinct-names, relations:no-orphans, hierarchy:no-cycles-no-missing-parents. Returns per-check duration; ok=false when any check fails.
+Fast integrity checks: storage:loadGraph, entities:distinct-names, relations:no-orphans, hierarchy:no-cycles-no-missing-parents. Returns per-check duration; ok=false when any check fails.
 
 **Parameters:** none
 
 ### check_graph
 
-v12.5.0 — Detect orphan relations (from/to references a missing entity), missing parents (entity.parentId references a missing entity), and hierarchy cycles. Reports findings. With apply=true, deletes orphan relations and clears missing parentIds; cycles are always reported but never auto-repaired (no safe default for which edge to break).
+Detect orphan relations (from/to references a missing entity), missing parents (entity.parentId references a missing entity), and hierarchy cycles. Reports findings. With apply=true, deletes orphan relations and clears missing parentIds; cycles are always reported but never auto-repaired (no safe default for which edge to break).
 
 **Parameters:**
 ```typescript
@@ -4768,7 +4768,7 @@ v12.5.0 — Detect orphan relations (from/to references a missing entity), missi
 
 ### reindex
 
-v12.5.0 — Rebuild search-side indexes that may have drifted (TF-IDF/BM25 ranked + spell-checker vocabulary). Pass ranked=false or spell=false to scope. Returns per-target ok flag + durationMs.
+Rebuild search-side indexes that may have drifted (TF-IDF ranked index + spell-checker vocabulary). Pass ranked=false or spell=false to scope. Returns per-target ok flag + durationMs.
 
 **Parameters:**
 ```typescript
@@ -4780,25 +4780,25 @@ v12.5.0 — Rebuild search-side indexes that may have drifted (TF-IDF/BM25 ranke
 
 ### cache_stats
 
-v12.5.0 — Per-tier snapshot of the global search caches (basic / ranked / boolean / fuzzy) showing hits / misses / size / hitRate. Process-local — every fresh server process starts at zero.
+Per-tier snapshot of the global search caches (basic / ranked / boolean / fuzzy) showing hits / misses / size / hitRate. Process-local — every fresh server process starts at zero.
 
 **Parameters:** none
 
 ### cache_clear
 
-v12.5.0 — Bust all four global search caches. Idempotent; safe after manual graph edits to drop stale results.
+Bust all four global search caches. Idempotent; safe after manual graph edits to drop stale results.
 
 **Parameters:** none
 
 ### graph_size
 
-v12.5.0 — Graph + storage footprint: entity / relation / observation counts, distinct tag count, avg observations per entity, on-disk byte size + JSONL line count.
+Graph + storage footprint: entity / relation / observation counts, distinct tag count, avg observations per entity, on-disk byte size + JSONL line count.
 
 **Parameters:** none
 
 ### inspect_entity
 
-v12.5.0 — Verbose snapshot of one entity. The snapshot lists observations, outgoing and incoming relations, tags, importance, timestamps, `parentId`, immediate children, and full ancestors. `ObservationManager` resolves the observations, so the column-store sidecar is consulted. The tool returns an error when the entity is not found.
+Verbose snapshot of one entity. The snapshot lists observations, outgoing and incoming relations, tags, importance, timestamps, `parentId`, immediate children, and full ancestors. `ObservationManager` resolves the observations, so the column-store sidecar is consulted. The tool returns an error when the entity is not found.
 
 **Parameters:**
 ```typescript
@@ -4809,7 +4809,7 @@ v12.5.0 — Verbose snapshot of one entity. The snapshot lists observations, out
 
 ### hierarchy_tree
 
-v12.5.0 — Hierarchy tree as nested JSON. With an explicit root, returns just that subtree; without, returns all root entities. Useful for visualising parent/child structure.
+Hierarchy tree as nested JSON. With an explicit root, returns just that subtree; without, returns all root entities. Useful for visualising parent/child structure.
 
 **Parameters:**
 ```typescript
@@ -4820,7 +4820,7 @@ v12.5.0 — Hierarchy tree as nested JSON. With an explicit root, returns just t
 
 ### entity_neighbors
 
-v12.5.0 — Incoming + outgoing relations for one entity, plus in/out degree counts. Lighter than inspect_entity when you only need the graph-topology view.
+Incoming + outgoing relations for one entity, plus in/out degree counts. Lighter than inspect_entity when you only need the graph-topology view.
 
 **Parameters:**
 ```typescript
@@ -4831,7 +4831,7 @@ v12.5.0 — Incoming + outgoing relations for one entity, plus in/out degree cou
 
 ---
 
-## Event Memory (v12.7.0 / memoryjs v3.0.0)
+## Event Memory
 
 ### record_event
 
@@ -4912,7 +4912,7 @@ Convenience join answering "who did what (to target / in context / within time r
 
 ---
 
-## Reconstructive Memory (v12.7.0 / memoryjs v3.0.0)
+## Reconstructive Memory
 
 ### ingest_dialogue
 
@@ -4952,7 +4952,7 @@ Size statistics of the reconstructive (Cue–Tag–Content) memory graph: cue / 
 
 ---
 
-## Relation Consolidation (v12.7.0 / memoryjs v3.0.0)
+## Relation Consolidation
 
 ### analyze_relation_duplicates
 
@@ -4973,7 +4973,7 @@ Run relation-duplicate analysis and — when apply=true — merge tier 1+2 dupli
 
 ---
 
-## Agent Reflection (v12.7.0 / memoryjs v3.0.0)
+## Agent Reflection
 
 ### create_reflection
 
@@ -5038,7 +5038,7 @@ Archive a reflection by id so it no longer appears in default listings or releva
 
 ---
 
-## Reconstructive Memory Persistence (v12.7.0 / memoryjs v3.0.0)
+## Reconstructive Memory Persistence
 
 ### save_reconstructive_memory
 

@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`docs/architecture/API.md` has no version or phase tags.** A tag such as `v1.8.0` or
+  `Phase 15 / memoryjs η.4.4` says when a feature arrived. A tag does not say what the feature is.
+  The change removes the tags from 171 lines. The lines are 43 section headings, 50 lines of the table
+  of contents, 63 tool descriptions, and 15 lines of text and table cells. Every table-of-contents
+  anchor now comes from the heading that it names. Before the change, 15 of the 67 internal links
+  named an anchor that no heading has. Now all 67 links resolve. The section "Phase 15 enhancements
+  to existing tools" is now "Extended Tools". 62 of the 63 tool descriptions are now equal to the
+  text that `tools/list` returns. Two of them differed in more than the tag. `add_exclusion_rule`
+  said "v1 substring-only", and `reindex` said "TF-IDF/BM25 ranked". The 63rd, `inspect_entity`,
+  keeps its own wording. The `tools/list` text is one sentence of 26 words, and `repo-tools ste`
+  rejects it. The tool counts and the parameters are unchanged.
 - **`docs/architecture/API.md` states the parameters that the handlers read.** The Parameters block
   of 20 tools named fields that the handler does not read, or left out fields that the handler
   reads. Four examples. `forget_memory`: the document said that the tool deletes an entity by name,
