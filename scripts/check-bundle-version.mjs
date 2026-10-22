@@ -58,7 +58,7 @@ export function compareVersions({ packageVersion, pluginVersion, bundleVersion }
 /**
  * Returns the bundle that the plugin starts: the first server argument under the plugin-root variable.
  *
- * @param {{ mcpServers?: Record<string, { args?: string[] }> }} mcpJson
+ * @param {{ mcpServers?: Record<string, { command?: string, args?: string[], env?: Record<string, string> }> }} mcpJson
  * @param {string} root
  * @param {string} [variable]
  * @returns {string}

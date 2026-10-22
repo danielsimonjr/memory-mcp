@@ -59,6 +59,9 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Type check
         run: bun run typecheck
+      # tsconfig.json excludes tests, and vitest strips types, so only this step reads a type error in a test file.
+      - name: Type check the test files
+        run: bun run typecheck:tests
       - name: Build
         run: bun run build
       # The npm tarball must hold no build file without a source. `tsc` never deletes old output,

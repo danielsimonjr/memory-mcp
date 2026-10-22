@@ -9,6 +9,7 @@ bun install           # Install all dependencies (bun.lock is authoritative)
 bun run build         # Remove dist/, then build TypeScript → JavaScript (tsc)
 bun run test          # Run tests with coverage (vitest)
 bun run typecheck     # Strict type checking (includes --noUnusedLocals --noUnusedParameters)
+bun run typecheck:tests  # The same checks for src and tests/ (tsconfig.test.json; typecheck skips tests/)
 bun run watch         # Watch mode for development
 bun run clean         # Remove dist/ directory
 bun run check:pack    # Fail when the npm tarball holds a build file that has no source

@@ -75,6 +75,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   from a small graph. The lead sentence of `get_entity_versions` says that the tool returns the
   latest version.
 
+- **CI type-checks the test files.** `tsconfig.json` excludes `tests/`, and vitest removes types without
+  reading them. A type error in a test file therefore passed `bun run typecheck` and every CI job. The new
+  file `tsconfig.test.json` extends `tsconfig.json` and covers `src/` and `tests/`. The new script
+  `bun run typecheck:tests` runs the same flags as `typecheck` against that file, and the `typescript`
+  workflow runs the script in every matrix job. The first run found 7 errors in 5 files. The change fixes
+  each error at its cause. The `tools/list` handler of `tests/integration/mcp-2-protocol.test.ts` now casts
+  `toolDefinitions` as `src/server/MCPServer.ts` does. One import in
+  `tests/unit/create-dependency-graph-clause-items.test.ts` lacked the `.js` extension that Node16
+  resolution needs. Three tests import scripts with the `.mjs` extension, and these scripts have no
+  declaration file. `tsconfig.test.json` therefore sets `allowJs`, so the compiler reads their JSDoc types.
+  The compiler then showed that the JSDoc of `entryFromMcpJson` in `scripts/check-bundle-version.mjs` named
+  only `args` for a server entry. The JSDoc now also names `command` and `env`. The contents of the npm
+  package do not change.
 - **`CLAUDE.md` and the `withCompression` docstring state what the code does.** `CLAUDE.md` named
   four tools that `withCompression` wraps. The code wraps seven: `read_graph`, `search_nodes`,
   `get_subtree`, `open_nodes`, `synthesize_collaborative_context`, `search_cross_agent` and

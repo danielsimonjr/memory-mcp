@@ -54,6 +54,7 @@
     "watch": "tsc --watch",
     "test": "vitest run --coverage",
     "typecheck": "tsc --noEmit --noUnusedLocals --noUnusedParameters --strict",
+    "typecheck:tests": "tsc -p tsconfig.test.json --noUnusedLocals --noUnusedParameters --strict",
     "clean": "shx rm -rf dist",
     "check:pack": "node scripts/check-pack-list.mjs",
     "check:bundle": "node scripts/check-bundle-version.mjs --env MEMORY_STORAGE_TYPE=jsonl --env MEMORY_FILE_PATH=@TMP@/memory.jsonl",

@@ -12,7 +12,7 @@ import {
   CLIENT_CAPABILITIES_META_KEY,
   CLIENT_INFO_META_KEY,
 } from '@modelcontextprotocol/server';
-import { Server } from '@modelcontextprotocol/server';
+import { Server, type ListToolsResult, type Tool } from '@modelcontextprotocol/server';
 import { ManagerContext as KnowledgeGraphManager } from '@danielsimonjr/memoryjs';
 import { toolDefinitions } from '../../src/server/toolDefinitions.js';
 import { handleToolCall } from '../../src/server/toolHandlers.js';
@@ -49,8 +49,8 @@ function buildServer() {
     { capabilities: { tools: {} } }
   );
 
-  server.setRequestHandler('tools/list', async () => ({
-    tools: toolDefinitions,
+  server.setRequestHandler('tools/list', async (): Promise<ListToolsResult> => ({
+    tools: toolDefinitions as Tool[],
   }));
 
   server.setRequestHandler('tools/call', async (request) => {

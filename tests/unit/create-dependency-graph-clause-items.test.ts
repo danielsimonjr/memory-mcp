@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { splitClauseItems } from '../../tools/create-dependency-graph/clause-items';
+import { splitClauseItems } from '../../tools/create-dependency-graph/clause-items.js';
 
 // tools/create-dependency-graph reads the names inside `{ ... }` of an import or export clause.
 // The body can hold `//` and block comments. Before the fix, the comment text joined the next
