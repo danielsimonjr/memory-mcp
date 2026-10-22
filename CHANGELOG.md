@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **A test compares each Returns block of `docs/architecture/API.md` with its handler.** The test
+  `tests/unit/api-docs/api-returns.test.ts` reads the 71 Returns blocks. For each block, the test
+  derives the TypeScript type of the value that the handler returns. The test uses the TypeScript
+  6.0.3 compiler API. The test fails when the block and the type differ in a key name, in an
+  optional key, or in nesting. The test also fails when a block says `any` or `unknown` for a value
+  that has a type. The test does not compare the type of a leaf value. The test also compares the
+  list of wrapped tools in the Response Format section with the `withCompression` calls in
+  `toolHandlers.ts`. Tests inside the file show that the gate fails on a renamed key, on a
+  lost key, and on a changed list of wrapped tools. The package `typescript6` is a new development
+  dependency. The package is an alias of `typescript@6.0.3`, because version 7 of `typescript` has
+  no `createProgram`. The npm package holds the same 18 files as before.
+
 ### Changed
 
 - **`docs/architecture/API.md` states the parameters that the handlers read.** The Parameters block

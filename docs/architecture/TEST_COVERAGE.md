@@ -11,7 +11,7 @@
 | Metric | Count |
 |--------|-------|
 | Total Source Files | 5 |
-| Total Test Files | 47 |
+| Total Test Files | 48 |
 | Source Files with Tests | 5 |
 | Source Files without Tests | 0 |
 | Coverage | 100.0% |
@@ -30,7 +30,7 @@
 | `src/index.ts` | `file-path.test.ts`, `knowledge-graph.test.ts` |
 | `server/MCPServer.ts` | `server.test.ts` |
 | `server/responseCompressor.ts` | `response-compressor.test.ts` |
-| `server/toolDefinitions.ts` | `declared-parameters.test.ts`, `mcp-2-protocol.test.ts`, `server.test.ts`, `handle-tool-call-unknown-names.test.ts`, `tool-definitions.test.ts` |
+| `server/toolDefinitions.ts` | `declared-parameters.test.ts`, `mcp-2-protocol.test.ts`, `server.test.ts`, `api-returns.test.ts`, `handle-tool-call-unknown-names.test.ts`, `tool-definitions.test.ts` |
 | `server/toolHandlers.ts` | `advanced-tools.test.ts`, `artifact-tools.test.ts`, `boolean-flag-validation.test.ts`, `cognitive-load-tools.test.ts`, `consolidation-tools.test.ts`, `decay-salience-tools.test.ts`, `decision-tools.test.ts`, `declared-parameters.test.ts`, `dream-tools.test.ts`, `engineering-tools.test.ts`, `entity-tools.test.ts`, `entropy-tools.test.ts`, `exclusion-tools.test.ts`, `freshness-tools.test.ts`, `governance-tools.test.ts`, `handler-smoke.test.ts`, `heuristic-tools.test.ts`, `maintenance-tools.test.ts`, `memoryjs-v3-tools.test.ts`, `multi-agent-tools.test.ts`, `observability-tools.test.ts`, `observation-dedup-tools.test.ts`, `observation-tools.test.ts`, `procedural-memory-tools.test.ts`, `project-context-tools.test.ts`, `project-scope-tools.test.ts`, `ref-index-tools.test.ts`, `relation-tools.test.ts`, `role-profile-tools.test.ts`, `session-tools.test.ts`, `spell-correction-tools.test.ts`, `temporal-search-tools.test.ts`, `tool-affordance-tools.test.ts`, `mcp-2-protocol.test.ts`, `server.test.ts`, `handle-tool-call-unknown-names.test.ts`, `validate-fact-handler.test.ts`, `storage-readonly-contract.test.ts` |
 
 ---
@@ -76,6 +76,7 @@
 | `integration/mcp-2-protocol.test.ts` | 2 files |
 | `integration/server.test.ts` | 3 files |
 | `tests/knowledge-graph.test.ts` | 1 files |
+| `api-docs/api-returns.test.ts` | 1 files |
 | `unit/create-dependency-graph-clause-items.test.ts` | 0 files |
 | `unit/response-compressor.test.ts` | 1 files |
 | `scripts/check-bundle-version.test.ts` | 0 files |

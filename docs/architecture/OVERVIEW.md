@@ -267,9 +267,9 @@ come from `tools/create-dependency-graph`, which reads `src/` and the tests. The
 
 | Claim | Value | Source |
 |---|---|---|
-| totalSourceFiles | 63 | repo-tools map (whole repository) |
-| totalLinesOfCode | 24742 | repo-tools map (whole repository) |
-| totalExports | 57 | repo-tools map (whole repository) |
+| totalSourceFiles | 69 | repo-tools map (whole repository) |
+| totalLinesOfCode | 25464 | repo-tools map (whole repository) |
+| totalExports | 78 | repo-tools map (whole repository) |
 | entryRoots | 2 | repo-tools map (whole repository) |
 | reachableFiles | 5 | repo-tools map (whole repository) |
 | orphanedFiles | 0 | repo-tools map (whole repository) |
