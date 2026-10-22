@@ -29,6 +29,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   said "v1 substring-only", and `reindex` said "TF-IDF/BM25 ranked". The 63rd, `inspect_entity`,
   keeps its own wording. The `tools/list` text is one sentence of 26 words, and `repo-tools ste`
   rejects it. The tool counts and the parameters are unchanged.
+- **`tools/create-dependency-graph` builds with TypeScript 7.** `tsc` stopped at once with TS5108,
+  because TypeScript 7 removed `moduleResolution: Node`. `npm run build` of the tool therefore never
+  reached `build:exe`. The `tsconfig.json` of the tool now sets `module` and `moduleResolution` to
+  `Node16`. It also sets `types` to `["node"]`, because TypeScript 7 includes no `@types` package unless
+  `types` names the package. The compiler then reported one more error. The call of `yaml.dump` passed
+  `quotingType`, and js-yaml 5 has no such option. The option had no effect, so the call no longer
+  passes it. The five files that the tool writes are byte-identical before and after the change. They
+  are `DEPENDENCY_GRAPH.md`, `dependency-graph.json`, `dependency-graph.yaml`,
+  `dependency-summary.compact.json` and `unused-analysis.md`. The emitted code stays CommonJS, so `pkg`
+  still packs it, and `npm run build` of the tool now ends with the exe.
 - **`docs/architecture/API.md` states the parameters that the handlers read.** The Parameters block
   of 20 tools named fields that the handler does not read, or left out fields that the handler
   reads. Four examples. `forget_memory`: the document said that the tool deletes an entity by name,

@@ -1588,7 +1588,7 @@ async function main(): Promise<void> {
     lineWidth: 120,
     noRefs: true,
     sortKeys: false,
-    quotingType: '"',
+    // js-yaml 5 has no quotingType option.
     forceQuotes: false,
   });
   writeFileSync(join(OUTPUT_DIR, 'dependency-graph.yaml'), yamlOutput);
