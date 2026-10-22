@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The `inspect_entity` description has no sentence of more than 25 words.** The text that
+  `tools/list` returned had one sentence of 26 words, and `repo-tools ste` rejects more than 25
+  words. For that reason `docs/architecture/API.md` kept its own wording for this tool. The
+  description now has four short sentences. Its text is equal to the copy in API.md. The description
+  names the same fields and the same error. The schema and the handler do not change. A client sees
+  the new text in `tools/list`. The test file `tool-definitions.test.ts` checks the sentence length.
+  The plugin bundle `bundle/index.mjs` holds the old text until the next release build.
 - **`docs/architecture/API.md` has no version or phase tags.** A tag such as `v1.8.0` or
   `Phase 15 / memoryjs η.4.4` says when a feature arrived. A tag does not say what the feature is.
   The change removes the tags from 171 lines. The lines are 43 section headings, 50 lines of the table
