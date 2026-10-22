@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **`README.md` has no version or phase tags.** A tag such as `Phase 15 / memoryjs η.4.4` says when
+  a feature arrived. A tag does not say what the feature is. The change removes the tags from 46
+  lines. The lines are 22 section headings, 15 rows of the Features table, the introduction, the
+  note before the tool tables, and 7 lines of text. The section "Phase 15 enhancements to existing
+  tools" is now "Extended Tools". The section "v12.7.0 enhancements to existing tools" is now
+  "Hybrid Search Options". The note before the tool tables named the tagged sections, so the note
+  now names these two. The file also gave the range of `@danielsimonjr/memoryjs` as `^3.0.0`, but
+  `package.json` has `^4.2.0`. The file now points to `package.json` for the range. All 12 internal
+  links of the file resolve before the change and after it.
 - **`docs/architecture/API.md` has no version or phase tags.** A tag such as `v1.8.0` or
   `Phase 15 / memoryjs η.4.4` says when a feature arrived. A tag does not say what the feature is.
   The change removes the tags from 171 lines. The lines are 43 section headings, 50 lines of the table

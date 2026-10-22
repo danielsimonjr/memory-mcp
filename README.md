@@ -9,7 +9,7 @@
 
 An **enhanced fork** of the official [Model Context Protocol](https://modelcontextprotocol.io) memory server. The fork adds **hierarchical nesting**, **intelligent compression**, **semantic search**, **graph algorithms**, **archiving**, **advanced search**, and **multi-format import/export**.
 
-> **Enterprise-grade knowledge graph** with **241 tools** including hierarchical organization, semantic search with embeddings, graph traversal algorithms, duplicate detection, smart archiving, project scoping, temporal knowledge graph, semantic forget, agent diary, **entity bitemporal validity (η.4.4)**, **optimistic concurrency control (η.5.5.c)**, **role-based access control (η.6.1)**, **W3C Linked Data exports** (Turtle / JSON-LD / RDF/XML — η.5.4), **PII redaction on export** (η.6.3), **procedural memory (3B.4)**, **active retrieval (3B.5)**, **causal reasoning (3B.6)**, **world model (3B.7)**, **`do_not_remember` exclusions**, **decision rationale** (ADR memory + markdown dual-write), **structured project context** (facts / conventions / commands / glossary), **heuristic guidelines**, **tool affordance + ToolCallObserver pipeline** (with MCP shim), **observation dedup**, **spell correction** (memoryjs v2.1.0 — Phase 16), **n-ary event memory**, **reconstructive (Cue–Tag–Content) memory with snapshot persistence**, **relation consolidation**, **agent reflections**, and a **graph-connectivity hybrid-search channel with evidence-path explanations** (memoryjs v3.0.0 — v12.7.0) for long-term memory management.
+> **Enterprise-grade knowledge graph** with **241 tools** including hierarchical organization, semantic search with embeddings, graph traversal algorithms, duplicate detection, smart archiving, project scoping, temporal knowledge graph, semantic forget, agent diary, **entity bitemporal validity**, **optimistic concurrency control**, **role-based access control**, **W3C Linked Data exports** (Turtle / JSON-LD / RDF/XML), **PII redaction on export**, **procedural memory**, **active retrieval**, **causal reasoning**, **world model**, **`do_not_remember` exclusions**, **decision rationale** (ADR memory + markdown dual-write), **structured project context** (facts / conventions / commands / glossary), **heuristic guidelines**, **tool affordance + ToolCallObserver pipeline** (with MCP shim), **observation dedup**, **spell correction**, **n-ary event memory**, **reconstructive (Cue–Tag–Content) memory with snapshot persistence**, **relation consolidation**, **agent reflections**, and a **graph-connectivity hybrid-search channel with evidence-path explanations** for long-term memory management.
 
 ## Table of Contents
 
@@ -74,21 +74,21 @@ An **enhanced fork** of the official [Model Context Protocol](https://modelconte
 | **Temporal KG** | 3 | Temporal relation invalidation, time-travel queries, relation timeline |
 | **Ingestion** | 1 | Format-agnostic conversation/document ingestion pipeline |
 | **Agent Diary** | 2 | Per-agent persistent journal write and read |
-| **Session & Working Memory** | 9 | Session lifecycle, working memory CRUD, TTL, promotion, context wake-up *(Phase 14)* |
-| **Auto-Enhancement** | 3 | Auto-link entity mentions, fact extraction, contradiction detection *(Phase 14)* |
-| **Context Compression** | 1 | N-gram text abbreviation with legend for token savings *(Phase 14)* |
-| **Consolidation Pipeline** | 3 | Session consolidation, pattern detection, entity summarization *(Phase 14)* |
-| **Decay & Salience** | 5 | Time-based decay, importance scoring, weak memory cleanup, reinforcement *(Phase 14)* |
-| **Multi-Agent** | 5 | Agent registration, cross-agent search, visibility, conflict resolution *(Phase 14)* |
-| **Observability** | 4 | D3.js graph visualization, transcript splitting, query cost estimation *(Phase 14)* |
-| **Dedup** | 1 | Priority-based smart deduplication *(Phase 14)* |
-| **Entity Bitemporal** | 5 | Time-travel queries: invalidate entities/observations, entity_as_of, timelines *(Phase 15 / η.4.4)* |
-| **Optimistic Concurrency** | 1 | `update_entity` with `expectedVersion` → `VersionConflictError` on stale *(Phase 15 / η.5.5.c)* |
-| **RBAC** | 4 | Role-based access control: assign/revoke/check/list reader/writer/admin/owner permissions *(Phase 15 / η.6.1)* |
-| **Procedural Memory** | 5 | Executable how-to sequences with EWMA-refined success rate *(Phase 15 / 3B.4)* |
-| **Active Retrieval** | 1 | Iterative query rewriting until coverage threshold met *(Phase 15 / 3B.5)* |
-| **Causal Reasoning** | 4 | Chain discovery, counterfactual queries, cycle detection *(Phase 15 / 3B.6)* |
-| **World Model** | 3 | Graph snapshots, fact validation, outcome prediction *(Phase 15 / 3B.7)* |
+| **Session & Working Memory** | 9 | Session lifecycle, working memory CRUD, TTL, promotion, context wake-up |
+| **Auto-Enhancement** | 3 | Auto-link entity mentions, fact extraction, contradiction detection |
+| **Context Compression** | 1 | N-gram text abbreviation with legend for token savings |
+| **Consolidation Pipeline** | 3 | Session consolidation, pattern detection, entity summarization |
+| **Decay & Salience** | 5 | Time-based decay, importance scoring, weak memory cleanup, reinforcement |
+| **Multi-Agent** | 5 | Agent registration, cross-agent search, visibility, conflict resolution |
+| **Observability** | 4 | D3.js graph visualization, transcript splitting, query cost estimation |
+| **Dedup** | 1 | Priority-based smart deduplication |
+| **Entity Bitemporal** | 5 | Time-travel queries: invalidate entities/observations, entity_as_of, timelines |
+| **Optimistic Concurrency** | 1 | `update_entity` with `expectedVersion` → `VersionConflictError` on stale |
+| **RBAC** | 4 | Role-based access control: assign/revoke/check/list reader/writer/admin/owner permissions |
+| **Procedural Memory** | 5 | Executable how-to sequences with EWMA-refined success rate |
+| **Active Retrieval** | 1 | Iterative query rewriting until coverage threshold met |
+| **Causal Reasoning** | 4 | Chain discovery, counterfactual queries, cycle detection |
+| **World Model** | 3 | Graph snapshots, fact validation, outcome prediction |
 
 ### Comparison with Official Memory Server
 
@@ -262,7 +262,7 @@ Discrete facts about entities. Each observation should be atomic and independent
 
 ### Complete Tool List (241 Tools)
 
-> Tool count: 241 tools across 65 categories. The newest tools are documented at the end under the **Phase 15**, **Phase 16 (memoryjs v2.1.0)**, **v12.3.2 / v12.5.0**, and **v12.7.0 (memoryjs v3.0.0)** sections. For full per-tool schemas see [docs/architecture/API.md](docs/architecture/API.md) or `src/server/toolDefinitions.ts`.
+> Tool count: 241 tools across 65 categories. The sections **Extended Tools** and **Hybrid Search Options** list the options that existing tools accept. For full per-tool schemas see [docs/architecture/API.md](docs/architecture/API.md) or `src/server/toolDefinitions.ts`.
 
 #### Entity Operations (4 tools)
 | Tool | Description |
@@ -507,21 +507,21 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `diary_write` | Append an entry to the agent's persistent diary |
 | `diary_read` | Read diary entries for an agent, optionally filtered by date range |
 
-#### Entity Bitemporal Validity (5 tools) — Phase 15 / memoryjs η.4.4
+#### Entity Bitemporal Validity (5 tools)
 | Tool | Description |
 |------|-------------|
 | `invalidate_entity` | Stamp `validUntil` on an entity (idempotent; entity remains queryable for past timestamps via `entity_as_of`) |
 | `entity_as_of` | Time-travel query: returns entity state at a given ISO 8601 timestamp, or `null` if invalidated then |
-| `entity_timeline` | All temporal versions of an entity in chronological order; integrates the v1.8 supersession chain |
+| `entity_timeline` | All temporal versions of an entity in chronological order; integrates the supersession chain |
 | `invalidate_observation` | Per-observation invalidation via parallel `observationMeta[]` entry on the entity |
 | `observations_as_of` | Filter observations valid at a given timestamp; observations without meta are treated as unbounded |
 
-#### Optimistic Concurrency Control (1 tool) — Phase 15 / memoryjs η.5.5.c
+#### Optimistic Concurrency Control (1 tool)
 | Tool | Description |
 |------|-------------|
 | `update_entity` | Update an entity with optional `expectedVersion`; throws `VersionConflictError` on stale version. OCC-guarded writes auto-increment `version`. Omit `expectedVersion` for legacy last-write-wins. |
 
-#### RBAC (4 tools) — Phase 15 / memoryjs η.6.1
+#### RBAC (4 tools)
 | Tool | Description |
 |------|-------------|
 | `rbac_assign_role` | Grant `reader` / `writer` / `admin` / `owner` (or custom) role to an agent; optional `resourceType`, `scope` prefix, `validFrom` / `validUntil` window |
@@ -529,7 +529,7 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `rbac_check_permission` | Check whether an agent can perform `read` / `write` / `delete` / `manage` on a resource type; falls back to `defaultRole=reader` for unassigned agents |
 | `rbac_list_assignments` | List all role assignments for an agent; optional `activeOnly` filter |
 
-#### Procedural Memory (5 tools) — Phase 15 / memoryjs 3B.4
+#### Procedural Memory (5 tools)
 | Tool | Description |
 |------|-------------|
 | `add_procedure` | Persist an executable how-to sequence: 1-indexed steps with optional fallback chains and free-form trigger phrases |
@@ -538,12 +538,12 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `refine_procedure` | Apply caller feedback after execution; updates `successRate` via EWMA (α=0.2) |
 | `get_procedure_step` | Load step by 1-indexed `order`, or get the next step relative to `currentOrder` |
 
-#### Active Retrieval (1 tool) — Phase 15 / memoryjs 3B.5
+#### Active Retrieval (1 tool)
 | Tool | Description |
 |------|-------------|
 | `adaptive_retrieve` | Iterative query-rewriting retrieval (search → score coverage → rewrite); up to 3 rounds, and it stops early when the coverage reaches 0.6. Pure symbolic — no LLM provider required. |
 
-#### Causal Reasoning (4 tools) — Phase 15 / memoryjs 3B.6
+#### Causal Reasoning (4 tools)
 | Tool | Description |
 |------|-------------|
 | `find_causes` | Causal chains ending at the named effect; sorted by product-of-edge causalStrength |
@@ -551,19 +551,19 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `counterfactual_query` | "If we remove edge (removeFrom → removeTo), is `predict` still reachable from `seed`?" Returns surviving chains. Pure: does not mutate the graph. |
 | `detect_causal_cycles` | Detect cycles in the causal subgraph rooted at `seed` |
 
-#### World Model (3 tools) — Phase 15 / memoryjs 3B.7
+#### World Model (3 tools)
 | Tool | Description |
 |------|-------------|
 | `get_world_state` | Capture a fresh snapshot of the live graph (capped at 1000 entities; over-cap prefers high-importance) |
 | `validate_fact_against_world` | Validate a candidate observation against a target entity via `MemoryValidator.validateConsistency`. Returns `{result: null, reason: 'embedding_provider_unavailable'}` when the local embedding provider is selected without `@xenova/transformers` installed. |
 | `predict_outcome` | Predict downstream effects of an action by walking the causal subgraph (delegates to `find_effects`) |
 
-#### Phase 15 enhancements to existing tools
-- **`export_graph`** — Accepts `format: 'turtle' | 'rdf-xml' | 'json-ld'` for W3C Linked Data exports (memoryjs η.5.4). Accepts `redactPii: true` to scrub PII (email / SSN / credit-card / phone / IPv4) from observations with the η.6.3 `PiiRedactor`.
-- **`create_entities`** — Now accepts v1.6 freshness fields (`ttl`, `confidence`), v1.8 project scope (`projectId`), and η.4.4 bitemporal fields (`validFrom`, `validUntil`, `observationMeta`) per entity.
-- **`set_memory_visibility`** — Auto-promotes plain entities to `AgentEntity` (stamps `agentId` / `memoryType` / `confidence`) instead of silently returning `null`. Supports η.5.5.b extensions (`allowedRoles`, `visibleFrom`, `visibleUntil`).
+#### Extended Tools
+- **`export_graph`** — Accepts `format: 'turtle' | 'rdf-xml' | 'json-ld'` for W3C Linked Data exports. Accepts `redactPii: true` to scrub PII (email / SSN / credit-card / phone / IPv4) from observations with the `PiiRedactor`.
+- **`create_entities`** — Accepts freshness fields (`ttl`, `confidence`), project scope (`projectId`), and bitemporal fields (`validFrom`, `validUntil`, `observationMeta`) per entity.
+- **`set_memory_visibility`** — Auto-promotes plain entities to `AgentEntity` (stamps `agentId` / `memoryType` / `confidence`) instead of silently returning `null`. Supports a time window and a role gate (`allowedRoles`, `visibleFrom`, `visibleUntil`).
 
-#### Tool Affordance (11 tools) — Phase 16 / memoryjs v2.1.0
+#### Tool Affordance (11 tools)
 | Tool | Description |
 |------|-------------|
 | `record_tool_outcome` | Record a tool call outcome (success/failure) into affordance stats |
@@ -578,7 +578,7 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `observe_tool_cancel` | Cancel an in-flight tool observation |
 | `tool_observer_in_flight_count` | Count of currently in-flight observed tool calls |
 
-#### Heuristic Guidelines (10 tools) — Phase 16 / memoryjs v2.1.0
+#### Heuristic Guidelines (10 tools)
 | Tool | Description |
 |------|-------------|
 | `add_heuristic` | Store a heuristic guideline ("when X, prefer Y") |
@@ -592,7 +592,7 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `remove_heuristic` | Remove one heuristic |
 | `clear_heuristics` | Remove all heuristics |
 
-#### Project Context (12 tools) — Phase 16 / memoryjs v2.1.0
+#### Project Context (12 tools)
 | Tool | Description |
 |------|-------------|
 | `upsert_project_context` | Create/replace a project's structured context record |
@@ -608,7 +608,7 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `clear_project_context` | Delete a project's context record |
 | `format_project_context_for_llm` | Render the context as LLM-ready markdown |
 
-#### Decision Rationale (10 tools) — Phase 16 / memoryjs v2.1.0
+#### Decision Rationale (10 tools)
 | Tool | Description |
 |------|-------------|
 | `propose_decision` | Record a proposed decision with rationale |
@@ -622,7 +622,7 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `export_decision_as_adr_markdown` | Render a decision as ADR markdown |
 | `parse_adr_markdown` | Parse ADR markdown back into a decision record |
 
-#### Exclusion / `do_not_remember` (5 tools) — Phase 16 / memoryjs v2.1.0
+#### Exclusion / `do_not_remember` (5 tools)
 | Tool | Description |
 |------|-------------|
 | `add_exclusion_rule` | Add a rule for content that must not be remembered |
@@ -631,26 +631,26 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `check_exclusion` | Check whether a text would be excluded |
 | `find_matching_memories_for_rule` | Existing memories matching an exclusion rule |
 
-#### Observation Dedup (2 tools) — Phase 16 / memoryjs v2.1.0
+#### Observation Dedup (2 tools)
 | Tool | Description |
 |------|-------------|
 | `find_duplicate_observations` | Exact duplicate observations across entities |
 | `find_jaccard_duplicate_observations` | Near-duplicates via Jaccard token similarity |
 
-#### Spell Correction (3 tools) — Phase 16 / memoryjs v2.1.0
+#### Spell Correction (3 tools)
 | Tool | Description |
 |------|-------------|
 | `spell_suggest` | "Did you mean?" suggestions for a query term |
 | `spell_rebuild_vocabulary` | Rebuild the spell-check vocabulary from the graph |
 | `spell_vocabulary_size` | Current vocabulary size |
 
-#### Active Project Scope (2 tools) — v12.3.2
+#### Active Project Scope (2 tools)
 | Tool | Description |
 |------|-------------|
 | `set_project_scope` | Set the server's active project-scope filter (per-session mutable state) |
 | `get_project_scope` | Get the active project scope (`{ projectId }`, null when unscoped) |
 
-#### Engineering / Diagnostics (10 tools) — v12.5.0
+#### Engineering / Diagnostics (10 tools)
 | Tool | Description |
 |------|-------------|
 | `diag` | Server + storage diagnostic snapshot |
@@ -664,7 +664,7 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `hierarchy_tree` | Hierarchy as nested JSON |
 | `entity_neighbors` | Incoming/outgoing relations + degree counts for one entity |
 
-#### Event Memory (5 tools) — v12.7.0 / memoryjs v3.0.0
+#### Event Memory (5 tools)
 | Tool | Description |
 |------|-------------|
 | `record_event` | Reify an action as an event hub entity with role-typed relations (`actor_of` / `targeted` / `occurred_in` / `participant_in`) and optional `flow:<key>` grouping |
@@ -673,7 +673,7 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `get_event_flow` | Full timeline of a named flow (e.g. a release or incident) |
 | `who_did_what` | "Who did what (to target / in context / within range)?" join over events |
 
-#### Reconstructive Memory (5 tools) — v12.7.0 / memoryjs v3.0.0
+#### Reconstructive Memory (5 tools)
 | Tool | Description |
 |------|-------------|
 | `ingest_dialogue` | Distill dialogue turns into the Cue–Tag–Content associative graph (also persisted into the live knowledge graph) |
@@ -682,13 +682,13 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `save_reconstructive_memory` | Serialize the CTC graph to a `<basename>-reconstructive.json` sidecar |
 | `load_reconstructive_memory` | Restore the CTC graph from the sidecar (survives restarts) |
 
-#### Relation Consolidation (2 tools) — v12.7.0 / memoryjs v3.0.0
+#### Relation Consolidation (2 tools)
 | Tool | Description |
 |------|-------------|
 | `analyze_relation_duplicates` | Dry-run the three-tier relation janitor: spelling variants, inverse duplicates, semantic duplicates (with embeddings) |
 | `consolidate_relations` | Apply tier 1+2 merges (`apply: true`) or dry-run (default) |
 
-#### Agent Reflection (4 tools) — v12.7.0 / memoryjs v3.0.0
+#### Agent Reflection (4 tools)
 | Tool | Description |
 |------|-------------|
 | `create_reflection` | Persist an evidence-backed generalized lesson (scope: session / project / global) |
@@ -696,8 +696,8 @@ Discrete facts about entities. Each observation should be atomic and independent
 | `get_relevant_reflections` | Reflections relevant to a session (sourceSessionId + evidence overlap) |
 | `archive_reflection` | Soft-delete a reflection out of default listings |
 
-#### v12.7.0 enhancements to existing tools
-- **`hybrid_search`** — Accepts four additive options from memoryjs v3:
+#### Hybrid Search Options
+- **`hybrid_search`** — Accepts four additive options:
   - `graphWeight`: a graph-connectivity channel through normalized PageRank.
   - `expandNeighbors`: a one-hop expansion of the top results with damped scores.
   - `explain`: annotates results with evidence paths from the query anchors.
@@ -796,7 +796,7 @@ bun run docs:deps     # Generate dependency graph
 
 ### Architecture
 
-After the **Phase 13 extraction**, this repo is a thin MCP wrapper. All graph logic, managers, and storage live in [`@danielsimonjr/memoryjs`](https://www.npmjs.com/package/@danielsimonjr/memoryjs) (currently `^3.0.0`).
+This repo is a thin MCP wrapper. All graph logic, managers, and storage live in [`@danielsimonjr/memoryjs`](https://www.npmjs.com/package/@danielsimonjr/memoryjs). The version range is in `package.json`.
 
 ```
 memory-mcp (this repo)              @danielsimonjr/memoryjs (npm dep)
@@ -867,7 +867,7 @@ memory-mcp/
 - `shx`: ^0.4.0 — cross-platform shell commands for `clean` script
 - `@types/node`: ^22
 
-> Note: `better-sqlite3`, `async-mutex`, `@danielsimonjr/workerpool`, and the embedding providers (OpenAI / `@xenova/transformers`) are **transitive deps via `@danielsimonjr/memoryjs`** since the Phase 13 extraction. They are not listed in this repo's `package.json`.
+> Note: `better-sqlite3`, `async-mutex`, `@danielsimonjr/workerpool`, and the embedding providers (OpenAI / `@xenova/transformers`) are **transitive deps via `@danielsimonjr/memoryjs`**. They are not listed in this repo's `package.json`.
 
 ## Documentation
 
