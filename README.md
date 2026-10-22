@@ -831,8 +831,8 @@ memory-mcp/
 │       ├── toolDefinitions.ts              # 241 tool schemas (name, description, inputSchema)
 │       ├── toolHandlers.ts                 # Handler registry: validate args → call manager → format response
 │       └── responseCompressor.ts           # Brotli + base64 wrapper for >256KB payloads
-├── tests/                                  # Test suite (47 files, 967 tests, ~85% statement coverage)
-│   ├── unit/                               # Unit tests (response compressor, tool defs, validate-fact handler)
+├── tests/                                  # Test suite (48 files, 1060 tests, ~85% statement coverage)
+│   ├── unit/                               # Unit tests (response compressor, tool defs, validate-fact handler, API.md Returns gate)
 │   ├── integration/                        # MCP server lifecycle
 │   ├── e2e/tools/                          # Per-category tool tests + handler-smoke broad coverage
 │   ├── knowledge-graph.test.ts             # Core graph operations (smoke against memoryjs)
@@ -855,17 +855,20 @@ memory-mcp/
 
 ### Dependencies
 
-**Production** (3 direct deps — everything else is transitive via memoryjs):
-- `@danielsimonjr/memoryjs`: ^1.15.0 — knowledge graph engine (storage, managers, search, embeddings, RBAC, OCC, bitemporal, causal, etc.)
-- `@modelcontextprotocol/sdk`: ^1.21.1 — MCP protocol implementation
-- `zod`: ^3.24.1 — runtime input validation (schemas re-exported from memoryjs)
+**Production** (4 direct deps — everything else is transitive via memoryjs):
+- `@danielsimonjr/memoryjs`: ^4.2.0 — knowledge graph engine (storage, managers, search, embeddings, RBAC, OCC, bitemporal, causal, etc.)
+- `@modelcontextprotocol/server`: ^2.0.0 — MCP protocol implementation (`Server` and the stdio transport)
+- `@modelcontextprotocol/core`: ^2.0.0 — declared in `package.json`; no file in `src/` imports it
+- `zod`: ^4.6.5 — runtime input validation (schemas re-exported from memoryjs)
 
 **Development:**
-- `typescript`: ^5.6.2
-- `vitest`: ^4.0.13
-- `@vitest/coverage-v8`: ^4.0.13
+- `typescript`: ^7.0.2
+- `typescript6`: npm:typescript@6.0.3 — the `createProgram` API for the API.md Returns gate (version 7 of `typescript` has none)
+- `vitest`: ^5.0.1
+- `@vitest/coverage-v8`: ^5.0.1
+- `esbuild`: ^0.28.2 — builds the plugin bundle (`scripts/build-bundle.mjs`)
 - `shx`: ^0.4.0 — cross-platform shell commands for `clean` script
-- `@types/node`: ^22
+- `@types/node`: ^26
 
 > Note: `better-sqlite3`, `async-mutex`, `@danielsimonjr/workerpool`, and the embedding providers (OpenAI / `@xenova/transformers`) are **transitive deps via `@danielsimonjr/memoryjs`** since the Phase 13 extraction. They are not listed in this repo's `package.json`.
 
@@ -939,7 +942,7 @@ Enhanced fork of [Model Context Protocol memory server](https://github.com/model
 - Multi-format import/export with merge strategies
 - SQLite backend with better-sqlite3 (3-10x faster)
 - Transaction support with ACID guarantees
-- Comprehensive test suite (967 tests, 47 test files in this wrapper repo; full-coverage core graph tests live in `@danielsimonjr/memoryjs`)
+- Comprehensive test suite (1060 tests, 48 test files in this wrapper repo; full-coverage core graph tests live in `@danielsimonjr/memoryjs`)
 
 ---
 

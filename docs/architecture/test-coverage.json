@@ -1,7 +1,7 @@
 {
   "metadata": {
     "totalSourceFiles": 5,
-    "totalTestFiles": 47,
+    "totalTestFiles": 48,
     "testedCount": 5,
     "untestedCount": 0,
     "coveragePercent": "100.0"
@@ -29,6 +29,7 @@
       "tests/e2e/tools/declared-parameters.test.ts",
       "tests/integration/mcp-2-protocol.test.ts",
       "tests/integration/server.test.ts",
+      "tests/unit/api-docs/api-returns.test.ts",
       "tests/unit/server/handle-tool-call-unknown-names.test.ts",
       "tests/unit/server/tool-definitions.test.ts"
     ],
@@ -188,6 +189,9 @@
     ],
     "tests/knowledge-graph.test.ts": [
       "src/index.ts"
+    ],
+    "tests/unit/api-docs/api-returns.test.ts": [
+      "src/server/toolDefinitions.ts"
     ],
     "tests/unit/create-dependency-graph-clause-items.test.ts": [],
     "tests/unit/response-compressor.test.ts": [
