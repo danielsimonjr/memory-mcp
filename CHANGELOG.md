@@ -140,6 +140,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `compressedSize` and `data`. A smaller response arrives unchanged. The section also says how to
   decode `data`.
 
+### Fixed
+
+- **The reference index file follows the name of the store.** The handlers of `register_ref`,
+  `resolve_ref`, `deregister_ref`, `list_refs` and the artifact tools wrote to a file with the
+  literal name `memory-ref-index.jsonl`. The package `@danielsimonjr/memoryjs` names its own
+  reference index `<store basename>-ref-index.jsonl`. The two names agreed only for a store called
+  `memory.jsonl` or `memory.db`. A store called `foo.jsonl` used `memory-ref-index.jsonl` in the
+  same folder, and two stores in one folder shared one index. The function `getRefIndex` now returns
+  `ctx.refIndex`, the one instance that the library keeps for each context. A store with the name
+  `memory` is not affected. A store with another name starts with an empty index at the new file
+  name. The refs of that store stay in `memory-ref-index.jsonl`. Rename that file to
+  `<store basename>-ref-index.jsonl` to keep them.
+
 ## [12.10.0] - 2026-10-21
 
 ### Added

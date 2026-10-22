@@ -88,7 +88,6 @@ import { maybeCompressResponse } from './responseCompressor.js';
 // WeakMap-based singletons keyed on ManagerContext to avoid re-instantiation per request.
 // This file creates these managers on first use, once per ctx.
 
-const refIndexMap = new WeakMap<ManagerContext, RefIndex>();
 const freshnessMap = new WeakMap<ManagerContext, FreshnessManager>();
 const artifactManagerMap = new WeakMap<ManagerContext, ArtifactManager>();
 const distillationPipelineMap = new WeakMap<ManagerContext, DistillationPipeline>();
@@ -148,13 +147,10 @@ function reconstructiveSidecarPath(ctx: ManagerContext): string {
   return `${base}-reconstructive.json`;
 }
 
+// The library keeps one RefIndex for each context and names its file
+// `<store basename>-ref-index.jsonl`, so two stores in one folder do not share an index.
 function getRefIndex(ctx: ManagerContext): RefIndex {
-  if (!refIndexMap.has(ctx)) {
-    const storagePath = getStorageFilePath(ctx);
-    const dir = path.dirname(storagePath);
-    refIndexMap.set(ctx, new RefIndex(path.join(dir, 'memory-ref-index.jsonl')));
-  }
-  return refIndexMap.get(ctx)!;
+  return ctx.refIndex;
 }
 
 function getFreshnessManager(ctx: ManagerContext): FreshnessManager {

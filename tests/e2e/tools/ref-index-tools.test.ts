@@ -239,3 +239,47 @@ describe('Ref Index Tools E2E', () => {
     });
   });
 });
+
+// The reference index file follows the store name, as it does in memoryjs
+// (`<store basename>-ref-index.jsonl`). A literal name made two stores in one
+// folder share one index.
+describe('Ref Index file name', () => {
+  let dir: string;
+
+  beforeEach(async () => {
+    dir = await fs.mkdtemp(join(tmpdir(), 'ref-index-name-'));
+  });
+
+  afterEach(async () => {
+    await fs.rm(dir, { recursive: true, force: true });
+  });
+
+  async function newStore(fileName: string): Promise<KnowledgeGraphManager> {
+    const storePath = join(dir, fileName);
+    await fs.writeFile(storePath, '');
+    const ctx = new KnowledgeGraphManager(storePath);
+    await handleToolCall('create_entities', {
+      entities: [{ name: 'Alice', entityType: 'test', observations: ['Test entity Alice'] }],
+    }, ctx);
+    return ctx;
+  }
+
+  it('writes <store basename>-ref-index.jsonl next to a store with a non-default name', async () => {
+    const ctx = await newStore('foo.jsonl');
+    const result = await handleToolCall('register_ref', { ref: 'alice-ref', entityName: 'Alice' }, ctx);
+    expect(result.isError).toBeUndefined();
+
+    const names = await fs.readdir(dir);
+    expect(names).toContain('foo-ref-index.jsonl');
+    expect(names).not.toContain('memory-ref-index.jsonl');
+  });
+
+  it('keeps the refs of two stores in one folder apart', async () => {
+    const first = await newStore('first.jsonl');
+    const second = await newStore('second.jsonl');
+    await handleToolCall('register_ref', { ref: 'shared-ref', entityName: 'Alice' }, first);
+
+    const result = await handleToolCall('resolve_ref', { ref: 'shared-ref' }, second);
+    expect(result.content[0].text).toContain('is not registered');
+  });
+});
