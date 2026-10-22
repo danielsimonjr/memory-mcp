@@ -60,6 +60,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DuplicateError` and `SecurityError`, are not classes of `@danielsimonjr/memoryjs` 4.2.0. A call
   that creates an entity that exists is not an error, because `create_entities` skips that entity. A
   response never carries the name of an error class, so the section no longer lists the names.
+- **The package no longer lists `@modelcontextprotocol/core` as a direct dependency.** No file of this
+  repository imports the package. A search of `src`, `tests`, `scripts`, `tools` and the docs finds the
+  name only in `package.json` and `bun.lock`. The package `@modelcontextprotocol/server` depends on
+  `@modelcontextprotocol/core` 2.0.0, so the core package stays installed as a dependency of the server.
+  The plugin bundle does not change. The change removes one line from `package.json` and one line from
+  the workspace entry of `bun.lock`.
 - **`docs/architecture/API.md` states what the handlers return.** The Returns block of 62 of the 71
   tools that have one did not match the handler. Examples: `delete_entities` returns the text
   `Deleted <count> entities`, not `{ deletedCount }`. `get_entity_versions` returns one `Entity`, the
