@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The Directory Structure section of `docs/architecture/OVERVIEW.md` shows the real `src/` tree.**
+  The section showed a `src/` tree of 77 files with `core/`, `search/`, `features/`, `types/`,
+  `utils/` and `workers/`. This repository holds 5 files in `src/`: `index.ts` and four files in
+  `server/`. The code of the other directories is in the package `@danielsimonjr/memoryjs`. The
+  section now shows the 5 files, says where the engine code is, and lists what the other top-level
+  folders hold.
 - **`README.md` has no version or phase tags.** A tag such as `Phase 15 / memoryjs η.4.4` says when
   a feature arrived. A tag does not say what the feature is. The change removes the tags from 46
   lines. The lines are 22 section headings, 15 rows of the Features table, the introduction, the

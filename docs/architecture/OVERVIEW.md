@@ -81,87 +81,33 @@ interface Relation {
 
 ## Directory Structure
 
+This repository holds the MCP layer. The graph engine is the package `@danielsimonjr/memoryjs`, which `src/` imports. The managers, the search code and the storage backends are in that package. They are not in this tree.
+
 ```
-src/ (77 TypeScript files, ~31,000 lines of code)
-├── index.ts              # Entry point, main() function
-│
-├── core/ (12 files)      # Core managers and storage
-│   ├── ManagerContext.ts         # Context holder (lazy init, 7 managers)
-│   ├── EntityManager.ts          # Entity CRUD operations
-│   ├── RelationManager.ts        # Relation CRUD
-│   ├── ObservationManager.ts     # Observation add/delete
-│   ├── HierarchyManager.ts       # Parent-child relationships
-│   ├── GraphStorage.ts           # JSONL file I/O, caching
-│   ├── SQLiteStorage.ts          # SQLite backend (better-sqlite3)
-│   ├── StorageFactory.ts         # Storage backend factory
-│   ├── TransactionManager.ts     # Batch operations
-│   ├── GraphTraversal.ts         # Graph algorithms (BFS, shortest path, centrality)
-│   ├── GraphEventEmitter.ts      # Event-driven TF-IDF sync
-│   └── index.ts                  # Barrel export (+ KnowledgeGraphManager alias)
-│
-├── server/ (4 files)     # MCP protocol layer
-│   ├── MCPServer.ts              # Server initialization
-│   ├── toolDefinitions.ts        # 241 tool schemas
-│   ├── toolHandlers.ts           # Tool implementation registry
-│   └── responseCompressor.ts     # Brotli compression for large responses
-│
-├── search/ (29 files)    # Search implementations (31 classes)
-│   ├── SearchManager.ts          # Search orchestrator + compression + analytics
-│   ├── BasicSearch.ts            # Text matching
-│   ├── RankedSearch.ts           # TF-IDF scoring
-│   ├── BooleanSearch.ts          # AND/OR/NOT logic
-│   ├── FuzzySearch.ts            # Levenshtein matching (uses workerpool)
-│   ├── SearchFilterChain.ts      # Unified filter logic
-│   ├── SavedSearchManager.ts     # Saved search persistence
-│   ├── TFIDFIndexManager.ts      # TF-IDF index management
-│   ├── SearchSuggestions.ts      # "Did you mean?" suggestions
-│   ├── QueryCostEstimator.ts     # Query complexity for search_auto
-│   ├── SemanticSearch.ts         # Vector similarity search
-│   ├── EmbeddingService.ts       # OpenAI/Local/Mock embedding providers
-│   ├── VectorStore.ts            # In-memory/SQLite vector storage
-│   ├── TFIDFEventSync.ts         # Event-driven TF-IDF updates
-│   ├── HybridSearchManager.ts    # Three-layer hybrid search (semantic+lexical+symbolic)
-│   ├── QueryAnalyzer.ts          # Query understanding + entity extraction
-│   ├── QueryPlanner.ts           # Query decomposition + planning
-│   ├── SymbolicSearch.ts         # Metadata-based symbolic filtering
-│   ├── ReflectionManager.ts      # Iterative result refinement
-│   └── index.ts
-│
-├── features/ (9 files)   # Advanced capabilities
-│   ├── TagManager.ts             # Tag aliases
-│   ├── IOManager.ts              # Import + export + backup
-│   ├── StreamingExporter.ts      # Memory-efficient large exports
-│   ├── AnalyticsManager.ts       # Graph stats and validation
-│   ├── ArchiveManager.ts         # Entity archival
-│   ├── CompressionManager.ts     # Duplicate detection and merging
-│   ├── ObservationNormalizer.ts  # Coreference resolution + temporal anchoring
-│   ├── KeywordExtractor.ts       # Scored keyword extraction
-│   └── index.ts
-│
-├── types/ (2 files)      # TypeScript definitions (consolidated)
-│   ├── types.ts                  # All type definitions (89 interfaces)
-│   └── index.ts                  # Barrel export
-│
-├── utils/ (18 files)     # Shared utilities (23 classes, 50+ functions)
-│   ├── schemas.ts                # Zod validation schemas (26 validators)
-│   ├── constants.ts              # Shared constants (16+ exports)
-│   ├── formatters.ts             # Response + pagination formatting
-│   ├── entityUtils.ts            # Entity helper functions (28 functions)
-│   ├── searchAlgorithms.ts       # Levenshtein + TF-IDF algorithms
-│   ├── compressionUtil.ts        # Brotli compression utilities
-│   ├── compressedCache.ts        # LRU cache with compression
-│   ├── operationUtils.ts         # Long-running operation utilities
-│   ├── taskScheduler.ts          # Task queue with workerpool
-│   ├── searchCache.ts            # TTL-based search caching
-│   ├── indexes.ts                # O(1) lookup indexes (5 classes)
-│   ├── errors.ts                 # Custom error classes (12 errors)
-│   ├── logger.ts                 # Logging utility
-│   └── index.ts
-│
-└── workers/ (2 files)    # Worker pool utilities
-    ├── levenshteinWorker.ts      # Parallel fuzzy search worker
-    └── index.ts
+src/ (5 TypeScript files)
+├── index.ts                  # Entry point, main() function
+└── server/ (4 files)         # MCP protocol layer
+    ├── MCPServer.ts              # Server initialization
+    ├── toolDefinitions.ts        # Tool schemas
+    ├── toolHandlers.ts           # Tool handler registry
+    └── responseCompressor.ts     # Brotli compression for large responses
 ```
+
+The file count of `src/` comes from `git ls-files src`. No `repo-tools map` metric gives this count.
+
+The other top-level folders hold no engine code:
+
+| Folder | Holds |
+|---|---|
+| `tests/` | The test suite |
+| `tools/` | Four helper programs: chunking, context compression, the dependency graph, and the migration from JSONL to SQLite |
+| `scripts/` | The bundle build, the bundle version check, the pack list check and the publish version guard |
+| `bundle/` | The committed plugin bundle `index.mjs` |
+| `skills/` | The `memory` skill |
+| `.claude-plugin/` | The plugin manifest |
+| `.claude/` | Slash commands and settings for Claude Code |
+| `.github/` | The CI and release workflows, the Dependabot settings and the review policies |
+| `docs/` | The architecture documents and the guides |
 
 ## Tool Categories (106 Total)
 
