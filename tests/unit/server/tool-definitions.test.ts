@@ -148,5 +148,21 @@ describe('toolDefinitions contract', () => {
       expect(stages).toContain('Phase 1:');
       expect(RELEASE_TAG.test(stages)).toBe(false);
     });
+
+    // `repo-tools ste` rejects a descriptive sentence of more than 25 words, and API.md keeps a copy
+    // of the description of each tool. A description with a longer sentence cannot be copied there.
+    describe('inspect_entity', () => {
+      const description = toolDefinitions.find(t => t.name === 'inspect_entity')?.description ?? '';
+
+      it('has no sentence of more than 25 words', () => {
+        const sentences = description.split(/(?<=\.)\s+/);
+        expect(sentences.filter(s => s.split(/\s+/).length > 25)).toEqual([]);
+      });
+
+      it('names what the snapshot holds and the error', () => {
+        const parts = ['observations', 'relations', 'tags', 'importance', 'timestamps', 'parentId', 'children', 'ancestors', 'not found'];
+        for (const part of parts) expect(description, part).toContain(part);
+      });
+    });
   });
 });

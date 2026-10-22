@@ -3424,7 +3424,7 @@ export const toolDefinitions: ToolDefinition[] = [
   },
   {
     name: 'inspect_entity',
-    description: 'Verbose snapshot of one entity: observations (resolved via ObservationManager so the column-store sidecar is consulted), outgoing + incoming relations, tags, importance, timestamps, parentId, immediate children, full ancestors. Errors when entity not found.',
+    description: 'Verbose snapshot of one entity. The snapshot lists observations, outgoing and incoming relations, tags, importance, timestamps, `parentId`, immediate children, and full ancestors. `ObservationManager` resolves the observations, so the column-store sidecar is consulted. The tool returns an error when the entity is not found.',
     inputSchema: {
       type: 'object',
       properties: {
