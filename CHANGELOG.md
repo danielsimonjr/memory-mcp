@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The `entryRoots` claim in `docs/architecture/` is 5, and the text next to it says why.** On this tree,
+  `repo-tools check` passes with version 2.2.5 and earlier and fails with 2.2.6 and later: `OVERVIEW.md` and
+  `DATAFLOW.md` claimed 2 entry roots, and the tool reports 5. Version 2.2.6 takes the files of a `tsc -p`
+  project as roots. The script `typecheck:tests` runs `tsc -p tsconfig.test.json`, and that tsconfig includes
+  `src/**/*`, so all five `src` files are roots. A copy of the tree without that script gives 2 roots,
+  `src/index.ts` and `src/server/MCPServer.ts`, which are the package entry points. The claim is now 5 in
+  `OVERVIEW.md`, `DATAFLOW.md` and `COMPONENTS.md` (a new row), and the sentence that repeated "two entry
+  roots" names the two package entry points and the three other roots. The claims now need repo-tools 2.2.6
+  or later; with 2.2.5 or earlier the check reports 2 against 5.
 - **`README.md` gives no test count and no coverage figure.** Four lines gave a count, and no two of them agreed.
   Lines 182 and 788 said 794 tests, and line 788 also said 37 files. Lines 832 and 940 said 967 tests in 47
   files. The suite that `npm test` runs has 971 tests in 47 files. Lines 182, 788 and 832 also gave a

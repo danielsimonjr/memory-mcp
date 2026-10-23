@@ -364,10 +364,15 @@ come from `tools/create-dependency-graph`, which reads `src/` and the tests. The
 |---|---|---|
 | totalSourceFiles | 63 | repo-tools map (whole repository) |
 | totalExports | 57 | repo-tools map (whole repository) |
+| entryRoots | 5 | repo-tools map (whole repository) |
 | reachableFiles | 5 | repo-tools map (whole repository) |
 | orphanedFiles | 0 | repo-tools map (whole repository) |
 | noImporterFileCount | 0 | repo-tools map (whole repository) |
 
-**`reachableFiles` is 5, far below `totalSourceFiles`. The low value is expected.** The two entry roots reach the server layer.
+**`reachableFiles` is 5, far below `totalSourceFiles`. The low value is expected.** The two package entry points reach the server layer.
+`entryRoots` is 5. Two roots are the package entry points: `src/index.ts` and `src/server/MCPServer.ts`.
+The other three roots are `src/server/responseCompressor.ts`, `src/server/toolDefinitions.ts` and `src/server/toolHandlers.ts`.
+The script `typecheck:tests` runs `tsc -p tsconfig.test.json`. That tsconfig includes `src/**/*`,
+so `repo-tools map` takes each `src` file as a root. Without the script, `entryRoots` is 2.
 The other files are the test suite and the tooling. Nothing imports them, because a runner starts them.
 `orphanedFiles` and `noImporterFileCount` are both 0, so the graph has no unexplained file.
