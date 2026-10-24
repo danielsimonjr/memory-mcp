@@ -16,6 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   change for the other two tools folders. Only the `node_modules/undici` entry of each lock file changes. On a clean
   install, `npm audit` reads 0 vulnerabilities in both folders; it read 1 high on the earlier lock files.
 
+- **Three tools folders compile again under TypeScript 7, and `compress-for-context` runs as an ES module.** The
+  `tsconfig.json` of `tools/chunking-for-files`, `tools/compress-for-context` and
+  `tools/migrate-from-jsonl-to-sqlite` set `moduleResolution` to `Node`. TypeScript 7 removed that option. `tsc`
+  stopped with TS5108, so `npm run build:ts` failed in each folder. TypeScript 7 also stopped loading `@types`
+  packages by default. A second error (TS2591 for `fs`, `path`, `Buffer` and `console`) was therefore hidden behind
+  the first. Each file now sets `module` and `moduleResolution` to `Node16` and `types` to `["node"]`, as
+  `tools/create-dependency-graph` already did. `Node16` emits the module format that the `type` field of each
+  `package.json` names. `tools/compress-for-context` declares `"type": "module"`. A `module` of `CommonJS` emits
+  CommonJS for it, and the compiled file stops with `exports is not defined in ES module scope`. `tsc --noEmit`
+  now exits 0 in all four tools folders.
+
 ## [12.10.1] - 2026-10-24
 
 ### Security
@@ -212,17 +223,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   decode `data`.
 
 ### Fixed
-
-- **Three tools folders compile again under TypeScript 7, and `compress-for-context` runs as an ES module.** The
-  `tsconfig.json` of `tools/chunking-for-files`, `tools/compress-for-context` and
-  `tools/migrate-from-jsonl-to-sqlite` set `moduleResolution` to `Node`. TypeScript 7 removed that option. `tsc`
-  stopped with TS5108, so `npm run build:ts` failed in each folder. TypeScript 7 also stopped loading `@types`
-  packages by default. A second error (TS2591 for `fs`, `path`, `Buffer` and `console`) was therefore hidden behind
-  the first. Each file now sets `module` and `moduleResolution` to `Node16` and `types` to `["node"]`, as
-  `tools/create-dependency-graph` already did. `Node16` emits the module format that the `type` field of each
-  `package.json` names. `tools/compress-for-context` declares `"type": "module"`. A `module` of `CommonJS` emits
-  CommonJS for it, and the compiled file stops with `exports is not defined in ES module scope`. `tsc --noEmit`
-  now exits 0 in all four tools folders.
 
 - **Vitest 5.0.5 stops the temp folder leak.** `vitest` and `@vitest/coverage-v8` move from 5.0.1
   to 5.0.5 in `bun.lock`, and their ranges in `package.json` rise to `^5.0.5`. Vitest 5.0.0,
