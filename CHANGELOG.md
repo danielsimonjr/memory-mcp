@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **A new CI job runs `repo-tools check` on the architecture documents, with the version pinned.** No other job read
+  `docs/architecture/`, so a claim that no longer matched the source turned no check red, and a release of `repo-tools`
+  moved the claims without any run. The job `architecture-docs claims (non-required)` in `typescript.yml` installs
+  `@danielsimonjr/repo-tools@2.3.0` and runs `repo-tools check . --docs=docs/architecture` on a bare checkout, on a pull
+  request and on a push to `main`. It is not a required check and it does not change branch protection. The pin moves
+  only in a pull request that also re-measures the documents. A planted `totalSourceFiles` claim of 64 against 63 makes
+  the same command exit 1, and the unchanged tree exits 0.
+
 - **The `entryRoots` claim in `docs/architecture/` is 5, and the text next to it says why.** On this tree,
   `repo-tools check` passes with version 2.2.5 and earlier and fails with 2.2.6 and later: `OVERVIEW.md` and
   `DATAFLOW.md` claimed 2 entry roots, and the tool reports 5. Version 2.2.6 takes the files of a `tsc -p`

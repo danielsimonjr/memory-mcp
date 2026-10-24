@@ -80,3 +80,26 @@ jobs:
         run: bun run test
         env:
           SKIP_BENCHMARKS: '1'
+
+  # Non-required on purpose. No other job reads the architecture documents, so a claim that drifts
+  # from the source turns no check red. This job reads the committed documents against the committed
+  # source and writes nothing. It needs no Bun and no `bun install`: the command runs on a bare
+  # checkout. The version is pinned in one place, so a new release of `repo-tools` cannot turn this
+  # check red on its own. Raise the pin in a pull request that also re-measures the documents. This
+  # job does not change branch protection. The check name says non-required so a reader does not
+  # mistake it for one of the required contexts.
+  architecture-docs-claims:
+    name: architecture-docs claims (non-required)
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    runs-on: ubuntu-latest
+    env:
+      REPO_TOOLS_VERSION: '2.3.0'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Install the pinned repo-tools
+        run: npm install --global @danielsimonjr/repo-tools@${REPO_TOOLS_VERSION}
+      - name: Fail when an architecture document claim no longer matches the source
+        run: repo-tools check . --docs=docs/architecture
