@@ -185,4 +185,4 @@ graph TD
 
 ---
 
-*Version*: 12.10.0
+*Version*: 12.10.1

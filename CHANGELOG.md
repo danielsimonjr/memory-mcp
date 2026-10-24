@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [12.10.1] - 2026-10-24
+
+### Security
+
+- **The server bundle carries the fixed MCP server SDK and zod.** `bun audit` reported 10 advisories on this tree
+  (5 high, 4 moderate, 1 low) and reports none after this change. `bun.lock` moves `@modelcontextprotocol/server`
+  and its dependency `@modelcontextprotocol/core` from 2.0.0 to 2.3.0 and `zod` from 4.6.5 to 4.6.6. Both are runtime
+  dependencies, so the new `bundle/index.mjs` contains them. `source-map-js` (1.2.1 to 1.2.2) and `vite` (8.1.5 to
+  8.1.6, with its `launch-editor`) are development dependencies, so no shipped file contains them. The declared ranges
+  (`^2.0.0` and `^4.6.5`) already admitted the fixed versions, so `package.json` changes only in its version.
+  - Server SDK, fixed in 2.3.0 (affected `>=2.0.0 <2.3.0`): GHSA-jm63-cq47-j5jp (high), GHSA-46jr-4wx8-v453
+    (high) and GHSA-rvq5-wwqv-78pq (moderate). Their titles name HTTP clients, HTTP requests and bearer
+    authentication. This server serves over stdio only (`serveStdio`), so the bundle held no path that those
+    titles describe; the dependency moves anyway.
+  - `zod`, fixed in 4.6.6: GHSA-mrhx-c7xc-m3w5 (high), memory exhaustion while validating oversized constrained
+    collections.
+  - Development dependencies: GHSA-68fv-2mgg-jv7q (high, `source-map-js`) and, in `vite` and `launch-editor`,
+    GHSA-587h-7wmj-h5pm (high), GHSA-698v-4r3x-3vcv, GHSA-r825-w8mm-5pxw and GHSA-rq7h-c2jc-7f22 (moderate), and
+    GHSA-9jrq-w75r-8gcw (low).
+  - The committed 12.10.0 bundle did not match the source of 12.10.0: it lacked two source changes that were
+    already merged, the shorter `inspect_entity` description and the reference index that follows the name of the
+    store (the handlers now return `ctx.refIndex`). The rebuilt bundle contains both. For a store called
+    `memory.db` or `memory.jsonl`, the old and the new code use the same file, `memory-ref-index.jsonl`.
+  - The plugin reaches this fix through its own version: `.claude-plugin/plugin.json` moves to 12.10.1, which is
+    the version the bundle reports as `serverInfo.version` and that `bun run check:bundle` compares.
+
 ### Changed
 
 - **A new CI job runs `repo-tools check` on the architecture documents, with the version pinned.** No other job read
