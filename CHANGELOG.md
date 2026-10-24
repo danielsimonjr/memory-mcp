@@ -178,6 +178,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Vitest 5.0.5 stops the temp folder leak.** `vitest` and `@vitest/coverage-v8` move from 5.0.1
+  to 5.0.5 in `bun.lock`, and their ranges in `package.json` rise to `^5.0.5`. Vitest 5.0.0,
+  5.0.1 and 5.0.2 never remove the root temp folder of a run: each run left one folder, with the
+  transformed modules in its `ssr/` subfolder, in the system temp directory. Measured with a fresh
+  install of each version: two runs of one test file leave two new folders with 5.0.0, 5.0.1 and
+  5.0.2, and none with 5.0.3, 5.0.4 and 5.0.5. Dev tooling only. The 971 tests, the build, the
+  typecheck and the pack check pass with 5.0.5.
 - **The reference index file follows the name of the store.** The handlers of `register_ref`,
   `resolve_ref`, `deregister_ref`, `list_refs` and the artifact tools wrote to a file with the
   literal name `memory-ref-index.jsonl`. The package `@danielsimonjr/memoryjs` names its own
