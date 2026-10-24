@@ -178,6 +178,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The two tools folders that still held `undici` 7.30.0 move to 7.30.1.** The lock files of
+  `tools/create-dependency-graph` and `tools/compress-for-context` named `undici` 7.30.0. The advisory
+  GHSA-xjj6-f33q-929c (excessive `Content-Encoding` values) covers the range from 7.18.0 up to, but not including,
+  7.30.1. In both folders `undici` is a development dependency of `@yao-pkg/pkg-fetch`. Dependabot proposed the same
+  change for the other two tools folders. Only the `node_modules/undici` entry of each lock file changes. On a clean
+  install, `npm audit` reads 0 vulnerabilities in both folders; it read 1 high on the earlier lock files.
+
 - **Vitest 5.0.5 stops the temp folder leak.** `vitest` and `@vitest/coverage-v8` move from 5.0.1
   to 5.0.5 in `bun.lock`, and their ranges in `package.json` rise to `^5.0.5`. Vitest 5.0.0,
   5.0.1 and 5.0.2 never remove the root temp folder of a run: each run left one folder, with the
