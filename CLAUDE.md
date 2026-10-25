@@ -167,10 +167,10 @@ New categories (v1.8.0/v1.9.0/Phase 14/Phase 15/Phase 16/v12.3.2/v12.5.0, bold a
 
 ## Test Structure
 
-47 test files, 967 tests, ~85% statement coverage (verified via `coverage/coverage-summary.json`: statements 85.76%, lines 87.05%, functions 85.84%, branches 70.91%). Core graph tests — and the bulk of coverage — live in the memoryjs package.
+48 test files, 1060 tests, ~85% statement coverage (verified via `coverage/coverage-summary.json`: statements 85.76%, lines 87.05%, functions 85.84%, branches 70.91%). Core graph tests — and the bulk of coverage — live in the memoryjs package.
 
 Tests are organized in three tiers:
-- **Unit** (`tests/unit/`): Isolated module tests (e.g., response compressor)
+- **Unit** (`tests/unit/`): Isolated module tests (e.g., response compressor). The API.md Returns gate (`tests/unit/api-docs/`) compares each Returns block of `docs/architecture/API.md` with the return type of the handler.
 - **Integration** (`tests/integration/`): MCP server lifecycle tests
 - **E2E** (`tests/e2e/tools/`): Per-category tool tests — one file per tool group (entity, relation, observation, governance, freshness, dream, entropy, etc.) plus `handler-smoke.test.ts` for broad handler coverage
 - **Root** (`tests/`): Core graph operations (`knowledge-graph.test.ts`) and storage path handling (`file-path.test.ts`)

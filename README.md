@@ -830,7 +830,7 @@ memory-mcp/
 │       ├── toolHandlers.ts                 # Handler registry: validate args → call manager → format response
 │       └── responseCompressor.ts           # Brotli + base64 wrapper for >256KB payloads
 ├── tests/                                  # Test suite
-│   ├── unit/                               # Unit tests (response compressor, tool defs, validate-fact handler)
+│   ├── unit/                               # Unit tests (response compressor, tool defs, validate-fact handler, API.md Returns gate)
 │   ├── integration/                        # MCP server lifecycle
 │   ├── e2e/tools/                          # Per-category tool tests + handler-smoke broad coverage
 │   ├── knowledge-graph.test.ts             # Core graph operations (smoke against memoryjs)
@@ -854,16 +854,18 @@ memory-mcp/
 ### Dependencies
 
 **Production** (3 direct deps — everything else is transitive via memoryjs):
-- `@danielsimonjr/memoryjs`: ^1.15.0 — knowledge graph engine (storage, managers, search, embeddings, RBAC, OCC, bitemporal, causal, etc.)
-- `@modelcontextprotocol/sdk`: ^1.21.1 — MCP protocol implementation
-- `zod`: ^3.24.1 — runtime input validation (schemas re-exported from memoryjs)
+- `@danielsimonjr/memoryjs`: ^4.2.0 — knowledge graph engine (storage, managers, search, embeddings, RBAC, OCC, bitemporal, causal, etc.)
+- `@modelcontextprotocol/server`: ^2.0.0 — MCP protocol implementation (`Server` and the stdio transport)
+- `zod`: ^4.6.5 — runtime input validation (schemas re-exported from memoryjs)
 
 **Development:**
-- `typescript`: ^5.6.2
-- `vitest`: ^4.0.13
-- `@vitest/coverage-v8`: ^4.0.13
+- `typescript`: ^7.0.2
+- `typescript6`: npm:typescript@6.0.3 — the `createProgram` API for the API.md Returns gate (version 7 of `typescript` has none)
+- `vitest`: ^5.0.5
+- `@vitest/coverage-v8`: ^5.0.5
+- `esbuild`: ^0.28.2 — builds the plugin bundle (`scripts/build-bundle.mjs`)
 - `shx`: ^0.4.0 — cross-platform shell commands for `clean` script
-- `@types/node`: ^22
+- `@types/node`: ^26
 
 > Note: `better-sqlite3`, `async-mutex`, `@danielsimonjr/workerpool`, and the embedding providers (OpenAI / `@xenova/transformers`) are **transitive deps via `@danielsimonjr/memoryjs`**. They are not listed in this repo's `package.json`.
 
