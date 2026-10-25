@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **`bun run check:bundle-content` compares the committed bundle with a fresh build.** The plugin runs
+  `bundle/index.mjs`. The older check, `check:bundle`, reads only the version that the bundle reports, so a
+  bundle that lags the source passes. The committed 12.10.0 bundle lacked two merged changes and the version
+  check passed. The new script `scripts/check-bundle-content.mjs` runs `scripts/build-bundle.mjs` and writes the
+  output to a temp file. The script turns CRLF into LF in the committed file, because a Windows checkout can convert the
+  line endings. Then the script compares the two files. A mismatch names the first differing line and the command that
+  fixes it. The check runs in `typescript.yml` and `publish.yml` after the dependency install. A dependency update
+  now needs a rebuilt bundle in the same pull request. A fresh build of the current tree equals the committed
+  blob byte for byte. The check fails on the 12.10.0 bundle (first difference at line 435).
+
 - **A test compares each Returns block of `docs/architecture/API.md` with its handler.** The test
   `tests/unit/api-docs/api-returns.test.ts` reads the 71 Returns blocks. For each block, the test
   derives the TypeScript type of the value that the handler returns. The test uses the TypeScript

@@ -57,6 +57,10 @@ jobs:
         run: bun run check:bundle
       - name: Install dependencies
         run: bun install --frozen-lockfile
+      # The version check above cannot see a bundle that lags the source. This step builds the bundle again
+      # and compares it with the committed file. It needs the installed dependencies.
+      - name: Committed bundle equals a fresh build
+        run: bun run check:bundle-content
       - name: Type check
         run: bun run typecheck
       # tsconfig.json excludes tests, and vitest strips types, so only this step reads a type error in a test file.

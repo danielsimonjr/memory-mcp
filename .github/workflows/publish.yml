@@ -77,6 +77,10 @@ jobs:
       - name: Install dependencies
         if: steps.registry.outputs.names != ''
         run: bun install --frozen-lockfile
+      # The plugin runs the committed bundle. A bundle that lags the source reports the right version.
+      - name: Refuse a committed bundle that differs from a fresh build
+        if: steps.registry.outputs.names != ''
+        run: bun run check:bundle-content
       - name: Typecheck
         if: steps.registry.outputs.names != ''
         run: bun run typecheck

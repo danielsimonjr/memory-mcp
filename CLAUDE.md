@@ -14,6 +14,7 @@ bun run watch         # Watch mode for development
 bun run clean         # Remove dist/ directory
 bun run check:pack    # Fail when the npm tarball holds a build file that has no source
 bun run check:bundle  # Fail when the committed bundle reports a version that differs from package.json
+bun run check:bundle-content  # Fail when the committed bundle differs from a fresh build (run bun install first)
 
 # Run a single test file
 bunx vitest run tests/e2e/tools/entity-tools.test.ts
@@ -167,7 +168,7 @@ New categories (v1.8.0/v1.9.0/Phase 14/Phase 15/Phase 16/v12.3.2/v12.5.0, bold a
 
 ## Test Structure
 
-48 test files, 1060 tests, ~85% statement coverage (verified via `coverage/coverage-summary.json`: statements 85.76%, lines 87.05%, functions 85.84%, branches 70.91%). Core graph tests — and the bulk of coverage — live in the memoryjs package.
+49 test files, 1077 tests, ~85% statement coverage (verified via `coverage/coverage-summary.json`: statements 85.71%, lines 87.01%, functions 85.84%, branches 70.84%). Core graph tests — and the bulk of coverage — live in the memoryjs package.
 
 Tests are organized in three tiers:
 - **Unit** (`tests/unit/`): Isolated module tests (e.g., response compressor). The API.md Returns gate (`tests/unit/api-docs/`) compares each Returns block of `docs/architecture/API.md` with the return type of the handler.
@@ -211,7 +212,7 @@ Release steps:
 3. Merge the release pull request. Push the tag `vX.Y.Z` on the merge commit.
 4. Read the registry back for both names: `npm view <name>@X.Y.Z dist.integrity dist.fileCount`. Install the package in an empty folder and start it.
 
-Two checks run in CI and before every publish. `bun run check:pack` fails when the tarball holds a file that is not package metadata and has no source. `bun run check:bundle` fails when the bundle that `.mcp.json` starts reports a version that differs from `package.json`.
+Three checks run in CI and before every publish. `bun run check:pack` fails when the tarball holds a file that is not package metadata and has no source. `bun run check:bundle` fails when the bundle that `.mcp.json` starts reports a version that differs from `package.json`. `bun run check:bundle-content` builds the bundle again and fails when it differs from the committed `bundle/index.mjs`. It runs after `bun install --frozen-lockfile`. A dependency update also changes the bundle, so rebuild the bundle in the same pull request.
 
 When the secret is missing, publish by hand from a fresh clone:
 
