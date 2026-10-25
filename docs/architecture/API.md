@@ -5206,7 +5206,7 @@ come from `tools/create-dependency-graph`, which reads `src/` and the tests. The
 
 | Claim | Value | Source |
 |---|---|---|
-| totalExports | 78 | repo-tools map (whole repository) |
+| totalExports | 82 | repo-tools map (whole repository) |
 | unusedExportsCount | 33 | repo-tools map (whole repository) |
 
 **`unusedExportsCount` is not a deletion list.** The count covers exports that have no importer inside this repository.

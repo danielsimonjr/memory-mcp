@@ -11,7 +11,7 @@
 | Metric | Count |
 |--------|-------|
 | Total Source Files | 5 |
-| Total Test Files | 48 |
+| Total Test Files | 49 |
 | Source Files with Tests | 5 |
 | Source Files without Tests | 0 |
 | Coverage | 100.0% |
@@ -79,6 +79,7 @@
 | `api-docs/api-returns.test.ts` | 1 files |
 | `unit/create-dependency-graph-clause-items.test.ts` | 0 files |
 | `unit/response-compressor.test.ts` | 1 files |
+| `scripts/check-bundle-content.test.ts` | 0 files |
 | `scripts/check-bundle-version.test.ts` | 0 files |
 | `scripts/check-pack-list.test.ts` | 0 files |
 | `scripts/publish-version-guard.test.ts` | 0 files |
