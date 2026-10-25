@@ -41,6 +41,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   CommonJS for it, and the compiled file stops with `exports is not defined in ES module scope`. `tsc --noEmit`
   now exits 0 in all four tools folders.
 
+### Security
+
+- **The last three GitHub Actions references that used a tag are pinned to a commit.** The workflows
+  `claude.yml` and `typescript.yml` named `actions/checkout@v7.0.1` and `actions/setup-node@v7`. They now name
+  the commits of `actions/checkout` v7.0.1 and `actions/setup-node` v7.1.0, each with its version in a comment.
+  Every `uses:` line in `.github/workflows` now names a 40-character commit. Dependabot keeps the pins current.
+
 ## [12.10.1] - 2026-10-24
 
 ### Security
