@@ -21,7 +21,8 @@
  * Exit 0 when the list is clean, 1 otherwise.
  */
 import { execSync } from 'node:child_process';
-import { existsSync, readFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -104,19 +105,41 @@ export function findPackProblems({
 }
 
 /**
- * Lists the paths that `npm pack` would put in the tarball, without writing a tarball.
- * Lifecycle scripts stay off, so the check never rebuilds `dist/`.
+ * Lists the paths that `npm pack` would put in the tarball.
+ *
+ * The check packs a copy of the package, not the package itself. The copy holds package.json
+ * without `scripts`, the metadata files that npm reads, and each entry of `files`. Some npm versions
+ * run the `prepare` script during `npm pack` even with --ignore-scripts. In the repository, that
+ * script removes `dist/`, so a check that packed the real folder would delete the orphan it reports.
+ * The copy has no scripts, so no lifecycle runs and the real output is never touched.
  *
  * @param {string} root
  * @returns {string[]}
  */
 function packedPaths(root) {
-  const output = execSync('npm pack --dry-run --json --ignore-scripts', {
-    cwd: root,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
-  });
-  return JSON.parse(output)[0].files.map((file) => file.path);
+  const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  const copy = mkdtempSync(join(tmpdir(), 'pack-check-'));
+  try {
+    const { scripts: _scripts, ...manifest } = pkg;
+    writeFileSync(join(copy, 'package.json'), JSON.stringify(manifest, null, 2));
+    for (const name of readdirSync(root)) {
+      if (name !== 'package.json' && (PACKAGE_FILE.test(name) || name === '.npmignore')) {
+        cpSync(join(root, name), join(copy, name));
+      }
+    }
+    for (const entry of pkg.files ?? []) {
+      const source = join(root, entry);
+      if (existsSync(source)) cpSync(source, join(copy, entry), { recursive: true });
+    }
+    const output = execSync('npm pack --dry-run --json --ignore-scripts', {
+      cwd: copy,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'pipe'],
+    });
+    return JSON.parse(output)[0].files.map((file) => file.path);
+  } finally {
+    rmSync(copy, { recursive: true, force: true });
+  }
 }
 
 function parseArgs(argv, env) {

@@ -33,6 +33,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **`check:pack` no longer deletes the orphan files it reports.** Some npm versions run the `prepare` script
+  during `npm pack`, even with `--ignore-scripts`. `prepare` removes `dist/`, so the check could delete the
+  stale build file it was meant to report. Under `npm run` and `npm exec`, an npm 10 on the PATH did this, and
+  the check then passed. The check now packs a temporary copy of the package that has no scripts. The new test
+  `leaves the orphan in place when the package has a prepare script that cleans dist` fails under `npm exec`
+  before this change.
+
 - **The two tools folders that still held `undici` 7.30.0 move to 7.30.1.** The lock files of
   `tools/create-dependency-graph` and `tools/compress-for-context` named `undici` 7.30.0. The advisory
   GHSA-xjj6-f33q-929c (excessive `Content-Encoding` values) covers the range from 7.18.0 up to, but not including,

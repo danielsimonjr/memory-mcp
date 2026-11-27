@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -155,6 +155,28 @@ describe('check-pack-list command', () => {
     const result = run(root);
     expect(result.status).toBe(1);
     expect(result.stderr).toContain('main-missing');
+  });
+
+  it('leaves the orphan in place when the package has a prepare script that cleans dist', () => {
+    // npm 10 runs `prepare` during `npm pack` even with --ignore-scripts. A prepare that cleans dist
+    // would delete the orphan before the list is read, so the check must not run lifecycle scripts.
+    const root = fixture();
+    writeFileSync(
+      join(root, 'package.json'),
+      JSON.stringify({
+        name: 'fixture-pack',
+        version: '1.0.0',
+        main: './dist/index.js',
+        files: ['dist'],
+        scripts: { prepare: `node -e "require('fs').rmSync('dist',{recursive:true,force:true})"` },
+      }),
+    );
+    mkdirSync(join(root, 'dist', 'old'));
+    writeFileSync(join(root, 'dist', 'old', 'leftover.js'), 'export {};\n');
+    const result = run(root);
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('dist/old/leftover.js');
+    expect(existsSync(join(root, 'dist', 'old', 'leftover.js'))).toBe(true);
   });
 
   it('exits 0 when an allow pattern names the extra file', () => {
